@@ -1,0 +1,137 @@
+
+import ba
+import _ba
+import settings
+import os
+import random
+import json
+from ba._generated.enums import SpecialChar
+from typing import List, Sequence, Optional, Dict, Any
+
+
+correct_answer = None
+answered_by = None
+base_dir = os.path.join(_ba.env()['python_directory_user'], "coinsystem" + os.sep
+)
+bankfile = base_dir+"bank.json"
+questionslist = settings.currency["settings"]["askquestions"]["questions"]
+
+def ask_question():
+    global answered_by
+    global correct_answer
+    keys = []
+    for x in questionslist:
+        keys.append(x)
+    question = keys[random.randrange(len(keys))]
+    correct_answer = questionslist[question]
+    if question == 'additions':
+        a = random.randrange(100, 999)
+        b = random.randrange(10, 99)
+        correct_answer = str(a + b)
+        question = f'What is {str(a)} + {str(b)}?'
+    elif question == 'multiplication':
+        a = random.randrange(100, 999)
+        availableb = [0, 1, 2, 5, 10]
+        b = availableb[random.randrange(4)]
+        correct_answer = str(a * b)
+        question = f'What is {str(a)} x {str(b)}?'
+    _ba.chatmessage(question, color=(1, 1, 0))
+    answered_by = None
+    return
+
+
+def check_answer(msg, clientID):
+    global answered_by
+    if correct_answer == new_answer:
+        if answered_by is not None:
+            _ba.chatmessage(f'Already awarded to {answered_by}.')
+        else:
+            ros = _ba.get_game_roster()
+            for i in ros:
+                if (i is not None) and (i != {}) and (i['client_id'] == clientID):
+                    answered_by = i['players'][0]['name']
+                    account_id = i['account_id']
+            try:
+                _ba.chatmessage(f"Congratulations {answered_by}!, You won {_ba.charstr(SpecialChar.TICKET)}10.")
+                add_coin_by_pbid(account_id, 10)
+            except:
+                pass
+    return
+
+def convert_alias(cmd):
+    # also using this as a log for commands created
+    if cmd in ["/gloves", "/gl", "/g"]:
+        return "gloves"
+        
+    elif cmd in ["/slow", "/sm"]:
+        return "sm"
+
+    elif cmd in ["/end", "/e"]:
+        return "end"
+
+
+def get_command_price(cmd):
+    cnv_cmd = convert_alias(cmd)
+    if cnv_cmf is not None:
+        if cnv_cmd in settings.currency["settings"]["shop"]["commands"]["prices"]: #very long xd
+            return int(settings.currency["settings"]["shop"]["commands"]["prices"][cnv_cmd])
+    else:
+        _ba.playsound(_ba.getsound("error"))
+        return None
+
+
+def add_coins_by_pbid(account_id, amount):
+    if os.path.exists(bankfile):
+        with open(bankfile) as f:
+            bank = json.loads(f.read())
+    else:
+        bank = {}
+    if account_id not in bank:
+        bank[account_id] = {}
+        bank[account_id]["cash"] = 0
+        bank[account_id]["dc_id"] = 0
+    bank[account_id]["cash"] += amount
+    with open(bankfile, 'w') as f:
+        f.write(json.dumps(bank, indent=4))
+    if amount > 0:
+        ba.playsound(ba.getsound('cashRegister'))
+
+
+def get_coins_by_pbid(account_id):
+    if os.path.exists(bankfile):
+        with open(bankfile, 'r') as f:
+            coins = json.loads(f.read())
+        if account_id in coins:
+            return coins[account_id]["cash"]
+    return 0
+
+def add_coins_by_dcid(dcid, amount):
+    if os.path.exists(bankfile):
+        with open(bankfile) as f:
+            bank = json.loads(f.read())
+    for x in bank:
+        if bank[x]["dc_id"] == dcid:
+            bank[x]["cash"] += amount
+            with open(bankfile, 'w') as f:
+                f.write(json.dumps(bank, indent=4))
+        else:
+            return None
+
+def get_coins_by_dcid(dcid):
+    if os.path.exists(bankfile):
+        with open(bankfile) as f:
+            bank = json.loads(f.read())
+    else:
+        bank = {}
+    for x in bank:
+        if bank[x]["dc_id"] == dcid:
+            bal = bank[x]["cash"]
+            return bal
+        else:
+            return None
+
+
+cstimer = None
+def run_questions():
+    global cstimer
+    cstimer = ba.timer(20, askQuestion, repeat=True)
