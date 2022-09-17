@@ -41,7 +41,7 @@ class vip:
         confirmation = "Command Executed"
         color = (1, 1, 0)
 
-        with ba.Context(activity)
+        with ba.Context(activity):
             if x in ["/head", "/he"]:
                 try:
                     if z == []:
