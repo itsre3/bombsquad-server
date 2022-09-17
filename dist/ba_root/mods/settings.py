@@ -4,7 +4,7 @@
 
 
 # ===== Coinsystem Settings ===== 
-def currency();
+def currency():
     return {
         "enabled": True,
         "settings": {
