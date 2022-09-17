@@ -1,3 +1,4 @@
+#pylint:disable=E0101
 import ba
 import _ba
 import settings
@@ -10,35 +11,34 @@ sett = settings.get_settings_data()
 
 class check_perms:
     def __init__(self,
-                 memssage: str,
-                 client_id: int
-                 ):
-         
+                 message: str,
+                 client_id: int):
+        self.message = message
+        self.client_id = client_id
         if not sett["chat"]["enabled"]:
             return None
         
-        
         for i in _ba.get_game_roster():
             if i["client_id"] == client_id:
-                acc_id = i["account_id"]
+                self.acc_id = i["account_id"]
         # start the main 
-        on_mute = self.check_mute(acc_id)
+        on_mute = self.check_mute(self.acc_id)
         if not on_mute:
-            if message.startswith("/"):
+            if self.message.startswith("/"):
                 if sett["chat"]["settings"]["cht_cmd"]:
-                    if self.permissions(acc_id, "owner"):
-                        return chatcmd.owner(msg=message, clid=client_id, acid=acc_id)
-                    elif self.permissions(acc_id, "admin"):
-                        return chatcmd.admin(msg=message, clid=client_id, acid=acc_id)
-                    elif self.permissions(acc_id, "vip"):
-                        return chatcmd.vip(msg=message, clid=client_id, acid=acc_id)
+                    if self.permissions(self.acc_id, "owner"):
+                        return chatcmd.owner(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                    elif self.permissions(self.acc_id, "admin"):
+                        return chatcmd.admin(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                    elif self.permissions(self.acc_id, "vip"):
+                        return chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
                     else:
-                        return chatcmd.normal(msg=message, clid=client_id, acid=acc_id)
+                        return chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
                 else:
-                    ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[client_id])
+                    ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
                     _ba.playsound(_ba.getsound("error"))
             else:
-                return message
+                return self.message
         
     def check_mute(self, acc_id):
         #profile = profile.get_player_profile(acc_id)
@@ -59,7 +59,7 @@ class check_perms:
             if acctid in perms.vip:
                 return True
             
-            elif sett["currency"]["enabled"] and self.coinsytem(acctid):
+            elif sett["currency"]["enabled"] and self.coinsystem(acctid):
                 return True
             
 
@@ -69,8 +69,8 @@ class check_perms:
         elif not sett["currency"]["settings"]["shop"][" commands"]["enabled"]:
             return False
         # check the value of the command and run transaction
-        new_msg = message.split(" ")[0]
-        amount = coinsystem.get_command_price(newmsg)
+        new_msg = self.message.split(" ")[0]
+        amount = coinsystem.get_command_price(new_msg)
         cash_owned = coinsystem.get_coins_by_pbid(acctid)
         try:
             if cash_owned >= amount:

@@ -12,7 +12,7 @@ from .cmd_files import newfly as nfly
 if TYPE_CHECKING:
     from typing import Union, Sequence
 
-class normal:
+class normal(object):
     def __init__(self, msg, clid, acid):
         x = msg.split(' ')[0]
         z = msg.split(' ', 1)[1:5]
@@ -32,7 +32,7 @@ class normal:
                 
             
 
-class vip:
+class vip(object):
     def __init__(self, msg, clid, acid):
         x = msg.split(' ')[0]
         z = msg.split(' ', 1)[1:5]
@@ -267,7 +267,7 @@ class vip:
              
 
 
-class admin:
+class admin(object):
     def __init__(self, msg, clid, acid):
         x = msg.split(' ')[0]
         z = msg.split(' ', 1)[1:5]
@@ -306,7 +306,7 @@ class admin:
 
 
 
-class owner:
+class owner(object):
     def __init__(self, msg, clid, acid):
         x = msg.split(' ')[0]
         z = msg.split(' ', 1)[1:5]

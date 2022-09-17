@@ -1,4 +1,8 @@
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import ba
 import _ba
 import settings
@@ -6,7 +10,8 @@ import os
 import random
 import json
 from ba._generated.enums import SpecialChar
-from typing import List, Sequence, Optional, Dict, Any
+if TYPE_CHECKING:
+    from typing import List, Sequence, Optional, Dict, Any
 
 sett = settings.get_settings_data()
 correct_answer = None
@@ -42,6 +47,7 @@ def ask_question():
 
 def check_answer(msg, clientID):
     global answered_by
+    new_answer = msg
     if correct_answer == new_answer:
         if answered_by is not None:
             _ba.chatmessage(f'Already awarded to {answered_by}.')
@@ -53,7 +59,7 @@ def check_answer(msg, clientID):
                     account_id = i['account_id']
             try:
                 _ba.chatmessage(f"Congratulations {answered_by}!, You won {_ba.charstr(SpecialChar.TICKET)}10.")
-                add_coin_by_pbid(account_id, 10)
+                add_coins_by_pbid(account_id, 10)
             except:
                 pass
     return
@@ -72,7 +78,7 @@ def convert_alias(cmd):
 
 def get_command_price(cmd):
     cnv_cmd = convert_alias(cmd)
-    if cnv_cmf is not None:
+    if cnv_cmd is not None:
         if cnv_cmd in sett["currency"]["settings"]["shop"]["commands"]["prices"]: #very long xd
             return int(sett["currency"]["settings"]["shop"]["commands"]["prices"][cnv_cmd])
     else:
@@ -134,4 +140,4 @@ def get_coins_by_dcid(dcid):
 cstimer = None
 def run_questions():
     global cstimer
-    cstimer = ba.timer(20, askQuestion, repeat=True)
+    cstimer = ba.timer(20, ask_question, repeat=True)
