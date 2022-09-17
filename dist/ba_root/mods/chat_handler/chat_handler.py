@@ -25,7 +25,7 @@ class check_perms:
         on_mute = self.check_mute(acc_id)
         if not on_mute:
             if message.startswith("/"):
-                if sett["chat"]["settings"]["cht_cmds"]:
+                if sett["chat"]["settings"]["cht_cmd"]:
                     if self.permissions(acc_id, "owner"):
                         return chatcmd.owner(msg=message, clid=client_id, acid=acc_id)
                     elif self.permissions(acc_id, "admin"):
