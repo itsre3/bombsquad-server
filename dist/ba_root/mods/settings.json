@@ -1,0 +1,65 @@
+{
+    "currency": {
+        "enabled": true,
+        "settings": {
+            "askquestions": {
+                "enabled": false,
+                "questiondelay": 30,
+                "questions": {
+                    "Who is the owner of this server?": "smoothy",
+                    "Who is the editor of this server?": "smoothy",
+                    "Have you subscribed to Hey Smoothy YouTube?": "maybe",
+                    "multiplications": 6,
+                    "additions": 5
+                }
+            },
+            "shop": {
+                "roles": {
+                    "enabled": true,
+                    "prices": {
+                        "owner": 100000,
+                        "admin": 70000,
+                        "vip": 50000
+                    }
+                },
+                "characters": {
+                    "enabled": true,
+                    "prices": {
+                        "Kronk": 150,
+                        "Zoe": 250,
+                        "Jack Morgan": 350,
+                        "Mel": 450,
+                        "Snake Shadow": 550,
+                        "Bones": 650,
+                        "Bearnard": 700,
+                        "Agent Johnson": 800,
+                        "Frosty": 850,
+                        "Pascal": 900,
+                        "Grumbledorf": 950,
+                        "B-9000": 1000,
+                        "Easter Bunny": 1050,
+                        "Taobao Mascot": 1150,
+                        "Santa Claus": 900
+                    }
+                },
+                "commands": {
+                    "enabled": true,
+                    "prices": {
+                        "gloves": 50,
+                        "gm": 100,
+                        "sm": 100,
+                        "end": 100
+                    }
+                }
+            }
+        }
+    },
+    "chat": {
+        "enabled": true,
+        "settings": {
+            "cht_cmd": {
+                "enabled": true
+            }
+        }
+    }
+}

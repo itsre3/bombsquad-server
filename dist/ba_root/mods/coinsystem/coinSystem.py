@@ -8,13 +8,13 @@ import json
 from ba._generated.enums import SpecialChar
 from typing import List, Sequence, Optional, Dict, Any
 
-
+sett = settings.get_settings_data()
 correct_answer = None
 answered_by = None
 base_dir = os.path.join(_ba.env()['python_directory_user'], "coinsystem" + os.sep
 )
 bankfile = base_dir+"bank.json"
-questionslist = settings.currency["settings"]["askquestions"]["questions"]
+questionslist = sett["currency"]["settings"]["askquestions"]["questions"]
 
 def ask_question():
     global answered_by
@@ -73,8 +73,8 @@ def convert_alias(cmd):
 def get_command_price(cmd):
     cnv_cmd = convert_alias(cmd)
     if cnv_cmf is not None:
-        if cnv_cmd in settings.currency["settings"]["shop"]["commands"]["prices"]: #very long xd
-            return int(settings.currency["settings"]["shop"]["commands"]["prices"][cnv_cmd])
+        if cnv_cmd in sett["currency"]["settings"]["shop"]["commands"]["prices"]: #very long xd
+            return int(sett["currency"]["settings"]["shop"]["commands"]["prices"][cnv_cmd])
     else:
         _ba.playsound(_ba.getsound("error"))
         return None

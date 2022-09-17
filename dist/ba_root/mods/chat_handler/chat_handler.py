@@ -6,14 +6,16 @@ from . import chat_commands as chatcmd
 import coinsystem
 
 
+sett = settings.get_settings_data()
+
 class check_perms:
     def __init__(self,
                  memssage: str,
                  client_id: int
                  ):
          
-        if not settings.cht["enabled"]:
-            return
+        if not sett["chat"]["enabled"]:
+            return None
         
         
         for i in _ba.get_game_roster():
@@ -23,7 +25,7 @@ class check_perms:
         on_mute = self.check_mute(acc_id)
         if not on_mute:
             if message.startswith("/"):
-                if settings.cht["settings"]["cht_cmds"]:
+                if sett["chat"]["settings"]["cht_cmds"]:
                     if self.permissions(acc_id, "owner"):
                         return chatcmd.owner(msg=message, clid=client_id, acid=acc_id)
                     elif self.permissions(acc_id, "admin"):
@@ -44,7 +46,7 @@ class check_perms:
         #     return True
         return False
 
-    def permissions(acctid, toc):
+    def permissions(self, acctid, toc):
         if toc == "owner" and acctid in perms.owner:
             return True
         
@@ -57,14 +59,14 @@ class check_perms:
             if acctid in perms.vip:
                 return True
             
-            elif settings.currency["enabled"] and self.coinsytem(acctid):
+            elif sett["currency"]["enabled"] and self.coinsytem(acctid):
                 return True
             
 
-    def coinsystem(acctid: str):
-        if not settings.currency["enabled"]:
+    def coinsystem(self, acctid: str):
+        if not sett["currency"]["enabled"]:
             return False
-        elif not settings.currency["settings"]["shop"][" commands"]["enabled"]:
+        elif not sett["currency"]["settings"]["shop"][" commands"]["enabled"]:
             return False
         # check the value of the command and run transaction
         new_msg = message.split(" ")[0]

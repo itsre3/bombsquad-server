@@ -1,73 +1,40 @@
 
-# Default settings file. Enable and disable
-# unwanted stuff and change values of items
+# This block of code here is from bcs scripts
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from functools import lru_cache
+
+import json
+import _ba
+
+if TYPE_CHECKING:
+    pass
 
 
-# ===== Coinsystem Settings ===== 
-def currency():
-    return {
-        "enabled": True,
-        "settings": {
-            "askquestions": {
-                "enabled": False,
-                "questiontimer": 20,
-                "questions": {
-                    "Who is the owner of this server?": "smoothy",
-                    "Who is the editor of this server?": "smoothy",
-                    "Have you subscribed to Hey Smoothy YouTube?": "maybe",
-                    "multiplications": None,
-                    "additions": None
-                }
-            },
-            "shop": {
-                "roles": {
-                    "enabled": True,
-                    "prices": {
-                        "owner": 100000,
-                        "admin": 70000,
-                        "vip": 50000
-                    }
-                },
-                "characters": {
-                    "enabled": True,
-                    "prices": {
-                        "Kronk": 150,
-                        "Zoe": 250,
-                        "Jack Morgan": 350,
-                        "Mel": 450,
-                        "Snake Shadow": 550,
-                        "Bones": 650,
-                        "Bearnard": 700,
-                        "Agent Johnson": 800,
-                        "Frosty": 850,
-                        "Pascal": 900,
-                        "Grumbledorf": 950,
-                        "B-9000": 1000,
-                        "Easter Bunny": 1050,
-                        "Taobao Mascot": 1150,
-                        "Santa Claus": 900
-                    }
-                },
-                "commands": {
-                    "enabled": True,
-                    "prices": {
-                        "gloves": 50,
-                        "gm": 100,
-                        "sm": 100,
-                        "end": 100
-                    }
-                }
-            }
-        }
-    }
+SETTINGS_PATH = _ba.env().get("python_directory_user", "") + "/settings.json"
 
-# ===== Chat commands =====
-def cht():
-    return {
-        "enabled": True,
-        "settings": {
-            "cht_cmds": {
-                "enabled": True
-            }
-        }
-    }
+
+@lru_cache(maxsize=None)
+def get_settings_data() -> dict:
+    """Returns the dictionary of settings related to the server.
+
+    Returns
+    -------
+    dict
+        settings related to server
+    """
+    with open(SETTINGS_PATH, mode="r", encoding="utf-8") as data:
+        return json.load(data)
+
+
+def commit(data: dict) -> None:
+    """Commits the data in setting file.
+
+    Parameters
+    ----------
+    data : dict
+            data to be commited
+    """
+    with open(SETTINGS_PATH, mode="w", encoding="utf-8") as setting_file:
+        json.dump(data, setting_file, indent=4)
