@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import _ba
 import ba
-from cha_handler import chat_handler
+from chat_handler import chat_handler
 
 
 if TYPE_CHECKING:
