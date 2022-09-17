@@ -16,7 +16,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import _ba
-import hooker as hk
+#import hooker as hk
 
 if TYPE_CHECKING:
     from typing import Sequence, Any
@@ -342,7 +342,8 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     """
     #del client_id  # Unused by default.
     #return msg
-    return hk.filter_chat_message(msg, client_id)
+    import hooker
+    return hooker.filter_chat_message(msg, client_id)
 
 
 def local_chat_message(msg: str) -> None:
