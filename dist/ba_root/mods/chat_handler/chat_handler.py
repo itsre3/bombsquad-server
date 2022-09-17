@@ -38,7 +38,7 @@ class check_perms:
                     ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
                     _ba.playsound(_ba.getsound("error"))
             else:
-                return None
+                return self.message
         
     def check_mute(self, acc_id):
         #profile = profile.get_player_profile(acc_id)
