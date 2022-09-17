@@ -69,3 +69,12 @@ cht = {
         }
     }
 }
+
+
+def currency():
+    c_data = currency
+    return c_data
+    
+def cht():
+    cht_data = cht
+    return cbt_data
