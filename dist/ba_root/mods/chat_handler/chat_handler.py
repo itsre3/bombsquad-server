@@ -22,23 +22,27 @@ class check_perms:
             if i["client_id"] == client_id:
                 self.acc_id = i["account_id"]
         # start the main 
-        on_mute = self.check_mute(self.acc_id)
-        if not on_mute:
-            if self.message.startswith("/"):
-                if sett["chat"]["settings"]["cht_cmd"]:
-                    if self.permissions(self.acc_id, "owner"):
-                        return chatcmd.owner(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                    elif self.permissions(self.acc_id, "admin"):
-                        return chatcmd.admin(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                    elif self.permissions(self.acc_id, "vip"):
-                        return chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
+        try:
+            on_mute = self.check_mute(self.acc_id)
+            if not on_mute:
+                if self.message.startswith("/"):
+                    if sett["chat"]["settings"]["cht_cmd"]:
+                        if self.permissions(self.acc_id, "owner"):
+                            return chatcmd.owner(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                        elif self.permissions(self.acc_id, "admin"):
+                            return chatcmd.admin(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                        elif self.permissions(self.acc_id, "vip"):
+                            return chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                        else:
+                            return chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
                     else:
-                        return chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                        ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
+                        _ba.playsound(_ba.getsound("error"))
                 else:
-                    ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
-                    _ba.playsound(_ba.getsound("error"))
-            else:
-                return self.message
+                    return self.message
+            return None
+        except:
+            pass
         
     def check_mute(self, acc_id):
         #profile = profile.get_player_profile(acc_id)

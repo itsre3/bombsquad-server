@@ -264,7 +264,10 @@ class vip(object):
                         ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                 except:
                     pass
-             
+
+            else:
+                normal(msg, clid, acid)
+
 
 
 class admin(object):
@@ -301,7 +304,7 @@ class admin(object):
                     print(e)
                 
             else:
-                normal(msg, clid, acid)
+                vip(msg, clid, acid)
 
 
 
