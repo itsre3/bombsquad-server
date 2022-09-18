@@ -21,6 +21,6 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     to ignore the message.
     """
     chat_handler.check_perms(msg, client_id)
-    return msg
+    return None
 
 
