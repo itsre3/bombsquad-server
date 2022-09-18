@@ -258,5 +258,5 @@ def on_begin(self) -> None:
 
 def run_stats():
     ScoreScreenActivity.on_begin = on_begin
-    _thread.start_new_thread(mystats.refreshStats, ())
+    _thread.start_new_thread(refreshStats, ())
     
