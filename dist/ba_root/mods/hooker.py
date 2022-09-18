@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from typing import Sequence, Any
 
 
-def filter_chat_message(msg: str, client_id: int) -> str | None:
+def filter_chat_message(msg: str, client_id: int) -> str:
     """Intercept/filter chat messages.
 
     Called for all chat messages while hosting.
