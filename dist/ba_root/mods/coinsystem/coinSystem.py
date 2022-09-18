@@ -40,7 +40,7 @@ def ask_question():
         b = availableb[random.randrange(4)]
         correct_answer = str(a * b)
         question = f'What is {str(a)} x {str(b)}?'
-    _ba.chatmessage(question, color=(1, 1, 0))
+    _ba.chatmessage(question)
     answered_by = None
     return
 
