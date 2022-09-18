@@ -36,7 +36,7 @@ class check_perms:
                             chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
                         else:
                             chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                        ret = self.message
+                        ret = None
                     else:
                         ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
                         _ba.playsound(_ba.getsound("error"))
