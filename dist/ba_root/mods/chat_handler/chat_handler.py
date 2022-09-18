@@ -42,7 +42,7 @@ class check_perms:
                         _ba.playsound(_ba.getsound("error"))
                         return None
                 
-                return msg
+                return self.message
             else:
                 return None
         except:
