@@ -34,7 +34,7 @@ def ask_question():
         b = random.randrange(10, 99)
         correct_answer = str(a + b)
         question = f'What is {str(a)} + {str(b)}?'
-    elif question == 'multiplication':
+    elif question == 'multiplications':
         a = random.randrange(100, 999)
         availableb = [0, 1, 2, 5, 10]
         b = availableb[random.randrange(4)]
@@ -47,8 +47,8 @@ def ask_question():
 
 def check_answer(msg, clientID):
     global answered_by
-    new_answer = msg
-    if correct_answer == new_answer:
+    global correct_answer
+    if msg == correct_answer:
         if answered_by is not None:
             _ba.chatmessage(f'Already awarded to {answered_by}.')
         else:
