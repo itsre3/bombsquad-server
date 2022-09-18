@@ -29,22 +29,17 @@ class check_perms:
                     if sett["chat"]["settings"]["cht_cmd"]:
                         if self.permissions(self.acc_id, "owner"):
                             chatcmd.owner(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                            return None
                         elif self.permissions(self.acc_id, "admin"):
                             chatcmd.admin(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                            return None
                         elif self.permissions(self.acc_id, "vip"):
                             chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                            return None
                         else:
                             chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                            return None
                     else:
                         ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
                         _ba.playsound(_ba.getsound("error"))
-                        return None
                 else:
-                    return None
+                    return self.message
             return None
         except:
             pass
