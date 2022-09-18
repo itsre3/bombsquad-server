@@ -43,7 +43,8 @@ class check_perms:
                         ret = None
                 else:
                     ret = self.message
-            ret = None
+            else:
+                ret = None
         except:
             pass
 
