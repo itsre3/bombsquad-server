@@ -28,18 +28,23 @@ class check_perms:
                 if self.message.startswith("/"):
                     if sett["chat"]["settings"]["cht_cmd"]:
                         if self.permissions(self.acc_id, "owner"):
-                            return chatcmd.owner(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            chatcmd.owner(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            return None
                         elif self.permissions(self.acc_id, "admin"):
-                            return chatcmd.admin(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            chatcmd.admin(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            return None
                         elif self.permissions(self.acc_id, "vip"):
-                            return chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            return None
                         else:
-                            return chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
+                            return None
                     else:
                         ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
                         _ba.playsound(_ba.getsound("error"))
+                        return None
                 else:
-                    return self.message
+                    return None
             return None
         except:
             pass
