@@ -46,7 +46,7 @@ class check_perms:
                     coinsystem.check_answer(self.message, self.client_id)
                     return None
 
-                return self.message
+                #return self.message
 
             else:
                 return None
