@@ -17,7 +17,7 @@ from ba._lobby import JoinInfo
 from ba._activitytypes import ScoreScreenActivity
 import _thread
 
-stats_path = os.path.join(_ba.env()['python_directory_user'], "stats" + os.sep)['python_directory_user']
+stats_path = os.path.join(_ba.env()['python_directory_user'], "stats" + os.sep)
 html_file = stats_path + "stats.json"
 stats_file = stats_path + "stats_page.html"
 
