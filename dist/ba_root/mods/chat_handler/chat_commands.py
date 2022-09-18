@@ -32,13 +32,13 @@ class normal(object):
                 
             elif x == "/help":
                 if z == [] or "":
-                    ba.screenmessage("Use /help <arguments> e.g, /help commands", (1,0,0), transient=True, [clid])
+                    ba.screenmessage("Use /help <arguments> e.g, /help commands", (1,0,0), transient=True, clients=[clid])
                 else:
                     msg = help.helper(z[0])
-                    ba.screenmessage(msg, (1,1,0), transient=True, [clid])
+                    ba.screenmessage(msg, (1,1,0), transient=True, clients=[clid])
                 
             else:
-                ba.screenmessage("Command not found", (1,0,0), transient=True, [clid])
+                ba.screenmessage("Command not found", (1,0,0), transient=True, clients=[clid])
                 
                 
 class vip(object):
