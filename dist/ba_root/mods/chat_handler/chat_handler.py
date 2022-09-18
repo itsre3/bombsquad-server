@@ -44,7 +44,7 @@ class check_perms:
         except:
             pass
 
-        return self.message
+        return None
         
     def check_mute(self, acc_id):
         #profile = profile.get_player_profile(acc_id)
