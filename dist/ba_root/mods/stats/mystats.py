@@ -5,7 +5,7 @@ mystats module for BombSquad version 1.5.29
 Provides functionality for dumping player stats to disk between rounds.
 """
 
-import threading,json,os,urllib,ba,_ba
+import threading,json,os,urllib,ba,_ba,datetime
 from ba._activity import Activity
 from ba._music import setmusic, MusicType
 from ba._generated.enums import InputType, UIScale
@@ -220,7 +220,7 @@ class UpdateThread(threading.Thread):
             stats[account_id]['aid'] = str(account_id)
         # dump our stats back to disk
 
-        from datetime import datetime
+        
         with open(stats_file, 'w') as f:
             f.write(json.dumps(stats))
         refreshStats()
