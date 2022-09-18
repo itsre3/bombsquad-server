@@ -51,7 +51,7 @@ class check_perms:
                 
             elif self.message == coinsystem.correct_answer:
                 coinsystem.check_answer(self.message, self.client_id)
-                return None
+                
                 
             return self.message
 
