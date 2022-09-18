@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import ba
 import _ba
-from .cmd_files import newfly as nfly
+from .cmd_files import newfly as nfly, help
 
 if TYPE_CHECKING:
     from typing import Union, Sequence
@@ -30,8 +30,17 @@ class normal(object):
                 
                 _ba.screenmessage(li, transient=True, clients=[clid])
                 
-            
-
+            elif x == "/help":
+                if z == [] or "":
+                    ba.screenmessage("Use /help <arguments> e.g, /help commands", (1,0,0), transient=True, [clid])
+                else:
+                    msg = help.helper(z[0])
+                    ba.screenmessage(msg, (1,1,0), transient=True, [clid])
+                
+            else:
+                ba.screenmessage("Command not found", (1,0,0), transient=True, [clid])
+                
+                
 class vip(object):
     def __init__(self, msg, clid, acid):
         x = msg.split(' ')[0]
@@ -42,7 +51,7 @@ class vip(object):
         color = (1, 1, 0)
 
         with ba.Context(activity):
-            if x in ["/head", "/he"]:
+            if x in ["/headless", "/hl"]:
                 try:
                     if z == []:
                         for i in activity.players:
@@ -317,7 +326,7 @@ class owner(object):
         session = _ba.get_foreground_host_session()
         
         with ba.Context(activity):
-            if x == "kick":
+            if x == "/kick":
                 ba.screenmessage("Kick u")
                 
             else:

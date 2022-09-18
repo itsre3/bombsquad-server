@@ -61,5 +61,15 @@
                 "enabled": true
             }
         }
+    },
+    "stats": {
+        "enabled": true
+    },
+    "discord": {
+        "enabled": true,
+        "livestatschannelid": 123456789,
+        "logschannelid": 123456789,
+        "token": "gotohell",
+        "serverid": 123456789
     }
 }

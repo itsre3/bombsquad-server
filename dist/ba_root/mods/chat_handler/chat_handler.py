@@ -1,4 +1,4 @@
-#pylint:disable=E0101
+
 import ba
 import _ba
 import settings
@@ -10,12 +10,17 @@ import coinsystem
 sett = settings.get_settings_data()
 
 class check_perms:
-    def __init__(self,
-                 message: str,
-                 client_id: int):
+    def __init__(self, message: str, client_id: int):
         self.message = message
         self.client_id = client_id
-        ret = self.message
+        
+        if self.client_id == -1:
+            if message.startswith("/"):
+                chatcmd.owner(self.message, self.client_id, None)
+                return None
+
+            return self.message
+        
         if not sett["chat"]["enabled"]:
             return None
         
@@ -23,44 +28,41 @@ class check_perms:
             if i["client_id"] == client_id:
                 self.acc_id = i["account_id"]
         # start the main 
-        try:
-            on_mute = self.check_mute(self.acc_id)
-            if not on_mute:
-                if self.message.startswith("/"):
-                    if sett["chat"]["settings"]["cht_cmd"]:
-                        if self.permissions(self.acc_id, "owner"):
-                            chatcmd.owner(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                        elif self.permissions(self.acc_id, "admin"):
-                            chatcmd.admin(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                        elif self.permissions(self.acc_id, "vip"):
-                            chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                        else:
-                            chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                        return None
+        self.chatfilter()
+    
+    def chatfilter(self):
+        on_mute = self.check_mute(self.acc_id)
+        if not on_mute:
+            if self.message.startswith("/"):
+                if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
+                    if self.permissions(self.acc_id, "owner"):
+                        chatcmd.owner(self.message, self.client_id, self.acc_id)
+                    elif self.permissions(self.acc_id, "admin"):
+                        chatcmd.admin(self.message, self.client_id, self.acc_id)
+                    elif self.permissions(self.acc_id, "vip"):
+                        chatcmd.vip(self.message, self.client_id, self.acc_id)
                     else:
-                        ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
-                        _ba.playsound(_ba.getsound("error"))
-                        return None
-                
-                elif self.message == coinsystem.correct_answer:
-                    coinsystem.check_answer(self.message, self.client_id)
+                        chatcmd.normal(self.message, self.client_id, self.acc_id)
                     return None
-
                 else:
-                    return self.message
-
-            else:
+                    ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
+                    _ba.playsound(_ba.getsound("error"))
+                    return None
+                
+            elif self.message == coinsystem.correct_answer:
+                coinsystem.check_answer(self.message, self.client_id)
                 return None
-        except Exception as e:
-            print(e)
-            pass
+                
+            return self.message
 
-        #return ret
-        
+        else:
+            return None
+
     def check_mute(self, acc_id):
         #profile = profile.get_player_profile(acc_id)
         #if profile["on_mute"]:
         #     return True
+        del acc_id
         return False
 
     def permissions(self, acctid, toc):

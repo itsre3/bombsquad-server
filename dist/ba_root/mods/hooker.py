@@ -10,6 +10,7 @@ import ba
 import settings
 from chat_handler import chat_handler
 import coinsystem
+from overriders import _stats_ovr
 
 
 if TYPE_CHECKING:
@@ -25,6 +26,11 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
 
 
 def launcher() -> None:
-    if sett["currency"]["enabled"] and sett["currency"]["settings"]["askquestions"]:
-        coinsystem.run_questions()
-        
+    if sett["currency"]["enabled"]:
+        if sett["currency"]["settings"]["askquestions"]:
+            coinsystem.run_questions()
+        _stats_ovr.enable()
+    
+    if sett["stats"]["enabled"]:
+        from stats import mystats
+        mystats.run_stats()
