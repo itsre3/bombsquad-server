@@ -41,8 +41,8 @@ class check_perms:
                         ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
                         _ba.playsound(_ba.getsound("error"))
                         return None
-                #else:
-                    #ret = None
+                
+                return msg
             else:
                 return None
         except:
