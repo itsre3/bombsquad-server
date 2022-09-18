@@ -42,15 +42,17 @@ class check_perms:
                         _ba.playsound(_ba.getsound("error"))
                         return None
                 
-                if self.message == coinsystem.correct_answer:
+                elif self.message == coinsystem.correct_answer:
                     coinsystem.check_answer(self.message, self.client_id)
                     return None
 
-                #return self.message
+                else:
+                    return self.message
 
             else:
                 return None
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         #return ret

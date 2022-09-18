@@ -18,15 +18,10 @@ if TYPE_CHECKING:
 sett = settings.get_settings_data()
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
-    """Intercept/filter chat messages.
-
-    Called for all chat messages while hosting.
-    Messages originating from the host will have clientID -1.
-    Should filter and return the string to be displayed, or return None
-    to ignore the message.
-    """
-    chat_handler.check_perms(msg, client_id)
-    return msg
+    try:
+        return chat_handler.check_perms(msg, client_id)
+    except:
+        return msg
 
 
 def launcher() -> None:
