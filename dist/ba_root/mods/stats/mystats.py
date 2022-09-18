@@ -189,7 +189,7 @@ class UpdateThread(threading.Thread):
             # add a new entry for any accounts that dont have one
             if account_id not in stats:
                 stats[account_id] = {'rank': 0,
-                                     'name': "myname"
+                                     'name': "myname",
                                      'scores': 0,
                                      'total_damage': 0,
                                      'kills': 0,
