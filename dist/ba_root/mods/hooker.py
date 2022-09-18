@@ -29,9 +29,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     return msg
 
 
-def launcher():
+def launcher() -> None:
     if sett["currency"]["enabled"] and sett["currency"]["settings"]["askquestions"]:
         coinsystem.run_questions()
         
-
-launcher()

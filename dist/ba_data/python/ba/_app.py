@@ -344,6 +344,9 @@ class App:
         from bastd import maps as stdmaps
         from bastd.actor import spazappearance
         from ba._generated.enums import TimeType
+        import hooker
+        #dont know of any way than thid
+        hooker.launcher()
 
         assert _ba.in_game_thread()
 
