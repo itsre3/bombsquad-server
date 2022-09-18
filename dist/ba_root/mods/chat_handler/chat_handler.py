@@ -36,19 +36,19 @@ class check_perms:
                             chatcmd.vip(msg=self.message, clid=self.client_id, acid=self.acc_id)
                         else:
                             chatcmd.normal(msg=self.message, clid=self.client_id, acid=self.acc_id)
-                        ret = None
+                        return None
                     else:
                         ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[self.client_id])
                         _ba.playsound(_ba.getsound("error"))
-                        ret = None
+                        return None
                 #else:
                     #ret = None
             else:
-                ret = None
+                return None
         except:
             pass
 
-        return ret
+        #return ret
         
     def check_mute(self, acc_id):
         #profile = profile.get_player_profile(acc_id)
