@@ -5,7 +5,7 @@ from . import _hashes as perms
 from . import chat_commands as chatcmd
 import coinsystem
 
-sett = setting.get_settings_data()
+sett = settings.get_settings_data()
 
 
 def check_perms(msg, client_id):
