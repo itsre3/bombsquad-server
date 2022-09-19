@@ -45,7 +45,7 @@ def chatfilter(msg, client_id, acid):
         return msg
 
     else:
-        return None
+        return msg
 
 
 def check_mute(acc_id):
