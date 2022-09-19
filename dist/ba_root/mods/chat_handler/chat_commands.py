@@ -47,7 +47,7 @@ class normal(object):
                 if sett["stats"]["enabled"]:
                     stats = mystats.get_stats_by_id(acid)
                     if stats != None:
-                        msg="====="+str(stats["name"])" stats====\nScore:"+str(stats["scores"])+"\nGames:"+str(stats["games"])+"\nKills:"+str(stats["kills"])+"\nDeaths:"+str(stats["deaths"])+"\nAvg Score:"+str(stats["avg_score"])
+                        msg="Score:"+str(stats["scores"])+"\nGames:"+str(stats["games"])+"\nKills:"+str(stats["kills"])+"\nDeaths:"+str(stats["deaths"])+"\nAvg.Score:"+str(stats["avg_score"])
                         ba.screenmessage(msg, (1,0,1), transient=True, clients=[clid])
                     else:
                         ba.screenmessage("Play some games first", (1,0,0), transient=True, clients=[clid])
