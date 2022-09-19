@@ -45,9 +45,9 @@ class normal(object):
                     
             elif x in ["/me", "/stats", "/i"]:
                 if sett["stats"]["enabled"]:
-                    data = mystats.get_stats_by_id(acid)
-                    if data != None:
-                        msg = f"==={data["name"]} stats===\nRank: {data["rank"]}\nScores: {data["scores"]}\nKills: {data["kills"]}\nDeath: {data["deaths"]}\nGames Played: {data["games"]}\nKill Damage: {data["kd"]}\nAvg Score: {data["avg_score"]}\nTotal Damage: {data["total_damage"]}\n===<<     >>===\n"
+                    stats = mystats.get_stats_by_id(acid)
+                    if stats != None:
+                        msg="====="+str(stats["name"])" stats====\nScore:"+str(stats["scores"])+"\nGames:"+str(stats["games"])+"\nKills:"+str(stats["kills"])+"\nDeaths:"+str(stats["deaths"])+"\nAvg Score:"+str(stats["avg_score"])
                         ba.screenmessage(msg, (1,0,1), transient=True, clients=[clid])
                     else:
                         ba.screenmessage("Play some games first", (1,0,0), transient=True, clients=[clid])
