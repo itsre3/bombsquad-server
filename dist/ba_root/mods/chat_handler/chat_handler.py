@@ -20,7 +20,8 @@ def check_perms(msg, client_id):
         if i['client_id'] == client_id:
             acid = i['account_id']
             
-    chatfilter(msg, client_id, acid)
+    return msg
+    #chatfilter(msg, client_id, acid)
 
 def chatfilter(msg, client_id, acid):
     on_mute = check_mute(acid)
