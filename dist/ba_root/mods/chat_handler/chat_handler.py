@@ -58,7 +58,7 @@ def check_mute(acc_id):
 
 
 
-def permissions(msg, msg, acctid, toc):
+def permissions(msg, acctid, toc):
     if toc == "owner" and acctid in perms.owner:
         return True
     elif toc == "admin" and acctid in perms.admin:
