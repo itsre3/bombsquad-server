@@ -42,15 +42,13 @@ def ask_question():
         question = f'What is {str(a)} x {str(b)}?'
     _ba.chatmessage(question)
     answered_by = None
-    print(correct_answer + "from ask_question")
     return
 
 
 def check_answer(msg, clientID):
     global answered_by
     global correct_answer
-    print(correct_answer)
-    print(msg)
+
     if msg == correct_answer:
         if answered_by is not None:
             _ba.chatmessage(f'Already awarded to {answered_by}.')

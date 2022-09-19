@@ -35,11 +35,11 @@ def chatfilter(msg, client_id, acid):
                     chatcmd.vip(msg, client_id, acid)
                 else:
                     chatcmd.normal(msg, client_id, acid)
-                return msg
+                #return msg
             else:
                 ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[client_id])
                 _ba.playsound(_ba.getsound("error"))
-                return None
+                #return None
 
         coinsystem.check_answer(msg, client_id)
         return msg
