@@ -59,7 +59,7 @@ def check_answer(msg, clientID):
                     answered_by = i['players'][0]['name']
                     account_id = i['account_id']
             try:
-                ba.screenmessage(f"Congratulations {answered_by}!, You won {_ba.charstr(SpecialChar.TICKET)}10." (0,1,0), transient=True, clients=[clientID])
+                ba.screenmessage(f"Congratulations {answered_by}!, You won {_ba.charstr(SpecialChar.TICKET)}10.", (0,1,0), transient=True, clients=[clientID])
                 add_coins_by_pbid(account_id, 10)
             except:
                 pass
