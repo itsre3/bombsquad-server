@@ -7,7 +7,11 @@ from typing import TYPE_CHECKING
 
 import ba
 import _ba
+import settings
+import coinsystem
+from stats import mystats
 from .cmd_files import newfly as nfly, help
+from ba._generated.enums import SpecialChar
 
 if TYPE_CHECKING:
     from typing import Union, Sequence
@@ -18,6 +22,8 @@ class normal(object):
         z = msg.split(' ', 1)[1:5]
         activity = _ba.get_foreground_host_activity()
         session = _ba.get_foreground_host_session()
+        sett = settings.get_settings_data()
+        cate_unavail = ba.screenmessage("Category Disabled", (1,0,0), transient=True, clients=[clid])
         
         with ba.Context(activity):
             if x in ["/list", "/li"]:
@@ -36,6 +42,24 @@ class normal(object):
                 else:
                     msg = help.helper(z[0])
                     ba.screenmessage(msg, (1,1,0), transient=True, clients=[clid])
+                    
+            elif x in ["/me", "/stats", "/i"]:
+                if sett["stats"]["enabled"]:
+                    data = mystats.get_stats_by_id(acid)
+                    if data != None:
+                        msg = f"==={data["name"]} stats===\nRank: {data["rank"]}\nScores: {data["scores"]}\nKills: {data["kills"]}\nDeath: {data["deaths"]}\nGames Played: {data["games"]}\nKill Damage: {data["kd"]}\nAvg Score: {data["avg_score"]}\nTotal Damage: {data["total_damage"]}\n===<<     >>===\n"
+                        ba.screenmessage(msg, (1,0,1), transient=True, clients=[clid])
+                    else:
+                        ba.screenmessage("Play some games first", (1,0,0), transient=True, clients=[clid])
+                else:
+                    cate_unavail
+                
+            elif x in ["/balance", "/cash", "/bal", "/money"]:
+                if sett["currency"]["enabled"]:
+                    balance = coinsystem.get_coins_by_pbid(acid):
+                        ba.screenmessage(f"You have {_ba.charstr(SpecialChar.TICKET)}{balance}" (0,0,1), transient=True, clients=[clid])
+                else:
+                    cate_unavail
                 
             else:
                 ba.screenmessage("Command not found", (1,0,0), transient=True, clients=[clid])

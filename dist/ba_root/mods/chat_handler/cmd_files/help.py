@@ -2,8 +2,8 @@
 
 
 class helper:
-    def __init__(self, args):
-        self.arg = args
+    def __init__(self, msge):
+        self.arg = msge
         self.helper_reader()
 
     def helper_reader(self):
