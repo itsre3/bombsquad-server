@@ -23,7 +23,7 @@ class normal(object):
         activity = _ba.get_foreground_host_activity()
         session = _ba.get_foreground_host_session()
         sett = settings.get_settings_data()
-        cate_unavail = ba.screenmessage("Category Disabled", (1,0,0), transient=True, clients=[clid])
+        
         
         with ba.Context(activity):
             if x in ["/list", "/li"]:
@@ -36,13 +36,6 @@ class normal(object):
                 
                 _ba.screenmessage(li, transient=True, clients=[clid])
                 
-            elif x == "/help":
-                if z == [] or "":
-                    ba.screenmessage("Use /help <arguments> e.g, /help commands", (1,0,0), transient=True, clients=[clid])
-                else:
-                    msg = help.helper(z[0])
-                    ba.screenmessage(msg, (1,1,0), transient=True, clients=[clid])
-                    
             elif x in ["/me", "/stats", "/i"]:
                 if sett["stats"]["enabled"]:
                     stats = mystats.get_stats_by_id(acid)
@@ -52,14 +45,14 @@ class normal(object):
                     else:
                         ba.screenmessage("Play some games first", (1,0,0), transient=True, clients=[clid])
                 else:
-                    cate_unavail
+                    ba.screenmessage("Category Disabled", (1,0,0), transient=True, clients=[clid])
                 
             elif x in ["/balance", "/cash", "/bal", "/money"]:
                 if sett["currency"]["enabled"]:
                     balance = coinsystem.get_coins_by_pbid(acid)
                     ba.screenmessage(f"You have {_ba.charstr(SpecialChar.TICKET)}{balance}", (0,0,1), transient=True, clients=[clid])
                 else:
-                    cate_unavail
+                    ba.screenmessage("Category Disabled", (1,0,0), transient=True, clients=[clid])
                 
             else:
                 ba.screenmessage("Command not found", (1,0,0), transient=True, clients=[clid])
