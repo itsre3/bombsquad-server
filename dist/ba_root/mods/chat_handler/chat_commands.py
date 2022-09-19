@@ -56,8 +56,8 @@ class normal(object):
                 
             elif x in ["/balance", "/cash", "/bal", "/money"]:
                 if sett["currency"]["enabled"]:
-                    balance = coinsystem.get_coins_by_pbid(acid):
-                        ba.screenmessage(f"You have {_ba.charstr(SpecialChar.TICKET)}{balance}" (0,0,1), transient=True, clients=[clid])
+                    balance = coinsystem.get_coins_by_pbid(acid)
+                    ba.screenmessage(f"You have {_ba.charstr(SpecialChar.TICKET)}{balance}" (0,0,1), transient=True, clients=[clid])
                 else:
                     cate_unavail
                 
