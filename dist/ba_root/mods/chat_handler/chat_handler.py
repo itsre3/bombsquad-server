@@ -19,13 +19,6 @@ def check_perms(msg, client_id):
     for i in _ba.get_game_roster():
         if i['client_id'] == client_id:
             acid = i['account_id']
-            
-    chatfilter(msg, client_id, acid)
-
-def chatfilter(msg, client_id, acid) -> str | None:
-    on_mute = check_mute(acid)
-    if on_mute:
-        return None
         
     if msg.startswith("/"):
         if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
