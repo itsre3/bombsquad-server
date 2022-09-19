@@ -22,30 +22,29 @@ def check_perms(msg, client_id):
             
     chatfilter(msg, client_id, acid)
 
-def chatfilter(msg, client_id, acid):
+def chatfilter(msg, client_id, acid) -> str | None:
     on_mute = check_mute(acid)
-    if not on_mute:
-        if msg.startswith("/"):
-            if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
-                if permissions(msg, acid, "owner"):
-                    chatcmd.owner(msg, client_id, acid)
-                elif permissions(msg, acid, "admin"):
-                    chatcmd.admin(msg, client_id, acid)
-                elif permissions(msg, acid, "vip"):
-                    chatcmd.vip(msg, client_id, acid)
-                else:
-                    chatcmd.normal(msg, client_id, acid)
-                #return msg
+    if on_mute:
+        return None
+        
+    if msg.startswith("/"):
+        if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
+            if permissions(msg, acid, "owner"):
+                chatcmd.owner(msg, client_id, acid)
+            elif permissions(msg, acid, "admin"):
+                chatcmd.admin(msg, client_id, acid)
+            elif permissions(msg, acid, "vip"):
+                chatcmd.vip(msg, client_id, acid)
             else:
-                ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[client_id])
-                _ba.playsound(_ba.getsound("error"))
-                #return None
+                chatcmd.normal(msg, client_id, acid)
+            #return msg
+        else:
+            ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[client_id])
+            _ba.playsound(_ba.getsound("error"))
+            #return None
 
-        #coinsystem.check_answer(msg, client_id)
-        return msg
-
-    else:
-        return msg
+    #coinsystem.check_answer(msg, client_id)
+    return msg
 
 
 def check_mute(acc_id):
