@@ -231,7 +231,7 @@ def on_begin(self) -> None:
     # pylint: disable=cyclic-import
     from bastd.actor.text import Text
     from ba import _language
-    Activity.on_begin()
+    Activity.on_begin(self)
     update(self._stats)
     # Pop up a 'press any button to continue' statement after our
     # min-view-time show a 'press any button to continue..'

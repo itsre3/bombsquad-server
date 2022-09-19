@@ -41,11 +41,8 @@ def chatfilter(msg, client_id, acid):
                 _ba.playsound(_ba.getsound("error"))
                 return None
 
-        elif msg == correct_answer:
-            coinsystem.check_answer(msg, client_id)
-            return msg
-        else:
-            return msg
+        coinsystem.check_answer(msg, client_id)
+        return msg
 
     else:
         return None

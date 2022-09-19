@@ -3,7 +3,7 @@
         "enabled": true,
         "settings": {
             "askquestions": {
-                "enabled": false,
+                "enabled": true,
                 "questiondelay": 30,
                 "questions": {
                     "Who is the owner of this server?": "smoothy",
