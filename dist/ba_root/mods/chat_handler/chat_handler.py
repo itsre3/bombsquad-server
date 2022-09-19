@@ -20,6 +20,9 @@ def check_perms(msg, client_id):
         if i['client_id'] == client_id:
             acid = i['account_id']
         
+    if check_mute(acid):
+        return None
+        
     if msg.startswith("/"):
         if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
             if permissions(msg, acid, "owner"):
@@ -30,13 +33,14 @@ def check_perms(msg, client_id):
                 chatcmd.vip(msg, client_id, acid)
             else:
                 chatcmd.normal(msg, client_id, acid)
-            #return msg
+            return None
         else:
             ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[client_id])
             _ba.playsound(_ba.getsound("error"))
-            #return None
-
-    #coinsystem.check_answer(msg, client_id)
+            return None
+    if correct_answer == msg:
+        coinsystem.check_answer(msg, client_id)
+        return None
     return msg
 
 
