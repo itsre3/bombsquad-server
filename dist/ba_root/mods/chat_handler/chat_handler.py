@@ -4,6 +4,7 @@ import settings
 from . import _hashes as perms
 from . import chat_commands as chatcmd
 import coinsystem
+from coinsystem.coinSystem import correct_answer
 
 sett = settings.get_settings_data()
 
@@ -40,10 +41,11 @@ def chatfilter(msg, client_id, acid):
                 _ba.playsound(_ba.getsound("error"))
                 return None
 
-        elif msg == coinsystem.correct_answer:
+        elif msg == correct_answer:
             coinsystem.check_answer(msg, client_id)
-
-        return msg
+            return msg
+        else:
+            return msg
 
     else:
         return None
