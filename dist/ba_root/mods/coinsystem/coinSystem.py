@@ -51,7 +51,7 @@ def check_answer(msg, clientID):
 
     if msg == correct_answer:
         if answered_by is not None:
-            _ba.chatmessage(f'Already awarded to {answered_by}.')
+            ba.screenmessage(f'Already awarded to {answered_by}.', (0.8,1,0))
         else:
             ros = _ba.get_game_roster()
             for i in ros:
@@ -59,11 +59,11 @@ def check_answer(msg, clientID):
                     answered_by = i['players'][0]['name']
                     account_id = i['account_id']
             try:
-                _ba.chatmessage(f"Congratulations {answered_by}!, You won {_ba.charstr(SpecialChar.TICKET)}10.")
+                ba.screenmessage(f"Congratulations {answered_by}!, You won {_ba.charstr(SpecialChar.TICKET)}10." (0,1,0), transient=True, clients=[clientID])
                 add_coins_by_pbid(account_id, 10)
             except:
                 pass
-    
+    return None
 
 def convert_alias(cmd):
     # also using this as a log for commands created

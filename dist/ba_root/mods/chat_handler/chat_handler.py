@@ -38,9 +38,9 @@ def check_perms(msg, client_id):
             ba.screenmessage("Chat Commands not enabled", color=(1, 0, 0), transient=True, clients=[client_id])
             _ba.playsound(_ba.getsound("error"))
             return None
-    if correct_answer == msg:
-        coinsystem.check_answer(msg, client_id)
-        return None
+    
+    coinsystem.check_answer(msg, client_id)
+    
     return msg
 
 
