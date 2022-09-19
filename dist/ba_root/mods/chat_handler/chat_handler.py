@@ -20,8 +20,7 @@ def check_perms(msg, client_id):
         if i['client_id'] == client_id:
             acid = i['account_id']
             
-    return msg
-    #chatfilter(msg, client_id, acid)
+    chatfilter(msg, client_id, acid)
 
 def chatfilter(msg, client_id, acid):
     on_mute = check_mute(acid)
@@ -42,7 +41,7 @@ def chatfilter(msg, client_id, acid):
                 _ba.playsound(_ba.getsound("error"))
                 #return None
 
-        coinsystem.check_answer(msg, client_id)
+        #coinsystem.check_answer(msg, client_id)
         return msg
 
     else:
