@@ -19,10 +19,7 @@ if TYPE_CHECKING:
 sett = settings.get_settings_data()
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
-    try:
-        return chat_handler.check_perms(msg, client_id)
-    except:
-        return msg
+    return chat_handler.check_perms(msg, client_id)
 
 
 def launcher() -> None:

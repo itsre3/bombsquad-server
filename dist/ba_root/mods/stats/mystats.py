@@ -19,7 +19,7 @@ import _thread
 
 stats_path = os.path.join(_ba.env()['python_directory_user'], "stats" + os.sep)
 html_file = stats_path + "stats_page.html"
-stats_file = stats_path + "stats.json"
+stats_file = stats_path + "stats_file.json"
 
 
 
@@ -231,7 +231,7 @@ def on_begin(self) -> None:
     # pylint: disable=cyclic-import
     from bastd.actor.text import Text
     from ba import _language
-    super().on_begin()
+    Activity.on_begin()
     update(self._stats)
     # Pop up a 'press any button to continue' statement after our
     # min-view-time show a 'press any button to continue..'

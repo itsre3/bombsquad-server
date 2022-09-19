@@ -102,8 +102,6 @@ def add_coins_by_pbid(account_id, amount):
     bank[account_id]["cash"] += amount
     with open(bankfile, 'w') as f:
         f.write(json.dumps(bank, indent=4))
-    if amount > 0:
-        ba.playsound(ba.getsound('cashRegister'))
 
 
 def get_coins_by_pbid(account_id):
