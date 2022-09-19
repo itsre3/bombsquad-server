@@ -65,7 +65,7 @@ def check_answer(msg, clientID):
                 add_coins_by_pbid(account_id, 10)
             except:
                 pass
-    return
+    
 
 def convert_alias(cmd):
     # also using this as a log for commands created
