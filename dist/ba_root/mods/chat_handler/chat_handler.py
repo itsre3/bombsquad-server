@@ -63,7 +63,7 @@ def permissions(msg, acctid, toc):
         # we can buy vip commands if coinsystem is available
         if acctid in perms.vip:
             return True
-        elif sett["currency"]["enabled"] and coinsystem_c(msg, cctid):
+        elif sett["currency"]["enabled"] and coinsystem_c(msg, actid):
             return True
 
 
