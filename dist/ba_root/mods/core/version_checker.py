@@ -4,7 +4,7 @@ import json, os
 import urllib.request
 import asyncio
 
-path = os.path.join(_ba.env["python_directory_user"], "core" + os.sep)
+path = os.path.join(_ba.env()["python_directory_user"], "core" + os.sep)
 update_file = path + "updates.json"
 
 async def main():
