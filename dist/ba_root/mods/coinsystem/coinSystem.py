@@ -78,6 +78,7 @@ def convert_alias(cmd):
 
 
 def get_command_price(cmd):
+    print(cmd)
     cnv_cmd = convert_alias(cmd)
     if cnv_cmd is not None:
         if cnv_cmd in sett["currency"]["settings"]["shop"]["commands"]["prices"]: #very long xd
