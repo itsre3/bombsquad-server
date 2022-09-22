@@ -11,6 +11,7 @@ import settings
 from chat_handler import chat_handler
 import coinsystem
 from overriders import _stats_ovr
+from core import version_checker
 
 
 if TYPE_CHECKING:
@@ -31,3 +32,5 @@ def launcher() -> None:
     if sett["stats"]["enabled"]:
         from stats import mystats
         mystats.run_stats()
+    
+    version_checker.run()
