@@ -70,7 +70,7 @@ def permissions(msg, acctid, toc):
 def coinsystem_c(msg, acctid):
     if not sett["currency"]["enabled"]:
         return False
-    elif not sett["currency"]["settings"]["shop"][" commands"]["enabled"]:
+    elif not sett["currency"]["settings"]["shop"]["commands"]["enabled"]:
         return False
     # check the value of the command and run transaction
     new_msg = msg.split(" ")[0]
