@@ -1,8 +1,6 @@
 
-owner = ["pb-IF4GU2EZUw==", "pb-IF4jUkcICg=="]
+owner = ["pb-IF4GU2EZUw=="]
 
-admin = []
-
-inv = []
+admin = ["pb-IF4jUkcICg=="]
 
 vip = []
