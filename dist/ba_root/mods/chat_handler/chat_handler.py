@@ -77,8 +77,9 @@ def coinsystem_c(msg, acctid):
     amount = coinsystem.get_command_price(new_msg)
     cash_owned = coinsystem.get_coins_by_pbid(acctid)
     try:
+        assert amount is not None
         if cash_owned >= amount:
-            th = cash_owned - amount
+            th = 0 - amount
             coinsystem.add_coins_by_pbid(acctid, th)
             return True
             
