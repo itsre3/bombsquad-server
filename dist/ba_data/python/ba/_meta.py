@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar
 from dataclasses import dataclass, field
 
+from efro.call import tpartial
 import _ba
 
 if TYPE_CHECKING:
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 # The meta api version of this build of the game.
 # Only packages and modules requiring this exact api version
 # will be considered when scanning directories.
-# See: https://ballistica.net/wiki/Meta-Tags
+# See: https://ballistica.net/wiki/Meta-Tag-System
 CURRENT_API_VERSION = 7
 
 # Meta export lines can use these names to represent these classes.
@@ -81,23 +82,73 @@ class MetadataSubsystem:
         self._scan = DirectoryScan(
             [_ba.app.python_directory_app, _ba.app.python_directory_user])
 
-        Thread(target=self._do_scan_dirs, daemon=True).start()
+        Thread(target=self._run_scan_in_bg, daemon=True).start()
 
     def start_extra_scan(self) -> None:
-        """Provide extra dirs to be scanned (namely Workspace dirs).
+        """Proceed to the extra_scan_dirs portion of the scan.
 
-        This is the bare minimum part of the scan that must be delayed until
-        workspaces have been synced/etc. This must be called exactly once.
+        This is for parts of the scan that must be delayed until
+        workspace sync completion or other such events. This must be
+        called exactly once.
         """
         assert self._scan is not None
         self._scan.set_extras(self.extra_scan_dirs)
 
-    def wait_for_scan_results(self) -> ScanResults:
+    def load_exported_classes(
+        self,
+        cls: type[T],
+        completion_cb: Callable[[list[type[T]]], None],
+        completion_cb_in_bg_thread: bool = False,
+    ) -> None:
+        """High level function to load meta-exported classes.
+
+        Will wait for scanning to complete if necessary, and will load all
+        registered classes of a particular type in a background thread before
+        calling the passed callback in the logic thread. Errors may be logged
+        to messaged to the user in some way but the callback will be called
+        regardless.
+        To run the completion callback directly in the bg thread where the
+        loading work happens, pass completion_cb_in_bg_thread=True.
+        """
+        Thread(
+            target=tpartial(self._load_exported_classes, cls, completion_cb,
+                            completion_cb_in_bg_thread),
+            daemon=True,
+        ).start()
+
+    def _load_exported_classes(
+        self,
+        cls: type[T],
+        completion_cb: Callable[[list[type[T]]], None],
+        completion_cb_in_bg_thread: bool,
+    ) -> None:
+        from ba._general import getclass
+        classes: list[type[T]] = []
+        try:
+            classnames = self._wait_for_scan_results().exports_of_class(cls)
+            for classname in classnames:
+                try:
+                    classes.append(getclass(classname, cls))
+                except Exception:
+                    logging.exception('error importing %s', classname)
+
+        except Exception:
+            logging.exception('Error loading exported classes.')
+
+        completion_call = tpartial(completion_cb, classes)
+        if completion_cb_in_bg_thread:
+            completion_call()
+        else:
+            _ba.pushcall(completion_call, from_other_thread=True)
+
+    def _wait_for_scan_results(self) -> ScanResults:
         """Return scan results, blocking if the scan is not yet complete."""
         if self.scanresults is None:
-            logging.warning('ba.meta.wait_for_scan_results()'
-                            ' called before scan completed;'
-                            ' this can cause hitches.')
+            if _ba.in_logic_thread():
+                logging.warning(
+                    'ba.meta._wait_for_scan_results()'
+                    ' called in logic thread before scan completed;'
+                    ' this can cause hitches.')
 
             # Now wait a bit for the scan to complete.
             # Eventually error though if it doesn't.
@@ -109,10 +160,24 @@ class MetadataSubsystem:
                         'timeout waiting for meta scan to complete.')
         return self.scanresults
 
+    def _run_scan_in_bg(self) -> None:
+        """Runs a scan (for use in background thread)."""
+        try:
+            assert self._scan is not None
+            self._scan.run()
+            results = self._scan.results
+            self._scan = None
+        except Exception as exc:
+            results = ScanResults(errors=[f'Scan exception: {exc}'])
+
+        # Place results and tell the logic thread they're ready.
+        self.scanresults = results
+        _ba.pushcall(self._handle_scan_results, from_other_thread=True)
+
     def _handle_scan_results(self) -> None:
         """Called in the logic thread with results of a completed scan."""
         from ba._language import Lstr
-        assert _ba.in_game_thread()
+        assert _ba.in_logic_thread()
 
         results = self.scanresults
         assert results is not None
@@ -127,31 +192,17 @@ class MetadataSubsystem:
                               color=(1, 0, 0))
             _ba.playsound(_ba.getsound('error'))
             if results.warnings:
-                _ba.log(textwrap.indent('\n'.join(results.warnings),
-                                        'Warning (meta-scan): '),
-                        to_server=False)
+                allwarnings = textwrap.indent('\n'.join(results.warnings),
+                                              'Warning (meta-scan): ')
+                logging.warning(allwarnings)
             if results.errors:
-                _ba.log(
-                    textwrap.indent('\n'.join(results.errors),
-                                    'Error (meta-scan): '))
+                allerrors = textwrap.indent('\n'.join(results.errors),
+                                            'Error (meta-scan): ')
+                logging.error(allerrors)
 
         # Let the game know we're done.
         assert self._scan_complete_cb is not None
         self._scan_complete_cb()
-
-    def _do_scan_dirs(self) -> None:
-        """Runs a scan (for use in background thread)."""
-        try:
-            assert self._scan is not None
-            self._scan.run()
-            results = self._scan.results
-            self._scan = None
-        except Exception as exc:
-            results = ScanResults(errors=[f'Scan exception: {exc}'])
-
-        # Place results and tell the logic thread they're ready.
-        self.scanresults = results
-        _ba.pushcall(self._handle_scan_results, from_other_thread=True)
 
 
 class DirectoryScan:

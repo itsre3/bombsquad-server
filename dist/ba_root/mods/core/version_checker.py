@@ -18,7 +18,7 @@ async def main():
         print("Running on latest version")
     else:
         update = data["updates_info"][0]
-        print(f"New Updates detected: {update}\n Run git pull to update")
+        print(f"New Updates detected: {update}\nRun git pull to update")
 
 def run():
     asyncio.run(main())

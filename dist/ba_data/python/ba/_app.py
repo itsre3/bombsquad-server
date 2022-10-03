@@ -20,11 +20,13 @@ from ba._meta import MetadataSubsystem
 from ba._ads import AdsSubsystem
 from ba._net import NetworkSubsystem
 from ba._workspace import WorkspaceSubsystem
+from ba import _internal
 
 if TYPE_CHECKING:
     import asyncio
     from typing import Any, Callable
 
+    import efro.log
     import ba
     from ba._cloud import CloudSubsystem
     from bastd.actor import spazappearance
@@ -48,6 +50,7 @@ class App:
     # Implementations for these will be filled in by internal libs.
     accounts_v2: AccountV2Subsystem
     cloud: CloudSubsystem
+    log_handler: efro.log.LogHandler
 
     class State(Enum):
         """High level state the app can be in."""
@@ -90,6 +93,12 @@ class App:
         """
         assert isinstance(self._env['build_number'], int)
         return self._env['build_number']
+
+    @property
+    def device_name(self) -> str:
+        """Name of the device running the game."""
+        assert isinstance(self._env['device_name'], str)
+        return self._env['device_name']
 
     @property
     def config_file_path(self) -> str:
@@ -345,10 +354,11 @@ class App:
         from bastd.actor import spazappearance
         from ba._generated.enums import TimeType
         import hooker
-        #dont know of any way than thid
+        #dont know of any way than this
         hooker.launcher()
 
-        assert _ba.in_game_thread()
+
+        assert _ba.in_logic_thread()
 
         self._aioloop = _asyncio.setup_asyncio()
 
@@ -375,12 +385,12 @@ class App:
         # Non-test, non-debug builds should generally be blessed; warn if not.
         # (so I don't accidentally release a build that can't play tourneys)
         if (not self.debug_build and not self.test_build
-                and not _ba.is_blessed()):
+                and not _internal.is_blessed()):
             _ba.screenmessage('WARNING: NON-BLESSED BUILD', color=(1, 0, 0))
 
         # If there's a leftover log file, attempt to upload it to the
         # master-server and/or get rid of it.
-        _apputils.handle_leftover_log_file()
+        _apputils.handle_leftover_v1_cloud_log_file()
 
         # Only do this stuff if our config file is healthy so we don't
         # overwrite a broken one or whatnot and wipe out data.
@@ -413,7 +423,8 @@ class App:
         def check_special_offer() -> None:
             from bastd.ui.specialoffer import show_offer
             config = self.config
-            if ('pendingSpecialOffer' in config and _ba.get_public_login_id()
+            if ('pendingSpecialOffer' in config
+                    and _internal.get_public_login_id()
                     == config['pendingSpecialOffer']['a']):
                 self.special_offer = config['pendingSpecialOffer']['o']
                 show_offer()
@@ -445,7 +456,7 @@ class App:
 
     def on_meta_scan_complete(self) -> None:
         """Called by meta-scan when it is done doing its thing."""
-        assert _ba.in_game_thread()
+        assert _ba.in_logic_thread()
         self.plugins.on_meta_scan_complete()
 
         assert not self._meta_scan_completed
@@ -453,7 +464,7 @@ class App:
         self._update_state()
 
     def _update_state(self) -> None:
-        assert _ba.in_game_thread()
+        assert _ba.in_logic_thread()
 
         if self._app_paused:
             self.state = self.State.PAUSED
@@ -580,11 +591,11 @@ class App:
 
             # Kick off a little transaction so we'll hopefully have all the
             # latest account state when we get back to the menu.
-            _ba.add_transaction({
+            _internal.add_transaction({
                 'type': 'END_SESSION',
                 'sType': str(type(host_session))
             })
-            _ba.run_transactions()
+            _internal.run_transactions()
 
             host_session.end()
 
