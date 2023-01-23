@@ -20,7 +20,7 @@ class BsBot(commands.Bot):
             application_id=setting["discord"]["applicationid"])
             
     async def setup_hook(self):
-        await self.load_extension(f"cogs.currency")
+        await self.load_extension(f"discord_bot.cogs.currency")
         await bot.tree.sync(guild = discord.Object(id=setting["discord"]["serverid"]))
 
     async def on_ready(self):
