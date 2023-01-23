@@ -10,7 +10,5 @@ def index():
     return render_template("stats/stats_page.html")
 
 def run():
-    loop = asyncio.get_event_loop()
-    loop.create_task(app.run(debug=False))
-    threading.Thread(target=loop.run_forever).start()
+    threading.Thread(target=app.run(False)).start()
 
