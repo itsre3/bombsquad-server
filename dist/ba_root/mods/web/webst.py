@@ -17,7 +17,7 @@ def reload_file():
     contents = str(content)
 
 def tr():
-    ba.timer(10, reload_file, True)
+    r = ba.timer(10, reload_file, True)
 
 
 @app.route("/")
