@@ -1,8 +1,18 @@
+
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+
+
 import ba
 from bastd.actor.spaz import Spaz
 from bastd.actor.playerspaz import PlayerSpaz
 from stats import mystats
 
+if TYPE_CHECKING:
+    from typing import Any, Sequence, Literal
 
 
 def show_rank(node, player):
