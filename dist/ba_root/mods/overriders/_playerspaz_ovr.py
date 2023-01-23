@@ -66,6 +66,7 @@ def __init__(
     """
 
     Spaz.__init__(
+        self,
         color=color,
         highlight=highlight,
         character=character,
