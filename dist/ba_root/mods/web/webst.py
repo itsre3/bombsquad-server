@@ -8,17 +8,23 @@ app = Flask(__name__)
 
 html_file = os.path.join(_ba.env()['python_directory_user'], "web" + os.sep) + "templates/stats_page.html"
 
+contents = ""
 
+def reload_file():
+    with open(html_file, 'r') as file:
+        content = file.read()
+    
+    contents = str(content)
 
 @app.route("/")
 def index():
-    with open(html_file, 'r') as file:
-        contents = file.read()
     
-    html = str(contents)
+    html = contents
     # return render_template("stats_page.html")
     return make_response(html)
 
 def run():
     _thread.start_new_thread(app.run, ("0.0.0.0", 5000, False))
+    tr = ba.Timer(10, ba.Call(reload_file), ba.TimeType.REAL, True)
+    _thread.start_new_thread(tr)
 
