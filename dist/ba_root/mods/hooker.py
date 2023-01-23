@@ -33,4 +33,8 @@ def launcher() -> None:
         from stats import mystats
         mystats.run_stats()
     
+    if sett["discord"]["enabled"]:
+        from discord_bot import b_launch
+        b_launch.init()
+        
     version_checker.run()
