@@ -17,8 +17,8 @@ def reload_file():
     contents = str(content)
 
 def tr():
-    r = ba.Timer(10, ba.Call(reload_file), timetype=ba.TimeType.REAL, repeat=True)
-    return r
+    ba.Timer(10, ba.Call(reload_file), timetype=ba.TimeType.REAL, repeat=True)
+
 
 @app.route("/")
 def index():
