@@ -17,7 +17,7 @@ def reload_file():
     contents = str(content)
 
 def tr():
-    ba.Timer(10, ba.Call(reload_file), timetype=ba.TimeType.REAL, repeat=True)
+    ba.timer(10, reload_file(), True)
 
 
 @app.route("/")
