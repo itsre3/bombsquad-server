@@ -362,6 +362,10 @@ class App:
             AppHealthMonitor,
         )
 
+        import hooker
+        # dont know of any way than this
+        hooker.launcher()
+
         assert _ba.in_logic_thread()
 
         self._aioloop = _asyncio.setup_asyncio()
