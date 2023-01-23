@@ -33,6 +33,6 @@ bot = BsBot()
 
 def init():
     loop = asyncio.get_event_loop()
-    loop.create_task(bot.run(setting["discord"]["token"]))
+    loop.create_task(bot.start(setting["discord"]["token"]))
     threading.Thread(target=loop.run_forever).start()
 
