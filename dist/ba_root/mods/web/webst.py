@@ -25,6 +25,6 @@ def index():
 
 def run():
     _thread.start_new_thread(app.run, ("0.0.0.0", 5000, False))
-    tr = ba.Timer(10, ba.Call(reload_file), ba.TimeType.REAL, True)
+    tr = ba.Timer(10, ba.Call(reload_file), ba.TimeType.REAL, repeat=True)
     _thread.start_new_thread(tr)
 
