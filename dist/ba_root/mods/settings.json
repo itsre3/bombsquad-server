@@ -72,5 +72,8 @@
         "token": "OTczMDgyMTE3MzA1MTQ3NDky.GrCUmD.6ImPDzYnaZYhxaHW3xp04YJBfTlON61Vb9LQb4",
         "serverid": 1006411360869040148,
         "applicationid": 973082117305147492
+    },
+    "website": {
+        "enabled": true
     }
 }

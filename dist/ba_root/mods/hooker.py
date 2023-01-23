@@ -39,4 +39,8 @@ def launcher() -> None:
         from discord_bot import b_launch
         b_launch.init()
         
+    if sett["website"]["enabled"]:
+        from web import webst
+        webst.run()
+        
     version_checker.run()
