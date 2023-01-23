@@ -43,6 +43,20 @@ class SysResponse:
     users of the api never see them.
     """
 
+    def set_local_exception(self, exc: Exception) -> None:
+        """Attach a local exception to facilitate better logging/handling.
+
+        Be aware that this data does not get serialized and only
+        exists on the local object.
+        """
+        setattr(self, '_sr_local_exception', exc)
+
+    def get_local_exception(self) -> Exception | None:
+        """Fetch a local attached exception."""
+        value = getattr(self, '_sr_local_exception', None)
+        assert isinstance(value, Exception | None)
+        return value
+
 
 # Some standard response types:
 
@@ -57,10 +71,12 @@ class ErrorSysResponse(SysResponse):
 
     class ErrorType(Enum):
         """Type of error that occurred while sending a message."""
+
         REMOTE = 0
         REMOTE_CLEAN = 1
         LOCAL = 2
         COMMUNICATION = 3
+        REMOTE_COMMUNICATION = 4
 
     error_message: Annotated[str, IOAttrs('m')]
     error_type: Annotated[ErrorType, IOAttrs('e')] = ErrorType.REMOTE

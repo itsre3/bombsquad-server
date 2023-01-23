@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from bastd.actor import spazappearance
     from ba._accountv2 import AccountV2Subsystem
     from ba._level import Level
+    from ba._apputils import AppHealthMonitor
 
 
 class App:
@@ -50,7 +51,9 @@ class App:
     # Implementations for these will be filled in by internal libs.
     accounts_v2: AccountV2Subsystem
     cloud: CloudSubsystem
+
     log_handler: efro.log.LogHandler
+    health_monitor: AppHealthMonitor
 
     class State(Enum):
         """High level state the app can be in."""
@@ -198,6 +201,7 @@ class App:
         accordingly and set to target the new API version number.
         """
         from ba._meta import CURRENT_API_VERSION
+
         return CURRENT_API_VERSION
 
     @property
@@ -231,7 +235,7 @@ class App:
         self.state = self.State.LAUNCHING
 
         self._launch_completed = False
-        self._initial_login_completed = False
+        self._initial_sign_in_completed = False
         self._meta_scan_completed = False
         self._called_on_app_running = False
         self._app_paused = False
@@ -345,7 +349,6 @@ class App:
         # pylint: disable=cyclic-import
         # pylint: disable=too-many-locals
         from ba import _asyncio
-        from ba import _apputils
         from ba import _appconfig
         from ba import _map
         from ba import _campaign
@@ -353,14 +356,16 @@ class App:
         from bastd import maps as stdmaps
         from bastd.actor import spazappearance
         from ba._generated.enums import TimeType
-        import hooker
-        #dont know of any way than this
-        hooker.launcher()
-
+        from ba._apputils import (
+            log_dumped_app_state,
+            handle_leftover_v1_cloud_log_file,
+            AppHealthMonitor,
+        )
 
         assert _ba.in_logic_thread()
 
         self._aioloop = _asyncio.setup_asyncio()
+        self.health_monitor = AppHealthMonitor()
 
         cfg = self.config
 
@@ -373,31 +378,46 @@ class App:
 
         # FIXME: This should not be hard-coded.
         for maptype in [
-                stdmaps.HockeyStadium, stdmaps.FootballStadium,
-                stdmaps.Bridgit, stdmaps.BigG, stdmaps.Roundabout,
-                stdmaps.MonkeyFace, stdmaps.ZigZag, stdmaps.ThePad,
-                stdmaps.DoomShroom, stdmaps.LakeFrigid, stdmaps.TipTop,
-                stdmaps.CragCastle, stdmaps.TowerD, stdmaps.HappyThoughts,
-                stdmaps.StepRightUp, stdmaps.Courtyard, stdmaps.Rampage
+            stdmaps.HockeyStadium,
+            stdmaps.FootballStadium,
+            stdmaps.Bridgit,
+            stdmaps.BigG,
+            stdmaps.Roundabout,
+            stdmaps.MonkeyFace,
+            stdmaps.ZigZag,
+            stdmaps.ThePad,
+            stdmaps.DoomShroom,
+            stdmaps.LakeFrigid,
+            stdmaps.TipTop,
+            stdmaps.CragCastle,
+            stdmaps.TowerD,
+            stdmaps.HappyThoughts,
+            stdmaps.StepRightUp,
+            stdmaps.Courtyard,
+            stdmaps.Rampage,
         ]:
             _map.register_map(maptype)
 
         # Non-test, non-debug builds should generally be blessed; warn if not.
         # (so I don't accidentally release a build that can't play tourneys)
-        if (not self.debug_build and not self.test_build
-                and not _internal.is_blessed()):
+        if (
+            not self.debug_build
+            and not self.test_build
+            and not _internal.is_blessed()
+        ):
             _ba.screenmessage('WARNING: NON-BLESSED BUILD', color=(1, 0, 0))
 
         # If there's a leftover log file, attempt to upload it to the
         # master-server and/or get rid of it.
-        _apputils.handle_leftover_v1_cloud_log_file()
+        handle_leftover_v1_cloud_log_file()
 
         # Only do this stuff if our config file is healthy so we don't
         # overwrite a broken one or whatnot and wipe out data.
         if not self.config_file_healthy:
             if self.platform in ('mac', 'linux', 'windows'):
-                from bastd.ui import configerror
-                configerror.ConfigErrorWindow()
+                from bastd.ui.configerror import ConfigErrorWindow
+
+                _ba.pushcall(ConfigErrorWindow)
                 return
 
             # For now on other systems we just overwrite the bum config.
@@ -422,10 +442,13 @@ class App:
         # pending special offer.
         def check_special_offer() -> None:
             from bastd.ui.specialoffer import show_offer
+
             config = self.config
-            if ('pendingSpecialOffer' in config
-                    and _internal.get_public_login_id()
-                    == config['pendingSpecialOffer']['a']):
+            if (
+                'pendingSpecialOffer' in config
+                and _internal.get_public_login_id()
+                == config['pendingSpecialOffer']['a']
+            ):
                 self.special_offer = config['pendingSpecialOffer']['o']
                 show_offer()
 
@@ -440,8 +463,12 @@ class App:
 
         # See note below in on_app_pause.
         if self.state != self.State.LAUNCHING:
-            logging.error('on_app_launch found state %s; expected LAUNCHING.',
-                          self.state)
+            logging.error(
+                'on_app_launch found state %s; expected LAUNCHING.', self.state
+            )
+
+        # If any traceback dumps happened last run, log and clear them.
+        log_dumped_app_state()
 
         self._launch_completed = True
         self._update_state()
@@ -467,9 +494,24 @@ class App:
         assert _ba.in_logic_thread()
 
         if self._app_paused:
-            self.state = self.State.PAUSED
+            # Entering paused state:
+            if self.state is not self.State.PAUSED:
+                self.state = self.State.PAUSED
+                self.cloud.on_app_pause()
+                self.accounts_v1.on_app_pause()
+                self.plugins.on_app_pause()
+                self.health_monitor.on_app_pause()
         else:
-            if self._initial_login_completed and self._meta_scan_completed:
+            # Leaving paused state:
+            if self.state is self.State.PAUSED:
+                self.fg_state += 1
+                self.cloud.on_app_resume()
+                self.accounts_v1.on_app_resume()
+                self.music.on_app_resume()
+                self.plugins.on_app_resume()
+                self.health_monitor.on_app_resume()
+
+            if self._initial_sign_in_completed and self._meta_scan_completed:
                 self.state = self.State.RUNNING
                 if not self._called_on_app_running:
                     self._called_on_app_running = True
@@ -482,19 +524,16 @@ class App:
     def on_app_pause(self) -> None:
         """Called when the app goes to a suspended state."""
 
+        assert not self._app_paused  # Should avoid redundant calls.
         self._app_paused = True
         self._update_state()
-        self.plugins.on_app_pause()
 
     def on_app_resume(self) -> None:
         """Run when the app resumes from a suspended state."""
 
+        assert self._app_paused  # Should avoid redundant calls.
         self._app_paused = False
         self._update_state()
-        self.fg_state += 1
-        self.accounts_v1.on_app_resume()
-        self.music.on_app_resume()
-        self.plugins.on_app_resume()
 
     def on_app_shutdown(self) -> None:
         """(internal)"""
@@ -505,6 +544,7 @@ class App:
     def read_config(self) -> None:
         """(internal)"""
         from ba._appconfig import read_config
+
         self._config, self.config_file_healthy = read_config()
 
     def pause(self) -> None:
@@ -514,8 +554,11 @@ class App:
         to pause ..we now no longer pause if there are connected clients.
         """
         activity: ba.Activity | None = _ba.get_foreground_host_activity()
-        if (activity is not None and activity.allow_pausing
-                and not _ba.have_connected_clients()):
+        if (
+            activity is not None
+            and activity.allow_pausing
+            and not _ba.have_connected_clients()
+        ):
             from ba._language import Lstr
             from ba._nodeactor import NodeActor
 
@@ -529,13 +572,16 @@ class App:
 
                 # FIXME: This should not be an attr on Actor.
                 activity.paused_text = NodeActor(
-                    _ba.newnode('text',
-                                attrs={
-                                    'text': Lstr(resource='pausedByHostText'),
-                                    'client_only': True,
-                                    'flatness': 1.0,
-                                    'h_align': 'center'
-                                }))
+                    _ba.newnode(
+                        'text',
+                        attrs={
+                            'text': Lstr(resource='pausedByHostText'),
+                            'client_only': True,
+                            'flatness': 1.0,
+                            'h_align': 'center',
+                        },
+                    )
+                )
 
     def resume(self) -> None:
         """Resume the game due to a user request or menu closing.
@@ -566,13 +612,15 @@ class App:
         # Make note to add it to our challenges UI.
         self.custom_coop_practice_games.append(f'Challenges:{level.name}')
 
-    def return_to_main_menu_session_gracefully(self,
-                                               reset_ui: bool = True) -> None:
+    def return_to_main_menu_session_gracefully(
+        self, reset_ui: bool = True
+    ) -> None:
         """Attempt to cleanly get back to the main menu."""
         # pylint: disable=cyclic-import
         from ba import _benchmark
         from ba._general import Call
         from bastd.mainmenu import MainMenuSession
+
         if reset_ui:
             _ba.app.ui.clear_main_menu_window()
 
@@ -591,10 +639,9 @@ class App:
 
             # Kick off a little transaction so we'll hopefully have all the
             # latest account state when we get back to the menu.
-            _internal.add_transaction({
-                'type': 'END_SESSION',
-                'sType': str(type(host_session))
-            })
+            _internal.add_transaction(
+                {'type': 'END_SESSION', 'sType': str(type(host_session))}
+            )
             _internal.run_transactions()
 
             host_session.end()
@@ -613,14 +660,14 @@ class App:
         else:
             self.main_menu_resume_callbacks.append(call)
 
-    def launch_coop_game(self,
-                         game: str,
-                         force: bool = False,
-                         args: dict | None = None) -> bool:
+    def launch_coop_game(
+        self, game: str, force: bool = False, args: dict | None = None
+    ) -> bool:
         """High level way to launch a local co-op session."""
         # pylint: disable=cyclic-import
         from ba._campaign import getcampaign
         from bastd.ui.coop.level import CoopLevelLockedWindow
+
         if args is None:
             args = {}
         if game == '':
@@ -637,7 +684,8 @@ class App:
                 if not level.complete:
                     CoopLevelLockedWindow(
                         campaign.getlevel(levelname).displayname,
-                        campaign.getlevel(level.name).displayname)
+                        campaign.getlevel(level.name).displayname,
+                    )
                     return False
 
         # Ok, we're good to go.
@@ -650,12 +698,15 @@ class App:
 
         def _fade_end() -> None:
             from ba import _coopsession
+
             try:
                 _ba.new_host_session(_coopsession.CoopSession)
             except Exception:
                 from ba import _error
+
                 _error.print_exception()
                 from bastd.mainmenu import MainMenuSession
+
                 _ba.new_host_session(MainMenuSession)
 
         _ba.fade_screen(False, endcall=_fade_end)
@@ -664,6 +715,7 @@ class App:
     def handle_deep_link(self, url: str) -> None:
         """Handle a deep link URL."""
         from ba._language import Lstr
+
         appname = _ba.appname()
         if url.startswith(f'{appname}://code/'):
             code = url.replace(f'{appname}://code/', '')
@@ -672,8 +724,8 @@ class App:
             _ba.screenmessage(Lstr(resource='errorText'), color=(1, 0, 0))
             _ba.playsound(_ba.getsound('error'))
 
-    def on_initial_login_completed(self) -> None:
-        """Callback to be run after initial login process (or lack thereof).
+    def on_initial_sign_in_completed(self) -> None:
+        """Callback to be run after initial sign-in (or lack thereof).
 
         This period includes things such as syncing account workspaces
         or other data so it may take a substantial amount of time.
@@ -684,5 +736,5 @@ class App:
         # (account workspaces).
         self.meta.start_extra_scan()
 
-        self._initial_login_completed = True
+        self._initial_sign_in_completed = True
         self._update_state()

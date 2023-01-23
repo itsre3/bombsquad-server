@@ -6,7 +6,6 @@ Supports static typing for message types and possible return types.
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
 from efro.error import CleanError, RemoteError, CommunicationError
@@ -43,15 +42,22 @@ class MessageSender:
         self.protocol = protocol
         self._send_raw_message_call: Callable[[Any, str], str] | None = None
         self._send_async_raw_message_call: Callable[
-            [Any, str], Awaitable[str]] | None = None
-        self._encode_filter_call: Callable[[Any, Message, dict],
-                                           None] | None = None
+            [Any, str], Awaitable[str]
+        ] | None = None
+        self._send_async_raw_message_ex_call: Callable[
+            [Any, str, Message], Awaitable[str]
+        ] | None = None
+        self._encode_filter_call: Callable[
+            [Any, Message, dict], None
+        ] | None = None
         self._decode_filter_call: Callable[
-            [Any, Message, dict, Response | SysResponse], None] | None = None
+            [Any, Message, dict, Response | SysResponse], None
+        ] | None = None
+        self._peer_desc_call: Callable[[Any], str] | None = None
 
     def send_method(
-            self, call: Callable[[Any, str],
-                                 str]) -> Callable[[Any, str], str]:
+        self, call: Callable[[Any, str], str]
+    ) -> Callable[[Any, str], str]:
         """Function decorator for setting raw send method.
 
         Send methods take strings and should return strings.
@@ -72,9 +78,30 @@ class MessageSender:
         CommunicationErrors raised here will be returned to the sender
         as such; all other exceptions will result in a RuntimeError for
         the sender.
+
+        IMPORTANT: Generally async send methods should not be implemented
+        as 'async' methods, but instead should be regular methods that
+        return awaitable objects. This way it can be guaranteed that
+        outgoing messages are synchronously enqueued in the correct
+        order, and then async calls can be returned which finish each
+        send. If the entire call is async, they may be enqueued out of
+        order in rare cases.
         """
         assert self._send_async_raw_message_call is None
         self._send_async_raw_message_call = call
+        return call
+
+    def send_async_ex_method(
+        self, call: Callable[[Any, str, Message], Awaitable[str]]
+    ) -> Callable[[Any, str, Message], Awaitable[str]]:
+        """Function decorator for extended send-async method.
+
+        Version of send_async_method which is also is passed the original
+        unencoded message; can be useful for cases where metadata is sent
+        along with messages referring to their payloads/etc.
+        """
+        assert self._send_async_raw_message_ex_call is None
+        self._send_async_raw_message_ex_call = call
         return call
 
     def encode_filter_method(
@@ -90,8 +117,7 @@ class MessageSender:
         return call
 
     def decode_filter_method(
-        self, call: Callable[[Any, Message, dict, Response | SysResponse],
-                             None]
+        self, call: Callable[[Any, Message, dict, Response | SysResponse], None]
     ) -> Callable[[Any, Message, dict, Response], None]:
         """Function decorator for defining a decode filter.
 
@@ -102,29 +128,61 @@ class MessageSender:
         self._decode_filter_call = call
         return call
 
+    def peer_desc_method(
+        self, call: Callable[[Any], str]
+    ) -> Callable[[Any], str]:
+        """Function decorator for defining peer descriptions.
+
+        These are included in error messages or other diagnostics.
+        """
+        assert self._peer_desc_call is None
+        self._peer_desc_call = call
+        return call
+
     def send(self, bound_obj: Any, message: Message) -> Response | None:
         """Send a message synchronously."""
-        return self.send_split_part_2(
+        return self.unpack_raw_response(
+            bound_obj=bound_obj,
             message=message,
-            raw_response=self.send_split_part_1(
+            raw_response=self.fetch_raw_response(
                 bound_obj=bound_obj,
                 message=message,
             ),
         )
 
-    async def send_async(self, bound_obj: Any,
-                         message: Message) -> Response | None:
+    def send_async(
+        self, bound_obj: Any, message: Message
+    ) -> Awaitable[Response | None]:
         """Send a message asynchronously."""
-        return self.send_split_part_2(
+
+        # Note: This call is synchronous so that the first part of it can
+        # happen synchronously. If the whole call were async we wouldn't be
+        # able to guarantee that messages sent in order would actually go
+        # out in order.
+        raw_response_awaitable = self.fetch_raw_response_async(
+            bound_obj=bound_obj,
             message=message,
-            raw_response=await self.send_split_part_1_async(
-                bound_obj=bound_obj,
-                message=message,
-            ),
+        )
+        # Now return an awaitable that will finish the send.
+        return self._send_async_awaitable(
+            bound_obj, message, raw_response_awaitable
         )
 
-    def send_split_part_1(self, bound_obj: Any,
-                          message: Message) -> Response | SysResponse:
+    async def _send_async_awaitable(
+        self,
+        bound_obj: Any,
+        message: Message,
+        raw_response_awaitable: Awaitable[Response | SysResponse],
+    ) -> Response | None:
+        return self.unpack_raw_response(
+            bound_obj=bound_obj,
+            message=message,
+            raw_response=await raw_response_awaitable,
+        )
+
+    def fetch_raw_response(
+        self, bound_obj: Any, message: Message
+    ) -> Response | SysResponse:
         """Send a message synchronously.
 
         Generally you can just call send(); these split versions are
@@ -137,58 +195,117 @@ class MessageSender:
         msg_encoded = self._encode_message(bound_obj, message)
         try:
             response_encoded = self._send_raw_message_call(
-                bound_obj, msg_encoded)
+                bound_obj, msg_encoded
+            )
         except Exception as exc:
-            # Any error in the raw send call gets recorded as either
-            # a local or communication error.
-            return ErrorSysResponse(
-                error_message=
-                f'Error in MessageSender @send_method ({type(exc)}): {exc}',
-                error_type=(ErrorSysResponse.ErrorType.COMMUNICATION
-                            if isinstance(exc, CommunicationError) else
-                            ErrorSysResponse.ErrorType.LOCAL))
+            response = ErrorSysResponse(
+                error_message='Error in MessageSender @send_method.',
+                error_type=(
+                    ErrorSysResponse.ErrorType.COMMUNICATION
+                    if isinstance(exc, CommunicationError)
+                    else ErrorSysResponse.ErrorType.LOCAL
+                ),
+            )
+            # Can include the actual exception since we'll be looking at
+            # this locally; might be helpful.
+            response.set_local_exception(exc)
+            return response
         return self._decode_raw_response(bound_obj, message, response_encoded)
 
-    async def send_split_part_1_async(
-            self, bound_obj: Any, message: Message) -> Response | SysResponse:
-        """Send a message asynchronously.
+    def fetch_raw_response_async(
+        self, bound_obj: Any, message: Message
+    ) -> Awaitable[Response | SysResponse]:
+        """Fetch a raw message response awaitable.
 
-        Generally you can just call send(); these split versions are
-        for when message sending and response handling need to happen
-        in different contexts/threads.
+        The result of this should be awaited and then passed to
+        unpack_raw_response() to produce the final message result.
+
+        Generally you can just call send(); calling fetch and unpack
+        manually is for when message sending and response handling need
+        to happen in different contexts/threads.
         """
 
-        if self._send_async_raw_message_call is None:
+        # Note: This call is synchronous so that the first part of it can
+        # happen synchronously. If the whole call were async we wouldn't be
+        # able to guarantee that messages sent in order would actually go
+        # out in order.
+        if (
+            self._send_async_raw_message_call is None
+            and self._send_async_raw_message_ex_call is None
+        ):
             raise RuntimeError('send_async() is unimplemented for this type.')
 
         msg_encoded = self._encode_message(bound_obj, message)
         try:
-            response_encoded = await self._send_async_raw_message_call(
-                bound_obj, msg_encoded)
+            if self._send_async_raw_message_ex_call is not None:
+                send_awaitable = self._send_async_raw_message_ex_call(
+                    bound_obj, msg_encoded, message
+                )
+            else:
+                assert self._send_async_raw_message_call is not None
+                send_awaitable = self._send_async_raw_message_call(
+                    bound_obj, msg_encoded
+                )
         except Exception as exc:
-            # Any error in the raw send call gets recorded as either
-            # a local or communication error.
-            return ErrorSysResponse(
-                error_message=
-                f'Error in MessageSender @send_async_method ({type(exc)}):'
-                f' {exc}',
-                error_type=(ErrorSysResponse.ErrorType.COMMUNICATION
-                            if isinstance(exc, CommunicationError) else
-                            ErrorSysResponse.ErrorType.LOCAL))
+            return self._error_awaitable(exc)
+
+        # Now return an awaitable to finish the job.
+        return self._fetch_raw_response_awaitable(
+            bound_obj, message, send_awaitable
+        )
+
+    async def _error_awaitable(self, exc: Exception) -> SysResponse:
+        response = ErrorSysResponse(
+            error_message='Error in MessageSender @send_async_method.',
+            error_type=(
+                ErrorSysResponse.ErrorType.COMMUNICATION
+                if isinstance(exc, CommunicationError)
+                else ErrorSysResponse.ErrorType.LOCAL
+            ),
+        )
+        # Can include the actual exception since we'll be looking at
+        # this locally; might be helpful.
+        response.set_local_exception(exc)
+        return response
+
+    async def _fetch_raw_response_awaitable(
+        self, bound_obj: Any, message: Message, send_awaitable: Awaitable[str]
+    ) -> Response | SysResponse:
+
+        try:
+            response_encoded = await send_awaitable
+        except Exception as exc:
+            response = ErrorSysResponse(
+                error_message='Error in MessageSender @send_async_method.',
+                error_type=(
+                    ErrorSysResponse.ErrorType.COMMUNICATION
+                    if isinstance(exc, CommunicationError)
+                    else ErrorSysResponse.ErrorType.LOCAL
+                ),
+            )
+            # Can include the actual exception since we'll be looking at
+            # this locally; might be helpful.
+            response.set_local_exception(exc)
+            return response
         return self._decode_raw_response(bound_obj, message, response_encoded)
 
-    def send_split_part_2(
-            self, message: Message,
-            raw_response: Response | SysResponse) -> Response | None:
-        """Complete message sending (both sync and async).
+    def unpack_raw_response(
+        self,
+        bound_obj: Any,
+        message: Message,
+        raw_response: Response | SysResponse,
+    ) -> Response | None:
+        """Convert a raw fetched response into a final response/error/etc.
 
-        Generally you can just call send(); these split versions are
-        for when message sending and response handling need to happen
-        in different contexts/threads.
+        Generally you can just call send(); calling fetch and unpack
+        manually is for when message sending and response handling need
+        to happen in different contexts/threads.
         """
-        response = self._unpack_raw_response(raw_response)
-        assert (response is None
-                or type(response) in type(message).get_response_types())
+        response = self._unpack_raw_response(bound_obj, raw_response)
+        assert (
+            response is None
+            or type(response) in type(message).get_response_types()
+        )
         return response
 
     def _encode_message(self, bound_obj: Any, message: Message) -> str:
@@ -198,8 +315,9 @@ class MessageSender:
             self._encode_filter_call(bound_obj, message, msg_dict)
         return self.protocol.encode_dict(msg_dict)
 
-    def _decode_raw_response(self, bound_obj: Any, message: Message,
-                             response_encoded: str) -> Response | SysResponse:
+    def _decode_raw_response(
+        self, bound_obj: Any, message: Message, response_encoded: str
+    ) -> Response | SysResponse:
         """Create a Response from returned data.
 
         These Responses may encapsulate things like remote errors and
@@ -212,23 +330,22 @@ class MessageSender:
             response_dict = self.protocol.decode_dict(response_encoded)
             response = self.protocol.response_from_dict(response_dict)
             if self._decode_filter_call is not None:
-                self._decode_filter_call(bound_obj, message, response_dict,
-                                         response)
-        except Exception:
-            # If we got to this point, we successfully communicated
-            # with the other end so errors represent protocol mismatches
-            # or other invalid data. For now let's just log it but perhaps
-            # we'd want to somehow embed it in the ErrorSysResponse to be
-            # available directly to the user later.
-            logging.exception('Error decoding raw response')
+                self._decode_filter_call(
+                    bound_obj, message, response_dict, response
+                )
+        except Exception as exc:
             response = ErrorSysResponse(
-                error_message=
-                'Error decoding raw response; see log for details.',
-                error_type=ErrorSysResponse.ErrorType.LOCAL)
+                error_message='Error decoding raw response.',
+                error_type=ErrorSysResponse.ErrorType.LOCAL,
+            )
+            # Since we'll be looking at this locally, we can include
+            # extra info for logging/etc.
+            response.set_local_exception(exc)
         return response
 
     def _unpack_raw_response(
-            self, raw_response: Response | SysResponse) -> Response | None:
+        self, bound_obj: Any, raw_response: Response | SysResponse
+    ) -> Response | None:
         """Given a raw Response, unpacks to special values or Exceptions.
 
         The result of this call is what should be passed to users.
@@ -244,22 +361,53 @@ class MessageSender:
         # Some error occurred. Raise a local Exception for it.
         if isinstance(raw_response, ErrorSysResponse):
 
-            if (raw_response.error_type is
-                    ErrorSysResponse.ErrorType.COMMUNICATION):
-                raise CommunicationError(raw_response.error_message)
+            # Errors that happened locally can attach their exceptions
+            # here for extra logging goodness.
+            local_exception = raw_response.get_local_exception()
+
+            if (
+                raw_response.error_type
+                is ErrorSysResponse.ErrorType.COMMUNICATION
+            ):
+                raise CommunicationError(
+                    raw_response.error_message
+                ) from local_exception
 
             # If something went wrong on *our* end of the connection,
             # don't say it was a remote error.
             if raw_response.error_type is ErrorSysResponse.ErrorType.LOCAL:
-                raise RuntimeError(raw_response.error_message)
+                raise RuntimeError(
+                    raw_response.error_message
+                ) from local_exception
 
             # If they want to support clean errors, do those.
-            if (self.protocol.forward_clean_errors and raw_response.error_type
-                    is ErrorSysResponse.ErrorType.REMOTE_CLEAN):
-                raise CleanError(raw_response.error_message)
+            if (
+                self.protocol.forward_clean_errors
+                and raw_response.error_type
+                is ErrorSysResponse.ErrorType.REMOTE_CLEAN
+            ):
+                raise CleanError(
+                    raw_response.error_message
+                ) from local_exception
+
+            if (
+                self.protocol.forward_communication_errors
+                and raw_response.error_type
+                is ErrorSysResponse.ErrorType.REMOTE_COMMUNICATION
+            ):
+                raise CommunicationError(
+                    raw_response.error_message
+                ) from local_exception
 
             # Everything else gets lumped in as a remote error.
-            raise RemoteError(raw_response.error_message)
+            raise RemoteError(
+                raw_response.error_message,
+                peer_desc=(
+                    'peer'
+                    if self._peer_desc_call is None
+                    else self._peer_desc_call(bound_obj)
+                ),
+            ) from local_exception
 
         assert isinstance(raw_response, Response)
         return raw_response
@@ -288,26 +436,30 @@ class BoundMessageSender:
         assert self._obj is not None
         return self._sender.send(bound_obj=self._obj, message=message)
 
-    async def send_async_untyped(self, message: Message) -> Response | None:
+    def send_async_untyped(
+        self, message: Message
+    ) -> Awaitable[Response | None]:
         """Send a message asynchronously.
 
         Whenever possible, use the send_async() call provided by generated
         subclasses instead of this; it will provide better type safety.
         """
         assert self._obj is not None
-        return await self._sender.send_async(bound_obj=self._obj,
-                                             message=message)
+        return self._sender.send_async(bound_obj=self._obj, message=message)
 
-    async def send_split_part_1_async_untyped(
-            self, message: Message) -> Response | SysResponse:
+    def fetch_raw_response_async_untyped(
+        self, message: Message
+    ) -> Awaitable[Response | SysResponse]:
         """Split send (part 1 of 2)."""
         assert self._obj is not None
-        return await self._sender.send_split_part_1_async(bound_obj=self._obj,
-                                                          message=message)
+        return self._sender.fetch_raw_response_async(
+            bound_obj=self._obj, message=message
+        )
 
-    def send_split_part_2_untyped(
-            self, message: Message,
-            raw_response: Response | SysResponse) -> Response | None:
+    def unpack_raw_response_untyped(
+        self, message: Message, raw_response: Response | SysResponse
+    ) -> Response | None:
         """Split send (part 2 of 2)."""
-        return self._sender.send_split_part_2(message=message,
-                                              raw_response=raw_response)
+        return self._sender.unpack_raw_response(
+            bound_obj=self._obj, message=message, raw_response=raw_response
+        )

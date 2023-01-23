@@ -31,6 +31,7 @@ class CleanError(Exception):
         If the error has an empty message, prints nothing (not even a newline).
         """
         from efro.terminal import Clr
+
         errstr = str(self)
         if errstr:
             print(f'{Clr.SRED}{errstr}{Clr.RST}', flush=flush)
@@ -62,13 +63,30 @@ class RemoteError(Exception):
     as a catch-all.
     """
 
+    def __init__(self, msg: str, peer_desc: str):
+        super().__init__(msg)
+        self._peer_desc = peer_desc
+
     def __str__(self) -> str:
         s = ''.join(str(arg) for arg in self.args)
-        return f'Remote Exception Follows:\n{s}'
+        # Indent so we can more easily tell what is the remote part when
+        # this is in the middle of a long exception chain.
+        padding = '  '
+        s = ''.join(padding + line for line in s.splitlines(keepends=True))
+        return f'The following occurred on {self._peer_desc}:\n{s}'
 
 
 class IntegrityError(ValueError):
     """Data has been tampered with or corrupted in some form."""
+
+
+class AuthenticationError(Exception):
+    """Authentication has failed for some operation.
+
+    This can be raised if server-side-verification does not match
+    client-supplied credentials, if an invalid password is supplied
+    for a sign-in attempt, etc.
+    """
 
 
 def is_urllib_communication_error(exc: BaseException, url: str | None) -> bool:
@@ -87,9 +105,18 @@ def is_urllib_communication_error(exc: BaseException, url: str | None) -> bool:
     import urllib.error
     import http.client
     import socket
-    if isinstance(exc, (urllib.error.URLError, ConnectionError,
-                        http.client.IncompleteRead, http.client.BadStatusLine,
-                        http.client.RemoteDisconnected, socket.timeout)):
+
+    if isinstance(
+        exc,
+        (
+            urllib.error.URLError,
+            ConnectionError,
+            http.client.IncompleteRead,
+            http.client.BadStatusLine,
+            http.client.RemoteDisconnected,
+            socket.timeout,
+        ),
+    ):
 
         # Special case: although an HTTPError is a subclass of URLError,
         # we don't consider it a communication error. It generally means we
@@ -112,12 +139,20 @@ def is_urllib_communication_error(exc: BaseException, url: str | None) -> bool:
         if exc.errno == 10051:  # Windows unreachable network error.
             return True
         if exc.errno in {
-                errno.ETIMEDOUT,
-                errno.EHOSTUNREACH,
-                errno.ENETUNREACH,
+            errno.ETIMEDOUT,
+            errno.EHOSTUNREACH,
+            errno.ENETUNREACH,
         }:
             return True
     return False
+
+
+def is_requests_communication_error(exc: BaseException) -> bool:
+    """Is the provided exception a communication-related error from requests?"""
+    import requests
+
+    # Looks like this maps pretty well onto requests' ConnectionError
+    return isinstance(exc, requests.ConnectionError)
 
 
 def is_udp_communication_error(exc: BaseException) -> bool:
@@ -136,18 +171,18 @@ def is_udp_communication_error(exc: BaseException) -> bool:
         if exc.errno == 10051:  # Windows unreachable network error.
             return True
         if exc.errno in {
-                errno.EADDRNOTAVAIL,
-                errno.ETIMEDOUT,
-                errno.EHOSTUNREACH,
-                errno.ENETUNREACH,
-                errno.EINVAL,
-                errno.EPERM,
-                errno.EACCES,
-                # Windows 'invalid argument' error.
-                10022,
-                # Windows 'a socket operation was attempted to'
-                #         'an unreachable network' error.
-                10051,
+            errno.EADDRNOTAVAIL,
+            errno.ETIMEDOUT,
+            errno.EHOSTUNREACH,
+            errno.ENETUNREACH,
+            errno.EINVAL,
+            errno.EPERM,
+            errno.EACCES,
+            # Windows 'invalid argument' error.
+            10022,
+            # Windows 'a socket operation was attempted to'
+            #         'an unreachable network' error.
+            10051,
         }:
             return True
     return False
@@ -162,13 +197,17 @@ def is_asyncio_streams_communication_error(exc: BaseException) -> bool:
     firewall/connectivity issues, etc. These issues can often be safely
     ignored or presented to the user as general 'connection-lost' events.
     """
+    # pylint: disable=too-many-return-statements
     import ssl
 
-    if isinstance(exc, (
+    if isinstance(
+        exc,
+        (
             ConnectionError,
             TimeoutError,
             EOFError,
-    )):
+        ),
+    ):
         return True
 
     # Also some specific errno ones.
@@ -176,9 +215,9 @@ def is_asyncio_streams_communication_error(exc: BaseException) -> bool:
         if exc.errno == 10051:  # Windows unreachable network error.
             return True
         if exc.errno in {
-                errno.ETIMEDOUT,
-                errno.EHOSTUNREACH,
-                errno.ENETUNREACH,
+            errno.ETIMEDOUT,
+            errno.EHOSTUNREACH,
+            errno.ENETUNREACH,
         }:
             return True
 
@@ -196,6 +235,10 @@ def is_asyncio_streams_communication_error(exc: BaseException) -> bool:
         # Assuming this just means client is attempting to connect from some
         # outdated browser or whatnot.
         if 'SSL: WRONG_VERSION_NUMBER' in excstr:
+            return True
+
+        # And seeing this very rarely; assuming its just data corruption?
+        if 'SSL: DECRYPTION_FAILED_OR_BAD_RECORD_MAC' in excstr:
             return True
 
     return False
