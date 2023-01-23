@@ -31,7 +31,9 @@ def launcher() -> None:
     
     if sett["stats"]["enabled"]:
         from stats import mystats
+        from overriders import _playerspaz_ovr
         mystats.run_stats()
+        _playerspaz_ovr.enable()
     
     if sett["discord"]["enabled"]:
         from discord_bot import b_launch
