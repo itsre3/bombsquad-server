@@ -12,7 +12,7 @@ html_file = os.path.join(_ba.env()['python_directory_user'], "web" + os.sep) + "
 
 @app.route("/")
 def index():
-    with open(html_file, 'r' as file:
+    with open(html_file, 'r') as file:
         contents = file.read()
     
     html = str(contents)
