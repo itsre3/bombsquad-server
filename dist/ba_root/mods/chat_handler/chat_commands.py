@@ -10,7 +10,7 @@ import _ba
 import settings
 import coinsystem
 from stats import mystats
-from .cmd_files import newfly as nfly, help
+from cmd_files import help
 from ba._generated.enums import SpecialChar
 
 if TYPE_CHECKING:
