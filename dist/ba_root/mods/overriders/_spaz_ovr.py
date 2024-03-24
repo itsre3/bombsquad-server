@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import ba
 import _ba
-import bastd,weakref,random,math,time,base64,os,json
+import bastd, weakref, random, math, time, base64, os, json
 from bastd.actor import spaz
 from bastd.gameutils import SharedObjects
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class SurroundFactory(object):
 class ProSurroundBall(ba.Actor):
     def __init__(self, spaz, shape="bones"):
         ba.Actor.__init__(self)
-        self.spaz_ref = weakref.ref(spaz)
+        self.spaz_ref = spaz
         self.source_player = spaz
         factory = self.getFactory()
         self.node = ba.newnode("prop",
