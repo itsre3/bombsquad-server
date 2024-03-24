@@ -45,8 +45,6 @@ class SurroundFactory(object):
 class ProSurroundBall(ba.Actor):
     def __init__(self, spaz, shape="bones"):
         ba.Actor.__init__(self)
-        newspaz = spaz
-        self.spaz_ref = weakref.ref(newspaz)
         self.source_player = spaz
         
         factory = self.getFactory()
@@ -131,7 +129,6 @@ class ProSurroundBall(ba.Actor):
         timerr = ba.Timer(30, self.circle_move, repeat=True,  timetype=tt, timeformat=tf)
 
     def circle_move(self):
-        spaz = self.spaz_ref()
         if spaz is None or not spaz.is_alive() or not spaz.node.exists():
             self.handlemessage(ba.DieMessage())
             return
