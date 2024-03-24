@@ -328,6 +328,21 @@ class admin(object):
                             nfly.NewFly(plr)
                 except Exception as e:
                     print(e)
+                    
+            elif x in ["/godmode", "/gm"]:
+                try:
+                    for i in activity.players:
+                        if i.sessionplayer.inputdevice.client_id == clid:
+                            i.actor.node.invicible = True
+                            ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                        else:
+                            num = int(z[0])
+                            body = activity.players[num].actor.node
+                            body.invicible = True
+                            nicks = activity.players[num].getname()
+                            ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                except Exception as e:
+                    print(e)
                 
             else:
                 vip(msg, clid, acid)
