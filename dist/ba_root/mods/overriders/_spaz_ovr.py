@@ -147,6 +147,7 @@ class ProSurroundBall(ba.Actor):
     def handlemessage(self, m):
         ba.Actor.handlemessage(self, m)
         if isinstance(m, ba.DieMessage):
+            global timerr
             if timerr is not None: timerr = None
             self.node.delete()
         elif isinstance(m, ba.OutOfBoundsMessage):
