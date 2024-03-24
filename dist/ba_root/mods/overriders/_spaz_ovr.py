@@ -43,9 +43,9 @@ class SurroundFactory(object):
 
 
 class ProSurroundBall(ba.Actor):
-    def __init__(self, spaz, shape="bones"):
+    def __init__(self, spazself, shape="bones"):
         ba.Actor.__init__(self)
-        self.source_player = spaz
+        self.source_player = spazself
         
         factory = self.getFactory()
         self.node = ba.newnode("prop",
@@ -58,7 +58,7 @@ class ProSurroundBall(ba.Actor):
                                "density": 0,
                                "reflection_scale": [0.15],
                                "shadow_size": 0.6,
-                               "position": spaz.node.position,
+                               "position": spazself.node.position,
                                "velocity": (0, 0, 0),
                                "materials": [SharedObjects.get().object_material, factory.surround_material]}, delegate=self)
         m = ba.newnode('math', attrs={
@@ -91,7 +91,7 @@ class ProSurroundBall(ba.Actor):
         self.height_delta = 0.2
         self.height_max = 1.0
         self.height_min = 0.1
-        self.init_timer(spaz.node.position)
+        self.init_timer(spazself.node.position)
         if timerr:
             self.light_time = ba.timer(0.03, self.light, repeat=True)
 
@@ -129,10 +129,10 @@ class ProSurroundBall(ba.Actor):
         timerr = ba.Timer(30, self.circle_move, repeat=True,  timetype=tt, timeformat=tf)
 
     def circle_move(self):
-        if spaz is None or not spaz.is_alive() or not spaz.node.exists():
+        if spazself is None or not spazself.is_alive() or not spazself.node.exists():
             self.handlemessage(ba.DieMessage())
             return
-        p = spaz.node.position
+        p = spazself.node.position
         pt = self.get_target_position(p)
         pn = self.node.position
         d = [pt[0] - pn[0], pt[1] - pn[1], pt[2] - pn[2]]
@@ -164,3 +164,18 @@ class ProSurroundBall(ba.Actor):
             f = activity._sharedSurroundFactory = SurroundFactory()
             return f
 
+def __init__(
+        self,
+        color: Sequence[float] = (1.0, 1.0, 1.0),
+        highlight: Sequence[float] = (0.5, 0.5, 0.5),
+        character: str = 'Spaz',
+        source_player: ba.Player | None = None,
+        start_invincible: bool = True,
+        can_accept_powerups: bool = True,
+        powerups_expire: bool = False,
+        demo_mode: bool = False,
+    ):
+        
+        ba.Actor.__init__()
+        spaz.Spaz.__init__()
+        ProSurroundBall(self.node)
