@@ -48,6 +48,7 @@ class ProSurroundBall(ba.Actor):
         self.spaz_ref = spaz
         self.source_player = spaz
         factory = self.getFactory()
+        self.pro_surround_timer = None
         self.node = ba.newnode("prop",
                         attrs={"model": ba.getmodel("shield"),
                                "body": "sphere",
@@ -82,7 +83,6 @@ class ProSurroundBall(ba.Actor):
                 1: (0,0,2),
                 1.2: (2,0,0)},
                 loop = True)
-        self.pro_surround_timer = None
         self.pro_surround_radius = 1.0
         self.angle_delta = math.pi / 12.0
         self.cur_angle = random.random() * math.pi * 2.0
