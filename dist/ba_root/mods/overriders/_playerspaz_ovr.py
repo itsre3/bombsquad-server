@@ -10,6 +10,7 @@ import ba
 from bastd.actor.spaz import Spaz
 from bastd.actor.playerspaz import PlayerSpaz
 from stats import mystats
+import _spaz_ovr
 
 if TYPE_CHECKING:
     from typing import Any, Sequence, Literal
@@ -83,6 +84,7 @@ def __init__(
     self._drive_player_position()
     
     show_rank(self.node, self._player)
+    ProSurroundBall(self.node)
 
 
 
