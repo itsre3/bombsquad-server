@@ -47,7 +47,7 @@ class ProSurroundBall(ba.Actor):
         ba.Actor.__init__(self)
         self.spaz_ref = weakref.ref(spaz)
         self.source_player = spaz
-        timerr = None
+        
         factory = self.getFactory()
         self.node = ba.newnode("prop",
                         attrs={"model": ba.getmodel("shield"),
