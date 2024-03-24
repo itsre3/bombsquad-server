@@ -333,12 +333,12 @@ class admin(object):
                 try:
                     for i in activity.players:
                         if i.sessionplayer.inputdevice.client_id == clid:
-                            i.actor.node.invicible = True
+                            i.actor.node.invincible = True
                             ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                         else:
                             num = int(z[0])
                             body = activity.players[num].actor.node
-                            body.invicible = True
+                            body.invincible = True
                             nicks = activity.players[num].getname()
                             ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                 except Exception as e:
