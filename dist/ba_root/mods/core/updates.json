@@ -1,8 +1,16 @@
 {
-    "version": 0.2,
-    "updates_info": [
-        "Checked currency system functionality and some tyding",
-        "Version checker Functionality",
-        "None"
-    ]
+    {
+        "version": 0.2,
+        "updates_info": [
+            "Checked currency system functionality and some tyding",
+            "Version checker Functionality",
+            "None"
+            ]
+    },
+    {
+        "version": 0.3,
+        "updates_info": [
+            "Tidying logs a bit"
+            ]
+    }
 }

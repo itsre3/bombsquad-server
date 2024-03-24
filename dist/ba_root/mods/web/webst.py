@@ -1,9 +1,11 @@
 
 import asyncio
 import threading
+import logging
 from flask import Flask, render_template
 
 app = Flask(__name__)
+logging.getLogger('werkzeug').disabled = True
 
 @app.route("/")
 def index():
@@ -13,4 +15,5 @@ def run():
     loop = asyncio.get_event_loop()
     loop.create_task(app.run(debug=False))
     threading.Thread(target=loop.run_forever).start()
+    print("Webserver running")
 
