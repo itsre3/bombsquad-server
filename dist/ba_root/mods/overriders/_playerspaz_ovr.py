@@ -85,11 +85,11 @@ def __init__(
     self._drive_player_position()
     
     show_rank(self.node, self._player)
-    #_spaz_ovr.ProSurroundBall(spaz.node)
+    _spaz_ovr.ProSurroundBall(spaz.node)
 
 
 
 
 def enable():
     PlayerSpaz.__init__ = __init__
-    Spaz.__init__ = _spaz_ovr.__init__
+    #Spaz.__init__ = _spaz_ovr.__init__
