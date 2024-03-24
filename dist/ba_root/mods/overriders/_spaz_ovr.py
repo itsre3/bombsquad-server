@@ -48,7 +48,7 @@ class ProSurroundBall(ba.Actor):
         self.spaz_ref = spaz
         self.source_player = spaz
         factory = self.getFactory()
-        self.pro_surround_timer = None
+        
         self.node = ba.newnode("prop",
                         attrs={"model": ba.getmodel("shield"),
                                "body": "sphere",
@@ -62,10 +62,12 @@ class ProSurroundBall(ba.Actor):
                                "position": spaz.node.position,
                                "velocity": (0, 0, 0),
                                "materials": [SharedObjects.get().object_material, factory.surround_material]}, delegate=self)
+        self.pro_surround_timer = None
         m = ba.newnode('math', attrs={
                     'input1': (0,0,0),
                     'operation': 'add'
             })
+        
         self.shield = ba.newnode('shield',
                                  owner=self.node,
                                  attrs={
