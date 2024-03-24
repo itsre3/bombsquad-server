@@ -1,18 +1,20 @@
 
 import ba
 import _ba
-import _thread, os
+import asyncio, threading
 import logging
 from flask import Flask, render_template
 
 app = Flask(__name__)
-app.config['TEMPLATES_AUTO_RELOAD'] = True
 logging.getLogger('werkzurg').disabled = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 @app.route("/")
 def index():
     return render_template("stats_page.html")
 
 def run():
-    _thread.start_new_thread(app.run, ("0.0.0.0", 5000, False))
+    loop = asyncio.get_event_loop()
+    loop.create_task(app.run(debug=False))
+    threading.Thread(target=loop.run_forever).start()
 
