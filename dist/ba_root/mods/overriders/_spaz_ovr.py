@@ -47,6 +47,7 @@ class ProSurroundBall(ba.Actor):
         ba.Actor.__init__(self)
         self.spaz_ref = weakref.ref(spaz)
         self.source_player = spaz
+        timerr = None
         factory = self.getFactory()
         self.node = ba.newnode("prop",
                         attrs={"model": ba.getmodel("shield"),
@@ -82,7 +83,7 @@ class ProSurroundBall(ba.Actor):
                 1: (0,0,2),
                 1.2: (2,0,0)},
                 loop = True)
-        self.pro_surround_timer = None
+ #       timerr = None
         self.pro_surround_radius = 1.0
         self.angle_delta = math.pi / 12.0
         self.cur_angle = random.random() * math.pi * 2.0
@@ -92,7 +93,7 @@ class ProSurroundBall(ba.Actor):
         self.height_max = 1.0
         self.height_min = 0.1
         self.init_timer(spaz.node.position)
-        if self.pro_surround_timer:
+        if timerr:
             self.light_time = ba.timer(0.03, self.light, repeat=True)
 
     def light(self):
@@ -125,7 +126,7 @@ class ProSurroundBall(ba.Actor):
 
     def init_timer(self, p):
         self.node.position = self.get_target_position(p)
-        self.pro_surround_timer = ba.Timer(30, self.circle_move, repeat=True,  timetype=tt, timeformat=tf)
+        timerr = ba.Timer(30, self.circle_move, repeat=True,  timetype=tt, timeformat=tf)
 
     def circle_move(self):
         spaz = self.spaz_ref()
@@ -147,7 +148,7 @@ class ProSurroundBall(ba.Actor):
     def handlemessage(self, m):
         ba.Actor.handlemessage(self, m)
         if isinstance(m, ba.DieMessage):
-            if self.pro_surround_timer is not None: self.pro_surround_timer = None
+            if timerr is not None: timerr = None
             self.node.delete()
         elif isinstance(m, ba.OutOfBoundsMessage):
             self.handlemessage(ba.DieMessage())
