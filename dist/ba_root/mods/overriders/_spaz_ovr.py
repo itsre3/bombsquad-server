@@ -45,7 +45,8 @@ class SurroundFactory(object):
 class ProSurroundBall(ba.Actor):
     def __init__(self, spaz, shape="bones"):
         ba.Actor.__init__(self)
-        self.spaz_ref = spaz
+        newspaz = spaz
+        self.spaz_ref = weakref.ref(newspaz)
         self.source_player = spaz
         
         factory = self.getFactory()
