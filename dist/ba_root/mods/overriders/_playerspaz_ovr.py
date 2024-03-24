@@ -84,7 +84,7 @@ def __init__(
     self._drive_player_position()
     
     show_rank(self.node, self._player)
-    _spaz_ovr.ProSurroundBall(self.node)
+    _spaz_ovr.ProSurroundBall(self._player.actor)
 
 
 
