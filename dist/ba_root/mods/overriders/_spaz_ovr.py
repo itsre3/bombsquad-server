@@ -84,7 +84,7 @@ class ProSurroundBall(ba.Actor):
                 1: (0,0,2),
                 1.2: (2,0,0)},
                 loop = True)
-        global timerr = None
+        timerr = None
         self.pro_surround_radius = 1.0
         self.angle_delta = math.pi / 12.0
         self.cur_angle = random.random() * math.pi * 2.0
@@ -127,6 +127,7 @@ class ProSurroundBall(ba.Actor):
 
     def init_timer(self, p):
         self.node.position = self.get_target_position(p)
+        global timerr
         timerr = ba.Timer(30, self.circle_move, repeat=True,  timetype=tt, timeformat=tf)
 
     def circle_move(self):
