@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import ba
 from bastd.actor.spaz import Spaz
+from bastd.actor import spaz
 from bastd.actor.playerspaz import PlayerSpaz
 from stats import mystats
 from overriders import _spaz_ovr
@@ -84,7 +85,7 @@ def __init__(
     self._drive_player_position()
     
     show_rank(self.node, self._player)
-    _spaz_ovr.ProSurroundBall(Spaz.node)
+    _spaz_ovr.ProSurroundBall(spaz.node)
 
 
 
