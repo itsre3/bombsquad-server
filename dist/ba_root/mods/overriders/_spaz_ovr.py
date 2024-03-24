@@ -83,7 +83,7 @@ class ProSurroundBall(ba.Actor):
                 1: (0,0,2),
                 1.2: (2,0,0)},
                 loop = True)
- #       timerr = None
+        timerr = None
         self.pro_surround_radius = 1.0
         self.angle_delta = math.pi / 12.0
         self.cur_angle = random.random() * math.pi * 2.0
