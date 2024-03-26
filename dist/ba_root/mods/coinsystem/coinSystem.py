@@ -16,8 +16,7 @@ if TYPE_CHECKING:
 sett = settings.get_settings_data()
 correct_answer = None
 answered_by = None
-base_dir = os.path.join(_ba.env()['python_directory_user'], "coinsystem" + os.sep
-)
+base_dir = os.path.join(_ba.env()['python_directory_user'], "coinsystem" + os.sep)
 bankfile = base_dir+"bank.json"
 questionslist = sett["currency"]["settings"]["askquestions"]["questions"]
 

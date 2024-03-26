@@ -9,7 +9,7 @@ import coinsystem
 
 
 sett = settings.get_settings_data()
-base_dir = os.path.join(_ba.env()['python_directory_user'], "admin" + os.sep
+base_dir = os.path.join(_ba.env()['python_directory_user'], "admin" + os.sep)
 roles_file = base_dir+"roles.json"
 effect_file = base_dir+"effects.json"
 tags_file = base_dir+"tags.json"
