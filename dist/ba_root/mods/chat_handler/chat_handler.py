@@ -3,6 +3,7 @@ import _ba
 import settings
 from . import _hashes as perms
 from . import chat_commands as chatcmd
+from admin.permissions import CheckRole, check_mute
 import coinsystem
 from coinsystem.coinSystem import correct_answer
 
@@ -15,21 +16,20 @@ def check_perms(msg, client_id):
             chatcmd.owner(msg, client_id, None)
             return None
         return msg
-
-    for i in _ba.get_game_roster():
-        if i['client_id'] == client_id:
-            acid = i['account_id']
-        
-    if check_mute(acid):
+    
+    if check_mute(client_id):
         return None
         
     if msg.startswith("/"):
+        for i in _ba.get_game_rostar():
+            if i["client_id"] == client_id:
+                acid = i["account_id"]
         if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
-            if permissions(msg, acid, "owner"):
+            if CheckRole(client_id, "owner", msg):
                 chatcmd.owner(msg, client_id, acid)
-            elif permissions(msg, acid, "admin"):
+            elif CheckRole(client_id, "admin", msg):
                 chatcmd.admin(msg, client_id, acid)
-            elif permissions(msg, acid, "vip"):
+            elif CheckRole(client_id, "vip", msg):
                 chatcmd.vip(msg, client_id, acid)
             else:
                 chatcmd.normal(msg, client_id, acid)
@@ -43,48 +43,3 @@ def check_perms(msg, client_id):
     
     return msg
 
-
-def check_mute(acc_id):
-    #profile = profile.get_player_profile(acc_id)
-    #if profile["on_mute"]:
-    #     return True
-    del acc_id
-    return False
-
-
-
-def permissions(msg, acctid, toc):
-    if toc == "owner" and acctid in perms.owner:
-        return True
-    elif toc == "admin" and acctid in perms.admin:
-        return True
-    elif toc == "vip":
-        # generally, vip commands are useless
-        # we can buy vip commands if coinsystem is available
-        if acctid in perms.vip:
-            return True
-        elif sett["currency"]["enabled"] and coinsystem_c(msg, acctid):
-            return True
-
-
-def coinsystem_c(msg, acctid):
-    if not sett["currency"]["enabled"]:
-        return False
-    elif not sett["currency"]["settings"]["shop"]["commands"]["enabled"]:
-        return False
-    # check the value of the command and run transaction
-    new_msg = msg.split(" ")[0]
-    amount = coinsystem.get_command_price(new_msg)
-    cash_owned = coinsystem.get_coins_by_pbid(acctid)
-    try:
-        assert amount is not None
-        if cash_owned >= amount:
-            th = 0 - amount
-            coinsystem.add_coins_by_pbid(acctid, th)
-            return True
-            
-        else:
-            return False
-    
-    except Exception as e:
-        print(e)

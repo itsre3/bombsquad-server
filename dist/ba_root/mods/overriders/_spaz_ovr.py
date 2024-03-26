@@ -9,6 +9,7 @@ import _ba
 import bastd, weakref, random, math, time, base64, os, json
 from bastd.actor import spaz
 from bastd.gameutils import SharedObjects
+from admin import permissions
 if TYPE_CHECKING:
     from typing import List, Sequence, Optional, Dict, Any, Union
 
@@ -162,3 +163,48 @@ class ProSurroundBall(ba.Actor):
         except Exception:
             f = activity._sharedSurroundFactory = SurroundFactory()
             return f
+
+class Effects(ba.Actor):
+    def __init__(self, spaz, player):
+        ba.Actor.__init__(self)
+        self.spaz = spaz
+        self.player = player
+        playernodeid = self.player.node.playerID
+        
+        for i in _ba.get_foreground_host_session().sessionplayers:
+            if i.activityplayer.node.playerID == playernodeid:
+                accountid = i.get_v1_account_id()
+        try:
+            if permissions.check_effect(accountid):
+                efct = permissions.check_effect(accountid)
+                
+                if "ProSurround" in efct:
+                    ProSurroundBall(self.spaz)
+                    
+                elif "Rainbow" in efct:
+                    ba.timer(2, ba.Call(self.run_rainbow), repeat=True)
+                    
+                elif "Spark" in efct:
+                    ba.timer(0.2, ba.Call(self.emit, "spark"), repeat=True)
+                    
+        except Exception as e:
+            print(e)
+                    
+    def emit(self, effect: str) -> None:
+        ba.emitfx(position=self.spaz.node.position,
+                  velocity=self.spaz.node.velocity,
+                  count=int(16.0),
+                  scale=0.6,
+                  spread=0.8,
+                  chunk_type=effect)
+                  
+    def run_rainbow(self) -> None:
+        ba.animate_array(self.spaz.node,'color',3,
+            {0:(random.choice([1,2,3,4,5,6,7,8,9]), random.choice([1,2,3,4,5,6,7,8,9]), random.choice([1,2,3,4,5,6,7,8,9])),
+            0.2: (2,0,2),
+            0.4: (2,2,0),
+            0.6: (0,2,0),
+            0.8: (0,2,2),
+            1: (0,0,2),
+            1.2: (2,0,0)},
+            loop = True)
