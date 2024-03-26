@@ -172,7 +172,7 @@ class Effects(ba.Actor):
         playernodeid = self.player.node.playerID
         
         for i in _ba.get_foreground_host_session().sessionplayers:
-            if i.activityplayer.node.playerID == playernodeid:
+            if i.activityplayer is not None and i.activityplayer.node.playerID == playernodeid:
                 accountid = i.get_v1_account_id()
         try:
             if permissions.check_effect(accountid):
