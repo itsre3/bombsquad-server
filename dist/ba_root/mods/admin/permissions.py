@@ -39,7 +39,7 @@ class CheckRole:
         elif roles == "admin" and self.accountid in perms_data["admins"]:
             return True
         elif roles == "vip":
-            if self.accountid perms_data["vips"]:
+            if self.accountid in perms_data["vips"]:
                 return True
             elif sett["currency"]["enanbled"]:
                 self.coinsystem_c()
