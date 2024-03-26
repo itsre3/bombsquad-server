@@ -31,7 +31,7 @@ class CheckRole:
     def check(self):
         for i in _ba.get_game_roster():
             if i["client_id"] == self.clientid:
-                global self.accountid
+                #global self.accountid
                 self.accountid = i["account_id"]
         perms_data = check_file(roles_file)
         if roles == "owner" and self.accountid in perms_data["owners"]:
