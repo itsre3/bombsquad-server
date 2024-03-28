@@ -26,6 +26,7 @@ class CheckRole:
     def __init__(self, clientid, role: str, msg):
         self.clientid = clientid
         self.accountid = None
+        self.roles = role
         self.check()
 
     def check(self):
@@ -34,11 +35,11 @@ class CheckRole:
                 #global self.accountid
                 self.accountid = i["account_id"]
         perms_data = check_file(roles_file)
-        if roles == "owner" and self.accountid in perms_data["owners"]:
+        if self.roles == "owner" and self.accountid in perms_data["owners"]:
             return True
-        elif roles == "admin" and self.accountid in perms_data["admins"]:
+        elif self.roles == "admin" and self.accountid in perms_data["admins"]:
             return True
-        elif roles == "vip":
+        elif self.roles == "vip":
             if self.accountid in perms_data["vips"]:
                 return True
             elif sett["currency"]["enanbled"]:
