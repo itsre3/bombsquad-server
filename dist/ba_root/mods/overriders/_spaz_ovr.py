@@ -179,6 +179,8 @@ class Effects(ba.Actor):
                 efct = permissions.check_effect(accountid)
                 
                 if "ProSurround" in efct:
+                    if self.spaz is None:
+                        return
                     ProSurroundBall(self.spaz)
                     
                 elif "Rainbow" in efct:
@@ -191,6 +193,9 @@ class Effects(ba.Actor):
             print(e)
                     
     def emit(self, effect: str) -> None:
+        new_spaz = self.spaz
+        if new_spaz is None or not new_spaz.node.exists() or not new_spaz.is_alive():
+            return
         ba.emitfx(position=self.spaz.node.position,
                   velocity=self.spaz.node.velocity,
                   count=int(16.0),
@@ -199,6 +204,9 @@ class Effects(ba.Actor):
                   chunk_type=effect)
                   
     def run_rainbow(self) -> None:
+        new_spaz = self.spaz
+        if new_spaz is None or not new_spaz.node.exists() or not new_spaz.is_alive():
+            return
         ba.animate_array(self.spaz.node,'color',3,
             {0:(random.choice([1,2,3,4,5,6,7,8,9]), random.choice([1,2,3,4,5,6,7,8,9]), random.choice([1,2,3,4,5,6,7,8,9])),
             0.2: (2,0,2),
