@@ -77,5 +77,7 @@ def check_mute(client_id):
             account_id = i["account_id"]
     if account_id in check_file(roles_file)["owners"]:
         return False
-    else:
+    elif account_id in check_file(roles_file)["muted"]:
         return True
+    else:
+        return False

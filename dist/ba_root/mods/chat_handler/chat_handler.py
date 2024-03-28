@@ -18,6 +18,7 @@ def check_perms(msg, client_id):
         return msg
     
     if check_mute(client_id):
+        ba.screenmessage("Muted", (0,0,1), transient=True, clients=[client_id])
         return None
         
     if msg.startswith("/"):
