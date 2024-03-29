@@ -23,17 +23,13 @@ def check_file(file):
     return od_file
 
 class CheckRole:
-    def __init__(self, clientid, role: str, msg):
+    def __init__(self, clientid, ac_id, role: str, msg):
         self.clientid = clientid
-        self.accountid = None
+        self.accountid = ac_id
         self.roles = role
         self.check()
 
     def check(self):
-        for i in _ba.get_game_roster():
-            if i["client_id"] == self.clientid:
-                #global self.accountid
-                self.accountid = i["account_id"]
         perms_data = check_file(roles_file)
         if self.roles == "owner" and self.accountid in perms_data["owners"]:
             return True
