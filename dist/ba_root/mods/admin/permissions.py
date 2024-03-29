@@ -31,7 +31,7 @@ def CheckRole(accountid, roles, mseg):
     elif roles == "vip":
         if accountid in perms_data["vips"]:
             return True
-        elif sett["currency"]["enanbled"]:
+        elif sett["currency"]["enabled"]:
             return coinsystem_c(msg=mseg, accountid=accountid)
 
 def coinsystem_c(msg, accountid):
