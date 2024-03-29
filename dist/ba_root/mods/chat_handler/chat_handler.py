@@ -26,11 +26,11 @@ def check_perms(msg, client_id):
             if i["client_id"] == client_id:
                 acid = i["account_id"]
         if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
-            if CheckRole(client_id, acid, "owner", msg):
+            if CheckRole(acid, "owner", msg):
                 chatcmd.owner(msg, client_id, acid)
-            elif CheckRole(client_id, acid, "admin", msg):
+            elif CheckRole(acid, "admin", msg):
                 chatcmd.admin(msg, client_id, acid)
-            elif CheckRole(client_id, acid, "vip", msg):
+            elif CheckRole(acid, "vip", msg):
                 chatcmd.vip(msg, client_id, acid)
             else:
                 chatcmd.normal(msg, client_id, acid)

@@ -22,44 +22,37 @@ def check_file(file):
         od_file = {}
     return od_file
 
-class CheckRole:
-    def __init__(self, clientid, ac_id, role: str, msg):
-        self.clientid = clientid
-        self.accountid = ac_id
-        self.roles = role
-        self.check()
-
-    def check(self):
-        perms_data = check_file(roles_file)
-        if self.roles == "owner" and self.accountid in perms_data["owners"]:
+def CheckRole(accountid, roles, mseg):
+    perms_data = check_file(roles_file)
+    if roles == "owner" and accountid in perms_data["owners"]:
+        return True
+    elif roles == "admin" and accountid in perms_data["admins"]:
+        return True
+    elif roles == "vip":
+        if accountid in perms_data["vips"]:
             return True
-        elif self.roles == "admin" and self.accountid in perms_data["admins"]:
-            return True
-        elif self.roles == "vip":
-            if self.accountid in perms_data["vips"]:
-                return True
-            elif sett["currency"]["enanbled"]:
-                self.coinsystem_c()
+        elif sett["currency"]["enanbled"]:
+            return coinsystem_c(msg=mseg, accountid=accountid)
 
-    def coinsystem_c(self):
-        if not sett["currency"]["settings"]["shop"]["commands"]["enabled"]:
+def coinsystem_c(msg, accountid):
+    if not sett["currency"]["settings"]["shop"]["commands"]["enabled"]:
             return False
-        # check the value of the command and run transaction
-        new_msg = msg.split(" ")[0]
-        amount = coinsystem.get_command_price(new_msg)
-        cash_owned = coinsystem.get_coins_by_pbid(self.accountid)
-        try:
-            assert amount is not None
-            if cash_owned >= amount:
-                th = 0 - amount
-                coinsystem.add_coins_by_pbid(self.accountid, th)
-                return True
-            else:
-                return False
+    # check the value of the command and run transaction
+    new_msg = msg.split(" ")[0]
+    amount = coinsystem.get_command_price(new_msg)
+    cash_owned = coinsystem.get_coins_by_pbid(accountid)
+    try:
+        assert amount is not None
+        if cash_owned >= amount:
+            th = 0 - amount
+            coinsystem.add_coins_by_pbid(accountid, th)
+            return True
+        else:
+            return False
         
-        except Exception as e:
-            print(e)
-            return False
+    except Exception as e:
+        print(e)
+        return False
 
 def check_effect(account_id):
     if account_id in check_file(effect_file):
