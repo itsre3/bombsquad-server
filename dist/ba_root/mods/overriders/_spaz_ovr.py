@@ -189,6 +189,18 @@ class Effects(ba.Actor):
                 elif "Spark" in efct:
                     ba.timer(0.2, ba.Call(self.emit, "spark"), repeat=True)
                     
+                elif "Slime" in efct:
+                    ba.timer(0.2, ba.Call(self.emit, "slime"), repeat=True)
+                    
+                elif "Metal" in efct:
+                    ba.timer(0.2, ba.Call(self.emit, "metal"), repeat=True)
+                    
+                elif "Ice" in efct:
+                    ba.timer(0.2, ba.Call(self.emit, "ice"), repeat=True)
+                    
+                elif "Stickers" in efct:
+                    ba.timer(0.2, self.stickers, repeat=True)
+                    
         except Exception as e:
             print(e)
                     
@@ -216,3 +228,16 @@ class Effects(ba.Actor):
             1: (0,0,2),
             1.2: (2,0,0)},
             loop = True)
+            
+            
+    def stickers(self) -> None:
+        new_spaz = self.spaz
+        if new_spaz is None or not new_spaz.node.exists() or not new_spaz.is_alive():
+            return
+        ba.emitfx(position=self.spaz.node.position,
+                  velocity=self.spaz.node.velocity,
+                  count=10,
+                  spread=0.1,
+                  scale=0.8,
+                  chunk_type='spark',
+                  emit_type='stickers')

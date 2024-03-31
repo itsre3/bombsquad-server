@@ -51,7 +51,6 @@ def coinsystem_c(msg, accountid):
             return False
         
     except Exception as e:
-        print(e)
         return False
 
 def check_effect(account_id):

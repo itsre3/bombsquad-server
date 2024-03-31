@@ -139,4 +139,4 @@ def get_coins_by_dcid(dcid):
 cstimer = None
 def run_questions():
     global cstimer
-    cstimer = ba.timer(20, ask_question, repeat=True)
+    cstimer = ba.timer(sett["currency"]["settings"]["askquestions"]["questiondelay"], ask_question, repeat=True)
