@@ -186,6 +186,27 @@ class vip(object):
                     pass
 
 
+
+            elif x in ["/impact", "/im"]:
+                try:
+                    if z == []:
+                        for i in activity.players:
+                            if i.sessionplayer.inputdevice.client_id == clid:
+                                i.actor.node.handlemessage(ba.PowerupMessage("impact"))
+                                ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                    elif z[0] in ["a", "all"]:
+                        for players in activity.players:
+                            players.actor.node.handlemessage(ba.PowerupMessage("impact"))
+                        ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                    else:
+                        num = int(z[0])
+                        body = activity.players[num].actor.node
+                        body.handlemessage(ba.PowerupMessage("impact"))
+                        ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                except:
+                    pass
+
+
             elif x in ["/unfreeze", "/thaw"]:
                 try:
                     if z == []:
@@ -318,7 +339,7 @@ class admin(object):
                     pass
 
             elif x == "/check":
-                ba.screenmessage("Commands working :p", color=color)
+                ba.screenmessage("Commands working :p", color=color, transient=True, clients=[clid])
             
             elif x in ["/fly", "/fl"]:
                 try:
