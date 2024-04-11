@@ -14,6 +14,18 @@ class test(commands.Cog):
     async def hi(self, ctx):
         await ctx.send("Hello")
 
+    @app_commands.command(
+            name="tester",
+            description="testing first slash command"
+            )
+    async def tester(self,
+                     interaction: discord.Interaction,
+                     name: str,
+                     age: int):
+        await interaction.response.send_message(
+            f"My name is {name} and im {age} year old"
+        )
+
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
         test(bot),
