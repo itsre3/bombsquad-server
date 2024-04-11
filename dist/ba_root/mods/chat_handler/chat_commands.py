@@ -290,7 +290,7 @@ class vip(object):
                     pass
 
 
-            elif x in ["/freze", "/fr"]:
+            elif x in ["/freeze", "/fr"]:
                 try:
                     if z == []:
                         for i in activity.players:
@@ -395,9 +395,14 @@ class admin(object):
             elif x in ["/godmode", "/gm"]:
                 try:
                     for i in activity.players:
-                        if i.sessionplayer.inputdevice.client_id == clid:
-                            i.actor.node.invincible = True
-                            ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                        if z == []:
+                            if i.sessionplayer.inputdevice.client_id == clid:
+                                i.actor.node.invincible = True
+                                ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                        elif z[0] in ["all", "a"]:
+                            for players in activity.players:
+                                players.actor.node.invincible = True
+                                ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                         else:
                             num = int(z[0])
                             body = activity.players[num].actor.node
