@@ -28,7 +28,7 @@ class test(commands.Cog):
         pid: str):
         message = coinsystem.update_dcid(str(interaction.user.id), pbid=pid)
         await interaction.response.send_message(
-            message, euphemeral=True
+            message, ephemeral=True
         )
 
 async def setup(bot: commands.Bot) -> None:
