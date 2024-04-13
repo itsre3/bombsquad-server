@@ -16,13 +16,13 @@ class test(commands.Cog):
         await ctx.send("Hello")
 
     @app_commands.command(
-            name = "Link",
+            name = "connect",
             description = "Link your discord to your server account"
             )
     @app_commands.describe(
         PbId = "Your BombSquad PbId"
     )
-    async def Link(
+    async def connect(
         self,
         interaction: discord.Interaction,
         PbId: str):
