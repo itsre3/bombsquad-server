@@ -70,7 +70,7 @@ class vip(object):
         color = (1, 1, 0)
 
         with ba.Context(activity):
-            if x in ["/headless", "/hl"]:
+            if x in ["/headless", "/he"]:
                 try:
                     if z == []:
                         for i in activity.players:
