@@ -56,7 +56,7 @@ class normal(object):
                 else:
                     ba.screenmessage("Category Disabled", (1,0,0), transient=True, clients=[clid])
                 
-            elif x == "help":
+            elif x == "/help":
                 try:
                     message = help.Helper(z)
                     ba.screenmessage(message, (1,0,0), transient=True, clients=[clid])
