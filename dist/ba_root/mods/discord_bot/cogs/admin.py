@@ -48,15 +48,19 @@ class Admin(commands.Cog):
     ):
         givenresponse = GiveRole(role, pid)
         name = namer(pid)
-        if givenresponse:
+        if name == "Name":
+            await interaction.response.send_message(
+                f"Incorrect player id {pid}", ephemeral=True
+            )
+        elif givenresponse:
             await interaction.response.send_message(
                 f"Gave {role} to {name}", ephemeral=True
             )
-        elif not givenresponse:
+        elif givenresponse is None:
             await interaction.response.send_message(
                 f"Role {role} does not exist", ephemeral=True
             )
-        elif givenresponse is None:
+        elif not givenresponse:
             await interaction.response.send_message(
                 f"{name} already has a role higher than {role}", ephemeral=True
             )

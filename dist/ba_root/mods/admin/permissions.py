@@ -84,31 +84,30 @@ def GiveRole(Role: str, accountid: str):
     rolesdata = check_file(roles_file)
     if Role == "owner":
         if accountid in rolesdata["owners"]:
-            return None
+            return False
         else:
             rolesdata["owners"].append(accountid)
             save_file(rolesdata, roles_file)
             return True
     elif Role == "admin":
         if accountid in rolesdata["admins"] or accountid in rolesdata["owners"]:
-            return None
+            return False
         else:
             rolesdata["admins"].append(accountid)
             save_file(rolesdata, roles_file)
             return True
     elif Role == "vip":
         if accountid in rolesdata["vips"] or accountid in rolesdata["owners"] or accountid in rolesdata["admins"]:
-            return None
+            return False
         else:
             rolesdata["vips"].append(accountid)
             save_file(rolesdata, roles_file)
             return True
     elif Role == "mute":
         if accountid in rolesdata["muted"]:
-            return None
+            return False
         else:
             rolesdata["muted"].append(accountid)
             save_file(rolesdata, roles_file)
             return True
-    else:
-        return False
+    
