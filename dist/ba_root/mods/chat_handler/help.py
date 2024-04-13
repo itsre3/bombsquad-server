@@ -5,9 +5,6 @@ class Helper:
     def __init__(self, msge: list):
         self.arg = msge
         self.ret_wrap = "test"
-        self.helper_reader
-
-    def helper_reader(self):
         if self.arg in ["commands", "command"]:
             msg = """
             
