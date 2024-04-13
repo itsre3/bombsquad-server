@@ -135,6 +135,22 @@ def get_coins_by_dcid(dcid):
         else:
             return None
 
+def update_dcid(dcid, pbid):
+    #Apparently, other users can update their discord id 
+    # to your pbid . Will work on way to counter this later
+    if os.path.exists(bankfile):
+        with open(bankfile) as f:
+            bank = json.loads(f.read())
+    else:
+        bank = {}
+    if pbid not in bank:
+        return "Please play some games in the server to register your pbid"
+    else:
+        bank[pbid]["dc_id"] == dcid
+    with open(bankfile, 'w') as f:
+        f.write(json.dumps(bank, indent=4))
+    return f"Successfully linked {dcid} to {pbid}"
+
 
 cstimer = None
 def run_questions():

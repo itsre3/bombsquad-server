@@ -3,6 +3,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import settings
+import coinsystem
 
 setting = settings.get_settings_data()
 
@@ -15,15 +16,18 @@ class test(commands.Cog):
         await ctx.send("Hello")
 
     @app_commands.command(
-            name="tester",
-            description="testing first slash command"
+            name ="link",
+            description ="Link your discord to your server account"
             )
-    async def tester(self,
+    @app_commands.describe(
+        PbId = "Your BombSquad PbId"
+    )
+    async def link(self,
                      interaction: discord.Interaction,
-                     name: str,
-                     age: int):
+                     pbid: str):
+        message = coinsystem.update_dcid(str(interaction.user.id), pbid=pbid)
         await interaction.response.send_message(
-            f"My name is {name} and im {age} year old"
+            message, euphemeral=True
         )
 
 async def setup(bot: commands.Bot) -> None:
