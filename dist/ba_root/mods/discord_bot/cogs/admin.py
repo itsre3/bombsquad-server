@@ -37,12 +37,12 @@ class Admin(commands.Cog):
         role = "Role to be assigned",
         pid = "Player id"
     )
-    @app_commands.choices(role = {
+    @app_commands.choices(role = [
         Choice(name="Admin", value="admin"),
         Choice(name="Muted", value="mmute"),
         Choice(name="Owner", value="owner"),
         Choice(name="Vip", value="vip")
-    })
+    ])
     async def giverole(
         self, interaction: discord.Interaction, role: str, pid: str
     ):
@@ -50,7 +50,7 @@ class Admin(commands.Cog):
         name = namer(pid)
         if givenresponse:
             await interaction.response.send_message(
-                f"Given {role} to {name}", ephemeral=True
+                f"Gave {role} to {name}", ephemeral=True
             )
         elif not givenresponse:
             await interaction.response.send_message(
