@@ -10,7 +10,7 @@ import _ba
 import settings
 import coinsystem
 from stats import mystats
-from .cmd_files import help
+from . import help
 from ba._generated.enums import SpecialChar
 from . import nfly
 
@@ -56,9 +56,15 @@ class normal(object):
                 else:
                     ba.screenmessage("Category Disabled", (1,0,0), transient=True, clients=[clid])
                 
+            elif x == "help":
+                try:
+                    message = help.Helper(z)
+                    ba.screenmessage(message, (1,0,0), transient=True, clients=[clid])
+                except Exception as e:
+                    print(e)
+
             else:
                 ba.screenmessage("Command not found", (1,0,0), transient=True, clients=[clid])
-                
                 
 class vip(object):
     def __init__(self, msg, clid, acid):

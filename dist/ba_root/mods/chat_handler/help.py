@@ -1,10 +1,10 @@
 
 
 
-class helper:
-    def __init__(self, msge):
+class Helper(object):
+    def __init__(self, msge: list):
         self.arg = msge
-        self.helper_reader()
+        self.helper_reader
 
     def helper_reader(self):
         if self.arg in ["commands", "command"]:
