@@ -92,4 +92,4 @@ def __init__(
 
 def enable():
     PlayerSpaz.__init__ = __init__
-    #Spaz.__init__ = _spaz_ovr.__init__
+    

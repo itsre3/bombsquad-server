@@ -69,3 +69,9 @@ def check_mute(client_id):
         return True
     else:
         return False
+    
+def check_tag(accountid):
+    if accountid in check_file(tags_file):
+        return check_file(tags_file)[accountid]
+    else:
+        return None
