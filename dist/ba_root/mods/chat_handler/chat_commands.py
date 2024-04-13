@@ -12,6 +12,7 @@ import coinsystem
 from stats import mystats
 from .cmd_files import help
 from ba._generated.enums import SpecialChar
+from . import nfly
 
 if TYPE_CHECKING:
     from typing import Union, Sequence
@@ -388,7 +389,7 @@ class admin(object):
                     for i in activity.players:
                         if i.sessionplayer.inputdevice.client_id == clid:
                             plr = i
-                            nfly.NewFly(plr)
+                            nfly.NewFly(plr) 
                 except Exception as e:
                     print(e)
                     
