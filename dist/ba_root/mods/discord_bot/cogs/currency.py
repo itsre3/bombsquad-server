@@ -31,6 +31,18 @@ class test(commands.Cog):
             message, ephemeral=True
         )
 
+    @app_commands.command(
+        name = "balance",
+        description = "Check your balance"
+    )
+    async def balance(
+        self, interaction: discord.Interaction
+    ):
+        balance = coinsystem.get_coins_by_dcid(str(interaction.user.id))
+        await interaction.response.send_message(
+            balance, ephemeral=True
+        )
+
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
         test(bot),

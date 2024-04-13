@@ -131,13 +131,14 @@ def get_coins_by_dcid(dcid):
     for x in bank:
         if bank[x]["dc_id"] == dcid:
             bal = bank[x]["cash"]
-            return bal
+            return f"Your balance is {bal}."
         else:
-            return None
+            return f"Connect your id to your server account using /connect"
 
 def update_dcid(dcid, pbid):
     #Apparently, other users can update their discord id 
     # to your pbid . Will work on way to counter this later
+    # Will also find a way to prevent users from linking more than one account
     if os.path.exists(bankfile):
         with open(bankfile) as f:
             bank = json.loads(f.read())
