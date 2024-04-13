@@ -148,9 +148,9 @@ def update_dcid(dcid, pbid):
         return "Please play some games in the server to register your pbid"
     else:
         bank[pbid]["dc_id"] == dcid
-    with open(bankfile, 'w') as f:
-        f.write(json.dumps(bank, indent=4))
-    return f"Successfully linked {dcid} to {pbid}"
+        with open(bankfile, 'w') as f:
+            f.write(json.dumps(bank, indent=4))
+            return f"Successfully linked {dcid} to {pbid}"
 
 
 cstimer = None
