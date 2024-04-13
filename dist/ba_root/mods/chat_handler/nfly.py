@@ -16,4 +16,5 @@ def on_dfly_press(player):
             0,0,0,200,200,0,0,0,1,0)
 
 def NewFly(player):
-    player.assigninput(ba.InputType.JUMP_PRESS, on_dfly_press(player))
+    player.assigninput(ba.InputType.JUMP_PRESS, ba.Call(
+        on_dfly_press, player))
