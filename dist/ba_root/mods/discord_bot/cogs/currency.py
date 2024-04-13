@@ -16,15 +16,16 @@ class test(commands.Cog):
         await ctx.send("Hello")
 
     @app_commands.command(
-            name ="link",
-            description ="Link your discord to your server account"
+            name = "Link",
+            description = "Link your discord to your server account"
             )
     @app_commands.describe(
         PbId = "Your BombSquad PbId"
     )
-    async def link(self,
-                     interaction: discord.Interaction,
-                     PbId: str):
+    async def Link(
+        self,
+        interaction: discord.Interaction,
+        PbId: str):
         message = coinsystem.update_dcid(str(interaction.user.id), pbid=PbId)
         await interaction.response.send_message(
             message, euphemeral=True
