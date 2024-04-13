@@ -98,7 +98,7 @@ def add_coins_by_pbid(account_id, amount):
 
 
 def get_coins_by_pbid(account_id):
-    coin = open_bank_file()
+    coins = open_bank_file()
     if account_id in coins:
         return coins[account_id]["cash"]
     return 0
