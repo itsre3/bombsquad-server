@@ -51,6 +51,7 @@ class Admin(commands.Cog):
             await interaction.response.send_message(
                 f"Incorrect player id {pid}", ephemeral=True
             )
+            return
         else:
             givenresponse = GiveRole(role, pid)
         if givenresponse:
