@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 logging.getLogger('werkzurg').disabled = True
 
-@app.route("/")
+@app.route("/leaderboard")
 def index():
     return render_template("stats_page.html")
 
