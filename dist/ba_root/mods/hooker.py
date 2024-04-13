@@ -11,7 +11,7 @@ import settings
 from chat_handler import chat_handler
 import coinsystem
 from overriders import _stats_ovr
-from dist.ba_root.mods.core import Core
+from core import Core
 
 
 if TYPE_CHECKING:
