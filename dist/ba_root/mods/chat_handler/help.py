@@ -1,6 +1,5 @@
 def Helper(msge: str):
-    arg = msge
-    if arg in ["commands", "command"]:
+    if msge in ["commands", "command"]:
         msg = """
             
 =====Commands List 1=====
@@ -20,7 +19,7 @@ def Helper(msge: str):
     """
         return msg
         
-    elif arg in ["coinsystem", "currency"]:
+    elif msge in ["coinsystem", "currency"]:
         msg = """
             
 =====Coinsystem/Currency=====
@@ -31,7 +30,7 @@ Note: Will only work when enabled
     """
         return msg
 
-    elif arg in ["roles", "vip", "owner", "admin"]:
+    elif msge in ["roles", "vip", "owner", "admin"]:
         msg = """
             
 =====Roles=====
