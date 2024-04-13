@@ -58,7 +58,7 @@ class normal(object):
                 
             elif x == "/help":
                 try:
-                    message = str(help.Helper(z).ret_wrap)
+                    message = str(help.Helper(z))
                     ba.screenmessage(message, (1,0,0), transient=True, clients=[clid])
                 except Exception as e:
                     print(e)
