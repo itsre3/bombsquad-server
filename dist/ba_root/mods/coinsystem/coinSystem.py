@@ -88,26 +88,19 @@ def get_command_price(cmd):
 
 
 def add_coins_by_pbid(account_id, amount):
-    if os.path.exists(bankfile):
-        with open(bankfile) as f:
-            bank = json.loads(f.read())
-    else:
-        bank = {}
+    bank = open_bank_file()
     if account_id not in bank:
         bank[account_id] = {}
         bank[account_id]["cash"] = 0
         bank[account_id]["dc_id"] = 0
     bank[account_id]["cash"] += amount
-    with open(bankfile, 'w') as f:
-        f.write(json.dumps(bank, indent=4))
+    save_bank_file(bank)
 
 
 def get_coins_by_pbid(account_id):
-    if os.path.exists(bankfile):
-        with open(bankfile, 'r') as f:
-            coins = json.loads(f.read())
-        if account_id in coins:
-            return coins[account_id]["cash"]
+    coin = open_bank_file()
+    if account_id in coins:
+        return coins[account_id]["cash"]
     return 0
 
 def add_coins_by_dcid(dcid, amount):
@@ -117,17 +110,12 @@ def add_coins_by_dcid(dcid, amount):
     for x in bank:
         if bank[x]["dc_id"] == dcid:
             bank[x]["cash"] += amount
-            with open(bankfile, 'w') as f:
-                f.write(json.dumps(bank, indent=4))
+            save_bank_file(bank)
         else:
             return None
 
 def get_coins_by_dcid(dcid):
-    if os.path.exists(bankfile):
-        with open(bankfile) as f:
-            bank = json.loads(f.read())
-    else:
-        bank = {}
+    bank = open_bank_file()
     for x in bank:
         if bank[x]["dc_id"] == dcid:
             bal = bank[x]["cash"]
@@ -139,21 +127,39 @@ def update_dcid(dcid, pbid):
     #Apparently, other users can update their discord id 
     # to your pbid . Will work on way to counter this later
     # Will also find a way to prevent users from linking more than one account
-    if os.path.exists(bankfile):
-        with open(bankfile) as f:
-            bank = json.loads(f.read())
-    else:
-        bank = {}
+    bank = open_bank_file()
     if pbid not in bank:
         return "Please play some games in the server to register your pbid"
     else:
         if bank[pbid]["dc_id"] != 0:
             return f"Your id has already been linked. Contact admin to unlink"
         bank[pbid]["dc_id"] += dcid
-        with open(bankfile, 'w') as f:
-            f.write(json.dumps(bank, indent=4))
+        if save_bank_file(bank):
             return f"Successfully linked {dcid} to {pbid}"
 
+def reset_dcid(dcid):
+    bank = open_bank_file()
+    for x in bank:
+        if bank[x]["dc_id"] == dcid:
+            bank[x]["dc_id"] -= dcid
+            if save_bank_file(bank):
+                return f"Successfully unlinked {dcid} from {x}"
+        else:
+            return f"Your account is not linked to any id"
+
+def open_bank_file():
+    if os.path.exists(bankfile):
+        with open(bankfile) as f:
+            bank = json.loads(f.read())
+            return bank
+    else:
+        bank = {}
+        return bank
+
+def save_bank_file(data):
+    if os.path.exists(bankfile):
+        with open(bankfile, 'w') as f:
+            f.write(json.dumps(data, indent=4))
 
 cstimer = None
 def run_questions():

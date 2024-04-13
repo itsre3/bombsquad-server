@@ -43,6 +43,18 @@ class test(commands.Cog):
             balance, ephemeral=True
         )
 
+    @app_commands.command(
+        name = "reset",
+        description = "Reset your linked pbid"
+    )
+    async def reset(
+        self, interaction: discord.Interaction
+    ):
+        message = coinsystem.reset_dcid(interaction.user.id)
+        await interaction.response.send_message(
+            message, ephemeral=True
+        )
+
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
         test(bot),

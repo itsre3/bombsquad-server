@@ -7,4 +7,5 @@ from coinsystem.coinSystem import get_coins_by_pbid
 from coinsystem.coinSystem import update_dcid
 from coinsystem.coinSystem import check_answer
 from coinsystem.coinSystem import run_questions
+from coinsystem.coinSystem import reset_dcid
 from coinsystem.coinSystem import correct_answer
