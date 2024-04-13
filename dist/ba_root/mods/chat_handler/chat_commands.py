@@ -386,10 +386,23 @@ class admin(object):
             
             elif x in ["/fly", "/fl"]:
                 try:
-                    for i in activity.players:
-                        if i.sessionplayer.inputdevice.client_id == clid:
-                            plr = i
-                            nfly.NewFly(plr) 
+                    if z == []:
+                            for i in activity.players:
+                                if i.sessionplayer.inputdevice.client_id == clid:
+                                    plr = i
+                                    nfly.NewFly(plr)
+                                    ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                    elif z[0] in ["all", "a"]:
+                        for players in activity.players:
+                            plr = players
+                            nfly.NewFly(plr)
+                            ba.screenmessage(
+                                "You have wings, Fly!!", color=color)
+                    else:
+                        num = int(z[0])
+                        player = activity.players[num]
+                        nfly.NewFly(player)
+                        ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                 except Exception as e:
                     print(e)
                     
