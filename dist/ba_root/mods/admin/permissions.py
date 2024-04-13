@@ -22,6 +22,10 @@ def check_file(file):
         od_file = {}
     return od_file
 
+def save_file(data, file):
+    with open(file, "w") as f:
+        f.write(json.dumps(data, indent=4))
+
 def CheckRole(accountid, roles, mseg):
     perms_data = check_file(roles_file)
     if roles == "owner" and accountid in perms_data["owners"]:
@@ -75,3 +79,36 @@ def check_tag(accountid):
         return check_file(tags_file)[accountid]
     else:
         return None
+    
+def GiveRole(Role: str, accountid: str):
+    rolesdata = check_file(roles_file)
+    if Role == "owner":
+        if accountid in rolesdata["owners"]:
+            return None
+        else:
+            rolesdata["owners"].append(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+    elif Role == "admin":
+        if accountid in rolesdata["admins"] or accountid in rolesdata["owners"]:
+            return None
+        else:
+            rolesdata["admins"].append(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+    elif Role == "vip":
+        if accountid in rolesdata["vips"] or accountid in rolesdata["owners"] or accountid in rolesdata["admins"]:
+            return None
+        else:
+            rolesdata["vips"].append(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+    elif Role == "mute":
+        if accountid in rolesdata["muted"]:
+            return None
+        else:
+            rolesdata["muted"].append(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+    else:
+        return False

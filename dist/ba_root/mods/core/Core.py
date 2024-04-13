@@ -20,5 +20,14 @@ async def main():
         update = data["updates_info"][0]
         print(f"New Updates detected: {update}\nRun git pull to update")
 
+def namer(account_id):
+    url = "http://bombsquadgame.com/bsAccountInfo?buildNumber=20258&accountID=" + account_id
+    resp = urllib.request.urlopen(url)
+    try:
+        name = json.loads(resp.read())["profileDisplayString"]
+        return str(name)
+    except:
+        return "Name"
+
 def run():
     asyncio.run(main())

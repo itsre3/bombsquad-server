@@ -11,7 +11,7 @@ import settings
 from chat_handler import chat_handler
 import coinsystem
 from overriders import _stats_ovr
-from core import version_checker
+from dist.ba_root.mods.core import Core
 
 
 if TYPE_CHECKING:
@@ -43,4 +43,4 @@ def launcher() -> None:
         from web import webst
         webst.run()
         
-    version_checker.run()
+    Core.run()
