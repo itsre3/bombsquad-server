@@ -23,7 +23,7 @@ class Helper:
     /check
     /fly or /fl
     """
-            self.ret_wrap == msg
+            #self.ret_wrap == msg
         
         elif self.arg in ["coinsystem", "currency"]:
             msg = """
@@ -34,7 +34,7 @@ with which you can purchase in-game stuffs
 only
 Note: Will only work when enabled
     """
-            self.ret_wrap == msg
+            #self.ret_wrap == msg
 
         elif self.arg in ["roles", "vip", "owner", "admin"]:
             msg = """
@@ -47,4 +47,5 @@ They may also have special tags
 Note: Will only work when enaled
 Try not to misuse
     """
-            self.ret_wrap == msg
+            #self.ret_wrap == msg
+        self.ret_wrap = msg
