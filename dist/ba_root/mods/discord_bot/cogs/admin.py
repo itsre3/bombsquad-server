@@ -46,13 +46,14 @@ class Admin(commands.Cog):
     async def giverole(
         self, interaction: discord.Interaction, role: str, pid: str
     ):
-        givenresponse = GiveRole(role, pid)
         name = namer(pid)
         if name == "Name":
             await interaction.response.send_message(
                 f"Incorrect player id {pid}", ephemeral=True
             )
-        elif givenresponse:
+        else:
+            givenresponse = GiveRole(role, pid)
+        if givenresponse:
             await interaction.response.send_message(
                 f"Gave {role} to {name}", ephemeral=True
             )
