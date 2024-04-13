@@ -134,16 +134,16 @@ def update_dcid(dcid, pbid):
         if bank[pbid]["dc_id"] != 0:
             return f"Your id has already been linked. Contact admin to unlink"
         bank[pbid]["dc_id"] += dcid
-        if save_bank_file(bank):
-            return f"Successfully linked {dcid} to {pbid}"
+        save_bank_file(bank)
+        return f"Successfully linked {dcid} to {pbid}"
 
 def reset_dcid(dcid):
     bank = open_bank_file()
     for x in bank:
         if bank[x]["dc_id"] == dcid:
             bank[x]["dc_id"] -= dcid
-            if save_bank_file(bank):
-                return f"Successfully unlinked {dcid} from {x}"
+            save_bank_file(bank)
+            return f"Successfully unlinked {dcid} from {x}"
         else:
             return f"Your account is not linked to any id"
 
