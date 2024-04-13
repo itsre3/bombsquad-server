@@ -4,6 +4,7 @@
 class Helper:
     def __init__(self, msge: list):
         self.arg = msge
+        global msg
         #self.ret_wrap = "test"
         if self.arg in ["commands", "command"]:
             msg = """
