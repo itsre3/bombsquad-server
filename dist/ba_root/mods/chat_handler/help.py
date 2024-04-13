@@ -1,5 +1,5 @@
 
-
+msg = ""
 
 class Helper:
     def __init__(self, msge: list):
