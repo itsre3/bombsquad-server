@@ -147,6 +147,8 @@ def update_dcid(dcid, pbid):
     if pbid not in bank:
         return "Please play some games in the server to register your pbid"
     else:
+        if bank[pbid]["dc_id"] != 0:
+            return f"Your id has already been linked. Contact admin to unlink"
         bank[pbid]["dc_id"] += dcid
         with open(bankfile, 'w') as f:
             f.write(json.dumps(bank, indent=4))
