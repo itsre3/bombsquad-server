@@ -24,8 +24,8 @@ class test(commands.Cog):
     )
     async def link(self,
                      interaction: discord.Interaction,
-                     pbid: str):
-        message = coinsystem.update_dcid(str(interaction.user.id), pbid=pbid)
+                     PbId: str):
+        message = coinsystem.update_dcid(str(interaction.user.id), pbid=PbId)
         await interaction.response.send_message(
             message, euphemeral=True
         )
