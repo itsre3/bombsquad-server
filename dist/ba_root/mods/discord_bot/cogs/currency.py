@@ -26,7 +26,7 @@ class test(commands.Cog):
         self,
         interaction: discord.Interaction,
         pid: str):
-        message = coinsystem.update_dcid(str(interaction.user.id), pbid=pid)
+        message = coinsystem.update_dcid(interaction.user.id, pbid=pid)
         await interaction.response.send_message(
             message, ephemeral=True
         )
@@ -38,7 +38,7 @@ class test(commands.Cog):
     async def balance(
         self, interaction: discord.Interaction
     ):
-        balance = coinsystem.get_coins_by_dcid(str(interaction.user.id))
+        balance = coinsystem.get_coins_by_dcid(interaction.user.id)
         await interaction.response.send_message(
             balance, ephemeral=True
         )
