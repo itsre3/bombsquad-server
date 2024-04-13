@@ -1,7 +1,7 @@
 
 
 
-class Helper(object):
+class Helper:
     def __init__(self, msge: list):
         self.arg = msge
         self.helper_reader
