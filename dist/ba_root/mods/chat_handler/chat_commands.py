@@ -145,8 +145,6 @@ class vip(object):
                 except:
                     pass
             
-            
-            
             elif x in ["/heal", "/h"]:
                 try:
                     if z == []:
@@ -165,8 +163,6 @@ class vip(object):
                         ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                 except:
                     pass
-
-
 
             elif x in ["/mine", "/ml"]:
                 try:
@@ -187,27 +183,62 @@ class vip(object):
                 except:
                     pass
 
-
-
             elif x in ["/impact", "/im"]:
                 try:
                     if z == []:
                         for i in activity.players:
                             if i.sessionplayer.inputdevice.client_id == clid:
-                                i.actor.node.handlemessage(ba.PowerupMessage("impact"))
+                                i.actor.node.handlemessage(ba.PowerupMessage("impact_bombs"))
                                 ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                     elif z[0] in ["a", "all"]:
                         for players in activity.players:
-                            players.actor.node.handlemessage(ba.PowerupMessage("impact"))
+                            players.actor.node.handlemessage(ba.PowerupMessage("impact_bombs"))
                         ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                     else:
                         num = int(z[0])
                         body = activity.players[num].actor.node
-                        body.handlemessage(ba.PowerupMessage("impact"))
+                        body.handlemessage(ba.PowerupMessage("impact_bombs"))
                         ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                 except:
                     pass
-            
+
+            elif x in ["/sticky", "/st"]:
+                try:
+                    if z == []:
+                        for i in activity.players:
+                            if i.sessionplayer.inputdevice.client_id == clid:
+                                i.actor.node.handlemessage(ba.PowerupMessage("sticky_bombs"))
+                                ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                    elif z[0] in ["a", "all"]:
+                        for players in activity.players:
+                            players.actor.node.handlemessage(ba.PowerupMessage("sticky_bombs"))
+                        ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                    else:
+                        num = int(z[0])
+                        body = activity.players[num].actor.node
+                        body.handlemessage(ba.PowerupMessage("sticky_bombs"))
+                        ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                except:
+                    pass
+
+            elif x in ["/icy", "/ic"]:
+                try:
+                    if z == []:
+                        for i in activity.players:
+                            if i.sessionplayer.inputdevice.client_id == clid:
+                                i.actor.node.handlemessage(ba.PowerupMessage("ice_bombs"))
+                                ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                    elif z[0] in ["a", "all"]:
+                        for players in activity.players:
+                            players.actor.node.handlemessage(ba.PowerupMessage("ice_bombs"))
+                        ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                    else:
+                        num = int(z[0])
+                        body = activity.players[num].actor.node
+                        body.handlemessage(ba.PowerupMessage("ice_bombs"))
+                        ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
+                except:
+                    pass
 
             elif x in ["/curse", "/cr"]:
                 try:
