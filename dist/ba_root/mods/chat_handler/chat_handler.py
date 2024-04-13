@@ -1,7 +1,6 @@
 import ba
 import _ba
 import settings
-from . import _hashes as perms
 from . import chat_commands as chatcmd
 from admin.permissions import CheckRole, check_mute
 import coinsystem
