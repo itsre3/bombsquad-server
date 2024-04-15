@@ -13,6 +13,9 @@ base_dir = os.path.join(_ba.env()['python_directory_user'], "admin" + os.sep)
 roles_file = base_dir+"roles.json"
 effect_file = base_dir+"effects.json"
 tags_file = base_dir+"tags.json"
+available_effects = [
+    "ProSurround", "Rainbow", "Spark", "Slime", "Metal", "Ice", "Stickers"
+]
 
 def check_file(file):
     if os.path.exists(file):
@@ -110,4 +113,59 @@ def GiveRole(Role: str, accountid: str):
             rolesdata["muted"].append(accountid)
             save_file(rolesdata, roles_file)
             return True
-    
+
+def TakeRole(Role: str, accountid: str):
+    rolesdata = check_file(roles_file)
+    if Role == "owner":
+        if accountid in rolesdata["owners"]:
+            rolesdata["owners"].remove(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+        else:
+            return False
+    elif Role == "admin":
+        if accountid in rolesdata["admins"]:
+            rolesdata["ädmins"].remove(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+        else:
+            return False
+    elif Role == "vip":
+        if accountid in rolesdata["vips"]:
+            rolesdata["vips"].remove(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+        else:
+            return False
+    elif Role == "mute":
+        if accountid in rolesdata["muted"]:
+            rolesdata["muted"].remove(accountid)
+            save_file(rolesdata, roles_file)
+            return True
+        else:
+            return False
+        
+def Effect(action: str, effect: str, accountid: str) -> any:
+    effectsdata = check_file(effect_file)
+    if effect not in available_effects:
+        return False
+    elif action == "add":
+        if accountid not in effectsdata:
+            effectsdata[accountid] = []
+            effectsdata[accountid].append(effect)
+            save_file(effectsdata, effect_file)
+            return True
+        elif effect in effectsdata[accountid]:
+            return False
+        elif accountid in effectsdata and len(effect_file[accountid]) < 2:
+            effectsdata[accountid].append(effect)
+            save_file(effectsdata, effect_file)
+            return True
+    elif action == "remove":
+        if accountid in effectsdata:
+            if effect in effectsdata[accountid]:
+                effectsdata[accountid].remove(effect)
+                save_file(effectsdata, effect_file)
+                return True
+        else:
+            return False
