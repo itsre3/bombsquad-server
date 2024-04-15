@@ -143,17 +143,17 @@ class Admin(commands.Cog):
             )
             return
         if action == "add":
-            if givenresponse:
+            if givenresponse == "AlreadyHas":
+                await interaction.response.send_message(
+                    f"Player {name} already has {effect}", ephemeral=True
+                )
+            elif givenresponse:
                 await interaction.response.send_message(
                     f"Succesfully added {effect} to {name}", ephemeral=True
                 )
             elif givenresponse is None:
                 await interaction.response.send_message(
                     f"Players cannot have more than 2 effects", ephemeral=True
-                )
-            elif givenresponse == "AlreadyHas":
-                await interaction.response.send_message(
-                    f"Player {name} already has {effect}", ephemeral=True
                 )
         elif action == "remove":
             if givenresponse:
