@@ -158,17 +158,19 @@ class Admin(commands.Cog):
                     f"Succesfully added {effect} to {name}", ephemeral=True
                 )
         elif action == "remove":
-            if givenresponse:
-                await interaction.response.send_message(
-                    f"Succesfully removed {effect} from {name}", ephemeral=True
-                )
-            elif not givenresponse:
+            if givenresponse == "Noeffects":
                 await interaction.response.send_message(
                     f"Player do not have any effecct", ephemeral=True
                 )
-            elif givenresponse is None:
+                return
+            elif givenresponse == "Noeffect":
                 await interaction.response.send_message(
                     f"Player {name} does not have {effect}", ephemeral=True
+                )
+                return
+            if givenresponse:
+                await interaction.response.send_message(
+                    f"Succesfully removed {effect} from {name}", ephemeral=True
                 )
         else:
             await interaction.response.send_message(

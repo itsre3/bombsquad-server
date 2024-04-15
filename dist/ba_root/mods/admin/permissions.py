@@ -169,5 +169,7 @@ def Effect(action: str, effect: str, accountid: str) -> any:
                 effectsdata[accountid].remove(effect)
                 save_file(effectsdata, effect_file)
                 return True
+            else:
+                return "Noeffect"
         else:
-            return False
+            return "Noeffects"
