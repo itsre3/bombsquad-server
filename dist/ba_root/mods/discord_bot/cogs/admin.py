@@ -148,13 +148,14 @@ class Admin(commands.Cog):
                     f"Player {name} already has {effect}", ephemeral=True
                 )
                 return
-            elif givenresponse:
-                await interaction.response.send_message(
-                    f"Succesfully added {effect} to {name}", ephemeral=True
-                )
             elif givenresponse == "Morethan2":
                 await interaction.response.send_message(
                     f"Players cannot have more than 2 effects", ephemeral=True
+                )
+                return
+            elif givenresponse:
+                await interaction.response.send_message(
+                    f"Succesfully added {effect} to {name}", ephemeral=True
                 )
         elif action == "remove":
             if givenresponse:
