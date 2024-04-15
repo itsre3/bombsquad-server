@@ -147,6 +147,7 @@ class Admin(commands.Cog):
                 await interaction.response.send_message(
                     f"Player {name} already has {effect}", ephemeral=True
                 )
+                return
             elif givenresponse:
                 await interaction.response.send_message(
                     f"Succesfully added {effect} to {name}", ephemeral=True
