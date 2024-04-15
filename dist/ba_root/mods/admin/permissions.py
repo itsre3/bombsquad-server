@@ -161,6 +161,8 @@ def Effect(action: str, effect: str, accountid: str) -> any:
             effectsdata[accountid].append(effect)
             save_file(effectsdata, effect_file)
             return True
+        else:
+            return "Morethan2"
     elif action == "remove":
         if accountid in effectsdata:
             if effect in effectsdata[accountid]:

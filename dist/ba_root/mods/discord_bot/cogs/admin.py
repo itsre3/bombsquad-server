@@ -152,7 +152,7 @@ class Admin(commands.Cog):
                 await interaction.response.send_message(
                     f"Succesfully added {effect} to {name}", ephemeral=True
                 )
-            elif givenresponse is None:
+            elif givenresponse == "Morethan2":
                 await interaction.response.send_message(
                     f"Players cannot have more than 2 effects", ephemeral=True
                 )
