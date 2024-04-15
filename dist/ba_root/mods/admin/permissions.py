@@ -156,7 +156,7 @@ def Effect(action: str, effect: str, accountid: str) -> any:
             save_file(effectsdata, effect_file)
             return True
         elif effect in effectsdata[accountid]:
-            return False
+            return "AlreadyHas"
         elif accountid in effectsdata and len(effect_file[accountid]) < 2:
             effectsdata[accountid].append(effect)
             save_file(effectsdata, effect_file)
