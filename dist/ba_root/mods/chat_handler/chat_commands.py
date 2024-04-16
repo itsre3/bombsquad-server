@@ -13,6 +13,7 @@ from stats import mystats
 from . import help
 from ba._generated.enums import SpecialChar
 from . import nfly
+from admin import permissions
 
 if TYPE_CHECKING:
     from typing import Union, Sequence
@@ -475,10 +476,41 @@ class owner(object):
         z = msg.split(' ', 1)[1:5]
         activity = _ba.get_foreground_host_activity()
         session = _ba.get_foreground_host_session()
+        color = (1, 1, 0)
+        confirmation = "Command Executed"
         
         with ba.Context(activity):
             if x == "/kick":
-                ba.screenmessage("Kick u")
-                
+                kick_id = z[0]
+                for i in ba.internal.get_game_roster():
+                    try:
+                        if i["client_id"] == kick_id:
+                            ba.internal.disconnect_client(int(kick_id))
+                            ba.screenmessage(confirmation, color, True, [clid])
+                    except:
+                        pass
+            elif x == "/role":
+                try:
+                    num = z[2]
+                    playerid = session.sessionplayers[num].node.playerID
+                    if z[0] == "add":
+                        response = permissions.GiveRole(z[1], playerid)
+                        if response:
+                            ba.screenmessage(confirmation, color, True, [clid])
+                        elif response is None:
+                            ba.screenmessage(f"Role {z[1]} does not exist", color, True, [clid])
+                        elif not response:
+                            ba.screenmessage(f"Player already has a higher role", color, True, [clid])
+                    elif z[0] == "take":
+                        response = permissions.TakeRole(z[1], playerid)
+                        if response:
+                            ba.screenmessage(confirmation, color, True, [clid])
+                        elif not response:
+                            ba.screenmessage(f"Player does not have {z[1]}", color, True, [clid])
+                        elif response is None:
+                            ba.screenmessage(f"Role does not exist", color, True, [clid])
+                except Exception as e:
+                    print(e)
+
             else:
                 admin(msg, clid, acid)
