@@ -491,9 +491,7 @@ class owner(object):
                         pass
             elif x == "/role":
                 try:
-                    print(z[0])
-                    print(z[1])
-                    print(z[2])
+                    z = z.split(' ', 3)
                     num = z[2]
                     playerid = session.sessionplayers[num].node.playerID
                     if z[0] == "add":
