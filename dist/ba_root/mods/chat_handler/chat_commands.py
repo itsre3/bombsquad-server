@@ -493,7 +493,10 @@ class owner(object):
                 try:
                     pz = msg.split(' ', 1)[1]
                     z = pz.split(' ', 3)
-                    num = int(z[2])
+                    num = z[2]
+                    for i in session.sessionplayers:
+                        if i.activityplayer.node.playerID == num:
+                            playerid = i.get_v1_account_id()
                     playerid = session.sessionplayers[num].activityplayer.node.playerID
                     if z[0] == "add":
                         response = permissions.GiveRole(z[1], playerid)
