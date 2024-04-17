@@ -491,29 +491,28 @@ class owner(object):
                         pass
             elif x == "/role":
                 try:
-                    playerid = ""
                     pz = msg.split(' ', 1)[1]
                     z = pz.split(' ', 3)
                     num = z[2]
                     for i in session.sessionplayers:
                         if i.activityplayer.node.playerID == int(num):
                             playerid = i.get_v1_account_id()
-                    if z[0] == "add":
-                        response = permissions.GiveRole(z[1], playerid)
-                        if response:
-                            ba.screenmessage(confirmation, color, True, [clid])
-                        elif response is None:
-                            ba.screenmessage(f"Role {z[1]} does not exist", color, True, [clid])
-                        elif not response:
-                            ba.screenmessage(f"Player already has a higher role", color, True, [clid])
-                    elif z[0] == "take":
-                        response = permissions.TakeRole(z[1], playerid)
-                        if response:
-                            ba.screenmessage(confirmation, color, True, [clid])
-                        elif not response:
-                            ba.screenmessage(f"Player does not have {z[1]}", color, True, [clid])
-                        elif response is None:
-                            ba.screenmessage(f"Role does not exist", color, True, [clid])
+                            if z[0] == "add":
+                                response = permissions.GiveRole(z[1], playerid)
+                                if response:
+                                    ba.screenmessage(confirmation, color, True, [clid])
+                                elif response is None:
+                                    ba.screenmessage(f"Role {z[1]} does not exist", color, True, [clid])
+                                elif not response:
+                                    ba.screenmessage(f"Player already has a higher role", color, True, [clid])
+                            elif z[0] == "take":
+                                response = permissions.TakeRole(z[1], playerid)
+                                if response:
+                                    ba.screenmessage(confirmation, color, True, [clid])
+                                elif not response:
+                                    ba.screenmessage(f"Player does not have {z[1]}", color, True, [clid])
+                                elif response is None:
+                                    ba.screenmessage(f"Role does not exist", color, True, [clid])
                 except Exception as e:
                     print(e)
 
