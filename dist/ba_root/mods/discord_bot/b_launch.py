@@ -7,6 +7,7 @@ import threading
 import settings
 
 setting = settings.get_settings_data()
+feed_data = {}
 
 class BsBot(commands.Bot):
     def __init__(self):
@@ -22,13 +23,16 @@ class BsBot(commands.Bot):
     async def setup_hook(self):
         await self.load_extension(f"discord_bot.cogs.currency")
         await self.load_extension(f"discord_bot.cogs.admin")
+        await self.load_extension(f"discord_bot.cogs.normal")
         await bot.tree.sync(guild = discord.Object(id=setting["discord"]["serverid"]))
 
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
         print('------')
 
-
+def get_live_feed():
+    global feed_data
+    
 
 bot = BsBot()
 
