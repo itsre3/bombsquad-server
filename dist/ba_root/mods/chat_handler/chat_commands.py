@@ -482,10 +482,10 @@ class owner(object):
         with ba.Context(activity):
             if x == "/kick":
                 kick_id = z[0]
-                for i in ba.internal.get_game_roster():
+                for i in _ba.get_game_roster():
                     try:
                         if i["client_id"] == kick_id:
-                            ba.internal.disconnect_client(int(kick_id))
+                            _ba.disconnect_client(int(kick_id))
                             ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                     except Exception as e:
                         print(e)
