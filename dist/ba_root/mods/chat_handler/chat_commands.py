@@ -491,13 +491,9 @@ class owner(object):
                         pass
             elif x == "/role":
                 try:
-                    print(z)
-                    print(msg)
                     pz = msg.split(' ', 1)[1]
-                    print(pz)
                     z = pz.split(' ', 3)
-                    print(z)
-                    num = z[2]
+                    num = int(z[2])
                     playerid = session.sessionplayers[num].node.playerID
                     if z[0] == "add":
                         response = permissions.GiveRole(z[1], playerid)
