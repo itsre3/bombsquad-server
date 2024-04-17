@@ -486,7 +486,7 @@ class owner(object):
                     try:
                         if i["client_id"] == kick_id:
                             ba.internal.disconnect_client(int(kick_id))
-                            ba.screenmessage(confirmation, color=color, Transient=True, clients=[clid])
+                            ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                     except Exception as e:
                         print(e)
             elif x == "/role":
@@ -501,19 +501,19 @@ class owner(object):
                             if z[0] == "add":
                                 response = permissions.GiveRole(z[1], playerid)
                                 if response:
-                                    ba.screenmessage(confirmation, color=color, Transient=True, clients=[clid])
+                                    ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                                 elif response is None:
-                                    ba.screenmessage(f"Role {z[1]} does not exist", color=color, Transient=True, clients=[clid])
+                                    ba.screenmessage(f"Role {z[1]} does not exist", color=color, transient=True, clients=[clid])
                                 elif not response:
-                                    ba.screenmessage(f"Player already has a higher role", color=color, Transient=True, clients=[clid])
+                                    ba.screenmessage(f"Player already has a higher role", color=color, transient=True, clients=[clid])
                             elif z[0] == "take":
                                 response = permissions.TakeRole(z[1], playerid)
                                 if response:
-                                    ba.screenmessage(confirmation, color=color, Transient=True, clients=[clid])
+                                    ba.screenmessage(confirmation, color=color, transient=True, clients=[clid])
                                 elif not response:
-                                    ba.screenmessage(f"Player does not have {z[1]}", color=color, Transient=True, clients=[clid])
+                                    ba.screenmessage(f"Player does not have {z[1]}", color=color, transient=True, clients=[clid])
                                 elif response is None:
-                                    ba.screenmessage(f"Role does not exist", color=color, Transient=True, clients=[clid])
+                                    ba.screenmessage(f"Role does not exist", color=color, transient=True, clients=[clid])
                 except Exception as e:
                     print(e)
 
