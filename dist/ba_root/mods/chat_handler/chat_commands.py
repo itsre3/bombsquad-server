@@ -497,7 +497,6 @@ class owner(object):
                     for i in session.sessionplayers:
                         if i.activityplayer.node.playerID == num:
                             playerid = i.get_v1_account_id()
-                    playerid = session.sessionplayers[num].activityplayer.node.playerID
                     if z[0] == "add":
                         response = permissions.GiveRole(z[1], playerid)
                         if response:
