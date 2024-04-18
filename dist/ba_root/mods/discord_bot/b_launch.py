@@ -2,13 +2,14 @@
 import ba
 import _ba
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import asyncio
 import threading
 import settings
 
 setting = settings.get_settings_data()
 feed_data = {}
+statsmessage = None
 
 class BsBot(commands.Bot):
     def __init__(self):
@@ -35,7 +36,24 @@ class BsBot(commands.Bot):
     async def run_live_stats(self):
         global feed_data
         server = self.get_channel(992103710534680646)
-        await server.send("TEsting")
+        statsmessage = await server.send("For live feed")
+        await self.refresh_feed.start()
+
+    @tasks.loop(seconds=5)
+    async def refresh_feed(self):
+        await statsmessage.edit(content=livestatsmessage())
+        #asyncio.sleep(3)
+
+def livestatsmessage():
+    message = ""
+    for i in feed_data:
+        name = feed_data[i]["name"]
+        clid = feed_data[i]["client_id"]
+        id = i
+        message += name + clid + id
+    if message is None:
+        message = "Blank"
+    return message
 
 def get_live_feed():
     global feed_data
@@ -58,4 +76,5 @@ def init():
     loop = asyncio.get_event_loop()
     loop.create_task(bot.start(setting["discord"]["token"]))
     threading.Thread(target=loop.run_forever).start()
+    ba.timer(0.5, get_live_feed(), repeat=True)
 
