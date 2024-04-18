@@ -163,7 +163,7 @@ def Effect(action: str, effect: str, accountid: str) -> any:
             return True
         else:
             return "Morethan2"
-    elif action == "remove":
+    elif action == "take":
         if accountid in effectsdata:
             if effect in effectsdata[accountid]:
                 effectsdata[accountid].remove(effect)

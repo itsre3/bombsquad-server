@@ -116,7 +116,7 @@ class Admin(commands.Cog):
     @app_commands.choices(
         action=[
             Choice(name="Add", value="add"),
-            Choice(name="Remove", value="remove")
+            Choice(name="Remove", value="take")
         ],
         effect=[
             Choice(name="Ice", value="Ice"),
@@ -157,7 +157,7 @@ class Admin(commands.Cog):
                 await interaction.response.send_message(
                     f"Succesfully added {effect} to {name}", ephemeral=True
                 )
-        elif action == "remove":
+        elif action == "take":
             if givenresponse == "Noeffects":
                 await interaction.response.send_message(
                     f"Player do not have any effecct", ephemeral=True

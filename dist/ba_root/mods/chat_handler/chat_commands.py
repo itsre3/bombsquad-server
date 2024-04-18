@@ -497,7 +497,6 @@ class owner(object):
                     for i in session.sessionplayers:
                         if i.activityplayer.node.playerID == int(num):
                             playerid = i.get_v1_account_id()
-                            print(playerid)
                             if z[0] == "add":
                                 response = permissions.GiveRole(z[1], playerid)
                                 if response:
@@ -514,6 +513,55 @@ class owner(object):
                                     ba.screenmessage(f"Player does not have {z[1]}", color=color, transient=True, clients=[clid])
                                 elif response is None:
                                     ba.screenmessage(f"Role does not exist", color=color, transient=True, clients=[clid])
+                except Exception as e:
+                    print(e)
+
+            elif x in ["/effect", "/effects"]:
+                try:
+                    pz = msg.split(' ', 1)[1]
+                    z = pz.split(' ', 3)
+                    num = z[2]
+                    for i in session.sessionplayers:
+                        if i.activityplayer.node.playerID == int(num):
+                            playerid = i.get_v1_account_id()
+                        else:
+                            for i in _ba.get_game_rostar():
+                                if i["client_id"] == int(num):
+                                    playerid = i["accountid"]
+                        responsedata = permissions.Effect(z[0], z[1], playerid)
+                        if not responsedata:
+                            ba.screenmessage(f"Effect {z[1]} does not exist", color=color, transient=True, clients=[clid])
+                            return
+                        if z[0] == "add":
+                            if responsedata == "AlreadyHas":
+                                ba.screenmessage(
+                                    f"Player already has effect {z[1]}", color=color, transient=True, clients=[clid]
+                                )
+                                return
+                            elif responsedata == "Morethan2":
+                                ba.screenmessage(
+                                    f"Player has two effects already", color=color, transient=True, clients=[clid]
+                                )
+                                return
+                            elif responsedata:
+                                ba.screenmessage(
+                                    confirmation, color=color, transient=True, clients=[clid]
+                                )
+                        elif z[0] == "take":
+                            if responsedata == "Noeffects":
+                                ba.screenmessage(
+                                    f"Player do not have any effect", color=color, transient=True, clients=[clid]
+                                )
+                                return
+                            elif responsedata == "Noeffect":
+                                ba.screenmessage(
+                                    f"Player do not have {z[1]}", color=color, transient=True, clients=[clid]
+                                )
+                                return
+                            elif responsedata:
+                                ba.screenmessage(
+                                    confirmation, color=color, transient=True, clients=[clid]
+                                )
                 except Exception as e:
                     print(e)
 
