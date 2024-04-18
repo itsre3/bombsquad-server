@@ -30,12 +30,26 @@ class BsBot(commands.Bot):
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
         print('------')
+        await self.run_live_stats
+
+    async def run_live_stats(self):
+        global feed_data
+        server = self.get_channel(992103710534680646)
+        await server.send("TEsting")
 
 def get_live_feed():
     global feed_data
     players = {}
     for i in _ba.get_game_roster():
-        pass
+        try:
+            players[i["account_id"]] = {
+                "name": i["players"]["name"], "clientid": i["client_id"]
+            }
+        except:
+            players[i["account_id"]] = {
+                "name": "Joining", "clientid": i["client_id"]
+            }
+    feed_data = players
     
 
 bot = BsBot()
