@@ -35,12 +35,14 @@ class BsBot(commands.Bot):
 
     async def run_live_stats(self):
         global feed_data
+        global statsmessage
         server = self.get_channel(992103710534680646)
         statsmessage = await server.send("For live feed")
         await self.refresh_feed.start()
 
     @tasks.loop(seconds=5)
     async def refresh_feed(self):
+        global statsmessage
         await statsmessage.edit(content=livestatsmessage())
         #asyncio.sleep(3)
 
