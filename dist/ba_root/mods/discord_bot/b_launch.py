@@ -50,7 +50,7 @@ def livestatsmessage():
     message = "Live STats"
     for i in feed_data:
         name = feed_data[i]["name"]
-        clid = feed_data[i]["client_id"]
+        clid = feed_data[i]["clientid"]
         id = i
         message += name + clid + id
     if message is None:
