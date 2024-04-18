@@ -49,9 +49,9 @@ class BsBot(commands.Bot):
 def livestatsmessage():
     message = "Live STats"
     for i in feed_data:
-        name = feed_data[i]["name"]
-        clid = feed_data[i]["clientid"]
-        id = i
+        name = str(feed_data[i]["name"])
+        clid = str(feed_data[i]["clientid"])
+        id = str(i)
         message += name + clid + id
     if message is None:
         message = "Blank"
