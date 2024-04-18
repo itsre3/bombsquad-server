@@ -32,10 +32,10 @@ class BsBot(commands.Bot):
         print('------')
         self.run_live_stats()
 
-    async def run_live_stats(self):
+    def run_live_stats(self):
         global feed_data
         server = self.get_channel(992103710534680646)
-        await server.send("TEsting")
+        server.send("TEsting")
 
 def get_live_feed():
     global feed_data
