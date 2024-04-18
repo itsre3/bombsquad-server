@@ -47,7 +47,7 @@ class BsBot(commands.Bot):
         #asyncio.sleep(3)
 
 def livestatsmessage():
-    message = ""
+    message = "Live STats"
     for i in feed_data:
         name = feed_data[i]["name"]
         clid = feed_data[i]["client_id"]
