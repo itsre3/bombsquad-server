@@ -46,7 +46,7 @@ class BsBot(commands.Bot):
         statsmessage = await server.send(embed=embed)
         await self.refresh_feed.start()
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=10)
     async def refresh_feed(self):
         global statsmessage
         new_msg = statsmessage.embeds[0]
