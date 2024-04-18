@@ -30,7 +30,7 @@ class BsBot(commands.Bot):
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
         print('------')
-        self.run_live_stats()
+        await self.run_live_stats()
 
     async def run_live_stats(self):
         global feed_data
