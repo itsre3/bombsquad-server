@@ -63,7 +63,7 @@ def get_live_feed():
     for i in _ba.get_game_roster():
         try:
             players[i["account_id"]] = {
-                "name": i["players"]["name"], "clientid": i["client_id"]
+                "name": i["players"][0]["name"], "clientid": i["client_id"]
             }
         except:
             players[i["account_id"]] = {
