@@ -78,5 +78,5 @@ def init():
     loop = asyncio.get_event_loop()
     loop.create_task(bot.start(setting["discord"]["token"]))
     threading.Thread(target=loop.run_forever).start()
-    ba.timer(0.5, get_live_feed(), repeat=True)
+    ba.timer(0.5, ba.Call(get_live_feed), repeat=True)
 
