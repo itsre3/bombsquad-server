@@ -3,6 +3,7 @@ import ba
 import _ba
 import discord
 from discord.ext import commands, tasks
+from discord import Embed
 import asyncio
 import threading
 import settings
@@ -37,22 +38,28 @@ class BsBot(commands.Bot):
         global feed_data
         global statsmessage
         server = self.get_channel(992103710534680646)
-        statsmessage = await server.send("For live feed")
+        embed = Embed(
+            title="Live Stats",
+            description="For live feed",
+            color=discord.Colour.blue()
+        )
+        statsmessage = await server.send(embed=embed)
         await self.refresh_feed.start()
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(seconds=5)
     async def refresh_feed(self):
         global statsmessage
-        await statsmessage.edit(content=livestatsmessage())
+        new_msg = statsmessage.description = livestatsmessage()
+        await statsmessage.edit(embed=new_msg)
         #asyncio.sleep(3)
 
 def livestatsmessage():
-    message = "Live STats"
+    message = "Live STats\n\n"
     for i in feed_data:
         name = str(feed_data[i]["name"])
         clid = str(feed_data[i]["clientid"])
         id = str(i)
-        message += name + clid + id
+        message += name + " " + clid + " " + id + "\n"
     if message is None:
         message = "Blank"
     return message
