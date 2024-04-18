@@ -1,5 +1,6 @@
 
-
+import ba
+import _ba
 import discord
 from discord.ext import commands
 import asyncio
@@ -32,6 +33,9 @@ class BsBot(commands.Bot):
 
 def get_live_feed():
     global feed_data
+    players = {}
+    for i in _ba.get_game_roster():
+        pass
     
 
 bot = BsBot()
