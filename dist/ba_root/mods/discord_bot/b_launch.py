@@ -40,7 +40,7 @@ class BsBot(commands.Bot):
         statsmessage = await server.send("For live feed")
         await self.refresh_feed.start()
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=10)
     async def refresh_feed(self):
         global statsmessage
         await statsmessage.edit(content=livestatsmessage())
