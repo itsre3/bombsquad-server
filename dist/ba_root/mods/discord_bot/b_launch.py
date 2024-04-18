@@ -49,7 +49,8 @@ class BsBot(commands.Bot):
     @tasks.loop(seconds=5)
     async def refresh_feed(self):
         global statsmessage
-        new_msg = statsmessage.description = livestatsmessage()
+        new_msg = statsmessage.embeds[0]
+        new_msg.description = livestatsmessage()
         await statsmessage.edit(embed=new_msg)
         #asyncio.sleep(3)
 
