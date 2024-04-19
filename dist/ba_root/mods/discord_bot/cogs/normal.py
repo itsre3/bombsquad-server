@@ -96,7 +96,7 @@ class Normal(commands.Cog):
         name="stats",
         description="Check your game progress"
     )
-    @app_commands.descrribe(
+    @app_commands.describe(
         playerid="Player Id"
     )
     async def stats(
