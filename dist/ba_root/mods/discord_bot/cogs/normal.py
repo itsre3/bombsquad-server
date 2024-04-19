@@ -115,13 +115,13 @@ class Normal(commands.Cog):
     async def leaderboard(self, ctx):
         stats = mystats.get_all_stats()
         count = 0
-        embeds = []
-        embed = discord.Embed(
+        if len(stats) > 15:
+            embeds = []
+            embed = discord.Embed(
                 title="Leaderboard",
                 description="",
                 color=discord.Colour.blue()
             )
-        if len(stats) > 15:
             for i in stats:
                 name = Core.namer(i)
                 rank = str(stats[i]["rank"])
@@ -143,6 +143,11 @@ class Normal(commands.Cog):
             for i in stats:
                 name = Core.namer(i)
                 rank = str(stats[i]["rank"])
+                embed = discord.Embed(
+                    title="Leaderboard",
+                    description="",
+                    color=discord.Colour.blue()
+                )
                 embed.add_field(name="rank", value=f"{rank} => {name}")
             await ctx.send(embed=embed)
 
