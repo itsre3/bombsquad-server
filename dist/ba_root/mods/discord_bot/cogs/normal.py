@@ -138,7 +138,7 @@ class Normal(commands.Cog):
                     count = 0
             embeds.append(embed)
             view = LeaderBoardView(interaction, embeds)
-            await interaction.response.send_message(embed=embeds[0], view=view)
+            await interaction.response.send_message(embed=embeds[0])
             message = await interaction.original_response()
             view.msg = message
         else:
