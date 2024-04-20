@@ -77,9 +77,15 @@ def check_mute(client_id):
     else:
         return False
     
-def check_tag(accountid):
-    if accountid in check_file(tags_file):
-        return check_file(tags_file)[accountid]
+def check_tag(account_id) -> str:
+    if account_id in check_file(tags_file):
+        return check_file(tags_file)[account_id]
+    elif account_id in check_file(roles_file)["owners"]:
+        return "owner"
+    elif account_id in check_file(roles_file)["admins"]:
+        return "admin"
+    elif account_id in check_file(roles_file)["vips"]:
+        return "vip"
     else:
         return None
     
@@ -173,3 +179,24 @@ def Effect(action: str, effect: str, accountid: str) -> any:
                 return "Noeffect"
         else:
             return "Noeffects"
+
+
+def Tag(accountid: str, tag: str, action: str) -> any:
+    tagdata = check_file(tags_file)
+    if action == "give":
+        try:
+            tagdata[accountid] = tag
+            save_file(tagdata, tags_file)
+            return True
+        except:
+            return False
+    elif action == "remove":
+        try:
+            tagdata.pop(accountid)
+            save_file(tagdata, tags_file)
+            return True
+        except:
+            return False
+    else:
+        return None
+    

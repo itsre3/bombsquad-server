@@ -565,5 +565,44 @@ class owner(object):
                 except Exception as e:
                     print(e)
 
+            elif x == "/tag":
+                try:
+                    pz = msg.split(' ', 1)[1]
+                    z = pz.split(' ', 3)
+                    num = z[2]
+                    for i in session.sessionplayers:
+                        if i.activityplayer.node.playerID == int(num):
+                            playerid = i.get_v1_account_id()
+                        else:
+                            for i in _ba.get_game_rostar():
+                                if i["client_id"] == int(num):
+                                    playerid = i["accountid"]
+                        response = permissions.Tag(playerid, z[1], z[0])
+                        if response == None:
+                            ba.screenmessage(
+                                "Either give or remove tag", color=color, transient=True, clients=[clid]
+                            )
+                            return
+                        elif z[0] == "give":
+                            if response:
+                                ba.screenmessage(
+                                    confirmation, color=color, transient=True, clients=[clid]
+                                )
+                            else:
+                                ba.screenmessage(
+                                    "Error when adding tag", color=color, transient=True, clients=[clid]
+                                )
+                        elif z[0] == "remove":
+                            if response:
+                                ba.screenmessage(
+                                    confirmation, color=color, transient=True, clients=[clid]
+                                )
+                            else:
+                                ba.screenmessage(
+                                    "Error when removing tag", color=color, transient=True, clients=[clid]
+                                )
+                except:
+                    pass                
+
             else:
                 admin(msg, clid, acid)

@@ -182,25 +182,32 @@ class Effects(ba.Actor):
                     if self.spaz is None:
                         return
                     ProSurroundBall(self.spaz)
+                    pass
                     
                 elif "Rainbow" in efct:
                     ba.timer(2, ba.Call(self.run_rainbow), repeat=True)
-                    
+                    pass
+
                 elif "Spark" in efct:
                     ba.timer(0.2, ba.Call(self.emit, "spark"), repeat=True)
-                    
+                    pass
+
                 elif "Slime" in efct:
                     ba.timer(0.2, ba.Call(self.emit, "slime"), repeat=True)
-                    
+                    pass
+
                 elif "Metal" in efct:
                     ba.timer(0.2, ba.Call(self.emit, "metal"), repeat=True)
-                    
+                    pass
+
                 elif "Ice" in efct:
                     ba.timer(0.2, ba.Call(self.emit, "ice"), repeat=True)
-                    
+                    pass
+
                 elif "Stickers" in efct:
                     ba.timer(0.2, self.stickers, repeat=True)
-                    
+                    pass
+
         except Exception as e:
             print(e)
                     

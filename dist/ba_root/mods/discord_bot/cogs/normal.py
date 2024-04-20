@@ -126,7 +126,7 @@ class Normal(commands.Cog):
             )
             interaction=interaction
             for i in stats:
-                name = Core.namer(i)
+                name = stats[i]["name"]
                 rank = str(stats[i]["rank"])
                 embed.add_field(name=f"", value=f"{rank} => {name}\n")
                 count += 1
@@ -149,7 +149,7 @@ class Normal(commands.Cog):
                 color=discord.Colour.blue()
             )
             for i in stats:
-                name = Core.namer(i)
+                name = stats[i]["name"]
                 rank = str(stats[i]["rank"])
                 embed.add_field(name="", value=f"{rank} => {name}\n")
             await interaction.followup.send(embed=embed)

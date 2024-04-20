@@ -1,16 +1,14 @@
 
-
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
-
-
 import ba
+import random
 from bastd.actor.spaz import Spaz
 from bastd.actor import spaz
 from bastd.actor.playerspaz import PlayerSpaz
 from stats import mystats
+from admin import  permissions
 from overriders import _spaz_ovr
 
 if TYPE_CHECKING:
@@ -23,7 +21,15 @@ def show_rank(node, player):
     if f_stats:
         position = f_stats["rank"]
         rank(node, position)
-        
+    else:
+        pass
+
+
+def add_tag(node, player):
+    acid = player.sessionplayer.get_v1_account_id()
+    tag_text = permissions.check_tag(acid)
+    if tag_text:
+        tag(node, tag_text)
     else:
         pass
 
@@ -37,7 +43,6 @@ def rank(owner, p):
                })
     
     owner.connectattr('torso_position', node, 'input2')
-    
     text = ba.newnode('text',
               owner = owner,
               attrs = {
@@ -49,9 +54,47 @@ def rank(owner, p):
               'flatness': 1.0,
               'h_align': 'center'
               })
-    
     node.connectattr('output', text, 'position')
 
+
+def tag(owner, tagtext: str = ""):
+    node = ba.newnode(
+        "math",
+        owner=owner,
+        attrs={
+            "input1": (0, 1.7, 0),
+            "operation": "add"
+        }
+    )
+    owner.connectattr("torso_position", node, "input")
+    text = ba.newnode(
+        "text",
+        owner=owner,
+        attrs={
+            "text": tagtext,
+            "in_world": True,
+            "shadow": 1.0,
+            "color": (2, 1, 0.5),
+            "flatness": 1.0,
+            "h_align": "center"
+        }
+    )
+    node.connectattr("output", text, "position")
+    if tagtext == "owner":
+        ba.animate_array(
+            text,
+            'color',
+            3,
+            {
+                0: (2,2,2),
+                0.2: (2,0,2),
+                0.4: (2,2,0),
+                0.6: (0,2,0),
+                0.8: (0,2,2),
+                1: (0,0,2),
+                1.2: (2,0,0)
+            },
+            loop = True)
 
 
 def __init__(
@@ -85,6 +128,7 @@ def __init__(
     self._drive_player_position()
     
     show_rank(self.node, self._player)
+    add_tag(self.node, self._player)
     _spaz_ovr.Effects(self, self._player)
 
 

@@ -6,7 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
 import settings
-from admin.permissions import GiveRole, TakeRole, Effect
+from admin.permissions import GiveRole, TakeRole, Effect, Tag
 from core.Core import namer
 
 setting = settings.get_settings_data()
@@ -176,6 +176,40 @@ class Admin(commands.Cog):
             await interaction.response.send_message(
                 f"Error processing. Try again", ephemeral=True
             )
+
+    @app_commands.command(
+        name="tag",
+        desciption="Assign players custom tags"
+    )
+    @app_commands.describe(
+        actions="Give or remove tag",
+        pbid="Player id",
+        tagtext="Custom tag text"
+    )
+    @app_commands.choice(
+        actions=[
+            Choice(name="Give", value="give"),
+            Choice(name="Remove", value="remove")
+        ]
+    )
+    async def tag(self, interaction: discord.Interaction, actions, pbid, tagtext):
+        name = namer(pbid)
+        response = Tag(pbid, tagtext, actions)
+        if actions == "give":
+            if response:
+                await interaction.response.send_message(
+                    f"Succssfully set {tagtext} for {name}", ephemeral=True)
+            elif not response:
+                await interaction.response.send_message(
+                    f"Error while adding custom tag", ephemeral=True)
+        elif actions == "remove":
+            if response:
+                await interaction.response.send_message(
+                    f"Succssfully remove custom tag from {name}", ephemeral=True)
+            else:
+                await interaction.response.send_message(
+                    f"Error while removing custom tag", ephemeral=True)        
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(
