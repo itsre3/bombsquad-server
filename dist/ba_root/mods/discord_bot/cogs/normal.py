@@ -118,7 +118,7 @@ class Normal(commands.Cog):
     async def leaderboard(self, interaction: discord.Interaction):
         stats = mystats.get_all_stats()
         count = 0
-        if len(stats) > 15:
+        if len(stats) > 4:
             embeds = []
             embed = discord.Embed(
                 title="Leaderboard",
