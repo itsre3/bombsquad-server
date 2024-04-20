@@ -41,15 +41,13 @@ class BackButton(Button):
 class LeaderBoardView(View):
     def __init__(self, ctx, embeds: [discord.Embed]):
         super().__init__(timeout=30)
-        self.ctx = ctx
-        self.msg = None
         self.embeds = embeds
         self.MAX_PAGES = len(embeds)
         self.forward_button = ForwardButton(self.embeds)
         self.add_item(self.forward_button)
         self.cur_page = 0
         self.interaction_set = False
-        self.interaction = None
+        self.interaction = ctx
 
     async def on_timeout(self):
         self.clear_items()
