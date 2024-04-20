@@ -139,8 +139,7 @@ class Normal(commands.Cog):
                     count = 0
             embeds.append(embed)
             view = LeaderBoardView(interaction, embeds)
-            await interaction.response.send_message(embed=embeds[0], view=view)
-            message = await interaction.original_response()
+            message = await interaction.followup.send(embed=embeds[0], view=view)
             view.msg = message
         else:
             embed = discord.Embed(
@@ -152,7 +151,7 @@ class Normal(commands.Cog):
                 name = Core.namer(i)
                 rank = str(stats[i]["rank"])
                 embed.add_field(name="", value=f"{rank} => {name}")
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
 
 
 
