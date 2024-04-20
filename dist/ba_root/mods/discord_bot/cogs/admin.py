@@ -179,7 +179,7 @@ class Admin(commands.Cog):
 
     @app_commands.command(
         name="tag",
-        desciption="Assign players custom tags"
+        description="Assign players custom tags"
     )
     @app_commands.describe(
         actions="Give or remove tag",
