@@ -140,7 +140,7 @@ class Normal(commands.Cog):
                     count = 0
             embeds.append(embed)
             view = LeaderBoardView(interaction, embeds)
-            message = await interaction.respomse.send_message(embed=embeds[0], view=view)
+            message = await interaction.response.send_message(embed=embeds[0], view=view)
             view.msg = message
         else:
             embed = discord.Embed(
