@@ -111,8 +111,11 @@ class Normal(commands.Cog):
                 f"Play some games first", ephemeral=True
             )
 
-    @commands.command()
-    async def leaderboard(self, ctx):
+    @app_commands.command(
+            name='leaderboard',
+            description="Displays server leaderboard"
+    )
+    async def leaderboard(self, interaction: dsicord.Interaction):
         stats = mystats.get_all_stats()
         count = 0
         if len(stats) > 15:
@@ -136,8 +139,8 @@ class Normal(commands.Cog):
                     )
                     count = 0
             embeds.append(embed)
-            view = LeaderBoardView(ctx, embeds)
-            message = await ctx.send(embed=embeds[0], view=view)
+            view = LeaderBoardView(interaction, embeds)
+            message = await interaction.respomse.send_message(embed=embeds[0], view=view)
             view.msg = message
         else:
             for i in stats:
@@ -148,8 +151,8 @@ class Normal(commands.Cog):
                     description="",
                     color=discord.Colour.blue()
                 )
-                embed.add_field(name="rank", value=f"{rank} => {name}")
-            await ctx.send(embed=embed)
+                embed.add_field(name="", value=f"{rank} => {name}")
+            await interaction.response.send_message(embed=embed)
 
 
 
