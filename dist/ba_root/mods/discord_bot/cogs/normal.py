@@ -124,6 +124,7 @@ class Normal(commands.Cog):
                 description="",
                 color=discord.Colour.blue()
             )
+            interaction=interaction
             for i in stats:
                 name = Core.namer(i)
                 rank = str(stats[i]["rank"])
