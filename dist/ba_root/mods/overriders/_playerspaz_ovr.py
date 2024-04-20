@@ -66,7 +66,7 @@ def tag(owner, tagtext: str = ""):
             "operation": "add"
         }
     )
-    owner.connectattr("torso_position", node, "input")
+    owner.connectattr("torso_position", node, "input2")
     text = ba.newnode(
         "text",
         owner=owner,
