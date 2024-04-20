@@ -192,7 +192,7 @@ class Admin(commands.Cog):
             Choice(name="Remove", value="remove")
         ]
     )
-    async def tag(self, interaction: discord.Interaction, actions, pbid, tagtext):
+    async def tag(self, interaction: discord.Interaction, actions: str, pbid: str, tagtext: str):
         name = namer(pbid)
         response = Tag(pbid, tagtext, actions)
         if actions == "give":
