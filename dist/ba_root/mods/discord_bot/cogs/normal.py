@@ -150,7 +150,8 @@ class Normal(commands.Cog):
             )
             for i in stats:
                 name = Core.namer(i)
-                rank = str(stats[i]["rank"])bed.add_field(name="", value=f"{rank} => {name}")
+                rank = str(stats[i]["rank"])
+                embed.add_field(name="", value=f"{rank} => {name}")
             await interaction.response.send_message(embed=embed)
 
 
