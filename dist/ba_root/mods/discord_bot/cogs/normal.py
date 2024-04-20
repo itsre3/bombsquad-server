@@ -115,7 +115,7 @@ class Normal(commands.Cog):
     async def leaderboard(self, interaction: discord.Interaction):
         await interaction.response.defer()
         stats = mystats.get_all_stats()
-        stats = sorted(stats.items(), key = lambda x: x[0])
+        stats = dict(sorted(stats.items(), key = lambda x: x[1]["rank"]))
         print(stats)
         count = 0
         if len(stats) > 4:
