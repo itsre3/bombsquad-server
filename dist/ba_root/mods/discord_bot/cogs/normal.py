@@ -113,6 +113,7 @@ class Normal(commands.Cog):
             description="Displays server leaderboard"
     )
     async def leaderboard(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         stats = mystats.get_all_stats()
         count = 0
         if len(stats) > 4:
@@ -138,7 +139,7 @@ class Normal(commands.Cog):
                     count = 0
             embeds.append(embed)
             view = LeaderBoardView(interaction, embeds)
-            await interaction.response.send_message(embed=embeds[0])
+            await interaction.response.send_message(embed=embeds[0], view=view)
             message = await interaction.original_response()
             view.msg = message
         else:
