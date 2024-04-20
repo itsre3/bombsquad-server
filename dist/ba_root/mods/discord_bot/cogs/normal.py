@@ -45,8 +45,8 @@ class LeaderBoardView(View):
         self.msg = None
         self.embeds = embeds
         self.MAX_PAGES = len(embeds)
-        #self.forward_button = ForwardButton(self.embeds)
-        #self.add_item(self.forward_button)
+        self.forward_button = ForwardButton(self.embeds)
+        self.add_item(self.forward_button)
         self.cur_page = 0
         self.interaction_set = False
         self.interaction = None
@@ -130,7 +130,7 @@ class Normal(commands.Cog):
                 rank = str(stats[i]["rank"])
                 embed.add_field(name=f"rank {rank}", value=f"{rank} => {name}")
                 count += 1
-                if count == 15:
+                if count == 4:
                     embeds.append(embed)
                     embed = discord.Embed(
                         title="Leaderboard",
