@@ -116,9 +116,8 @@ class Normal(commands.Cog):
         await interaction.response.defer()
         stats = mystats.get_all_stats()
         stats = dict(sorted(stats.items(), key = lambda x: x[1]["rank"]))
-        print(stats)
         count = 0
-        if len(stats) > 4:
+        if len(stats) > 10:
             embeds = []
             embed = discord.Embed(
                 title="Leaderboard",
@@ -129,9 +128,9 @@ class Normal(commands.Cog):
             for i in stats:
                 name = Core.namer(i)
                 rank = str(stats[i]["rank"])
-                embed.add_field(name=f"rank {rank}", value=f"{rank} => {name}")
+                embed.add_field(name=f"", value=f"{rank} => {name}\n")
                 count += 1
-                if count == 4:
+                if count == 10:
                     embeds.append(embed)
                     embed = discord.Embed(
                         title="Leaderboard",
@@ -152,7 +151,7 @@ class Normal(commands.Cog):
             for i in stats:
                 name = Core.namer(i)
                 rank = str(stats[i]["rank"])
-                embed.add_field(name="", value=f"{rank} => {name}")
+                embed.add_field(name="", value=f"{rank} => {name}\n")
             await interaction.followup.send(embed=embed)
 
 
