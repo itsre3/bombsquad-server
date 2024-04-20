@@ -143,15 +143,14 @@ class Normal(commands.Cog):
             message = await interaction.respomse.send_message(embed=embeds[0], view=view)
             view.msg = message
         else:
+            embed = discord.Embed(
+                title="Leaderboard",
+                description="",
+                color=discord.Colour.blue()
+            )
             for i in stats:
                 name = Core.namer(i)
-                rank = str(stats[i]["rank"])
-                embed = discord.Embed(
-                    title="Leaderboard",
-                    description="",
-                    color=discord.Colour.blue()
-                )
-                embed.add_field(name="", value=f"{rank} => {name}")
+                rank = str(stats[i]["rank"])bed.add_field(name="", value=f"{rank} => {name}")
             await interaction.response.send_message(embed=embed)
 
 
