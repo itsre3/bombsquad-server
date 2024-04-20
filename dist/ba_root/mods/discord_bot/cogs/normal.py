@@ -54,7 +54,6 @@ class LeaderBoardView(View):
     async def on_timeout(self):
         self.clear_items()
         await self.msg.delete()
-        await self.ctx.message.delete()
         self.stop()
 
 
@@ -140,7 +139,8 @@ class Normal(commands.Cog):
                     count = 0
             embeds.append(embed)
             view = LeaderBoardView(interaction, embeds)
-            message = await interaction.response.send_message(embed=embeds[0], view=view)
+            await interaction.response.send_message(embed=embeds[0], view=view)
+            message = await interaction.original_response()
             view.msg = message
         else:
             embed = discord.Embed(
