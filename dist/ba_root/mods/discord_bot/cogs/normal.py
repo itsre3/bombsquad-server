@@ -115,7 +115,7 @@ class Normal(commands.Cog):
             name='leaderboard',
             description="Displays server leaderboard"
     )
-    async def leaderboard(self, interaction: dsicord.Interaction):
+    async def leaderboard(self, interaction: discord.Interaction):
         stats = mystats.get_all_stats()
         count = 0
         if len(stats) > 15:
