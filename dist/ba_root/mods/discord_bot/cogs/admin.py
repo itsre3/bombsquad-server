@@ -186,7 +186,7 @@ class Admin(commands.Cog):
         pbid="Player id",
         tagtext="Custom tag text"
     )
-    @app_commands.choice(
+    @app_commands.choices(
         actions=[
             Choice(name="Give", value="give"),
             Choice(name="Remove", value="remove")
