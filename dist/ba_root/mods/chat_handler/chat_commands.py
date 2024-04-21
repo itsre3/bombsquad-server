@@ -601,8 +601,8 @@ class owner(object):
                                 ba.screenmessage(
                                     "Error when removing tag", color=color, transient=True, clients=[clid]
                                 )
-                except:
-                    pass                
+                except Exception as e:
+                    print(e)              
 
             else:
                 admin(msg, clid, acid)

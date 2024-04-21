@@ -22,7 +22,6 @@ def check_perms(msg, client_id):
         
     if msg.startswith("/"):
         for i in _ba.get_game_roster():
-            print(i)
             if i["client_id"] == client_id:
                 acid = i["account_id"]
         if sett["chat"]["settings"]["cht_cmd"]["enabled"]:
