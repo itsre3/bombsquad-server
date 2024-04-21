@@ -80,6 +80,7 @@ def tag(owner, tagtext: str = ""):
         }
     )
     node.connectattr("output", text, "position")
+    print("kk")
     if tagtext == "owner":
         ba.animate_array(
             text,
