@@ -525,7 +525,7 @@ class owner(object):
                         if i.activityplayer.node.playerID == int(num):
                             playerid = i.get_v1_account_id()
                         else:
-                            for i in _ba.get_game_rostar():
+                            for i in _ba.get_game_roster():
                                 if i["client_id"] == int(num):
                                     playerid = i["accountid"]
                         responsedata = permissions.Effect(z[0], z[1], playerid)
@@ -574,7 +574,7 @@ class owner(object):
                         if i.activityplayer.node.playerID == int(num):
                             playerid = i.get_v1_account_id()
                         else:
-                            for i in _ba.get_game_rostar():
+                            for i in _ba.get_game_roster():
                                 if i["client_id"] == int(num):
                                     playerid = i["accountid"]
                         response = permissions.Tag(playerid, z[1], z[0])
