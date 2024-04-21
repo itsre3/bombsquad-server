@@ -62,7 +62,7 @@ def tag(owner, tagtext: str = "Nothing"):
         "math",
         owner=owner,
         attrs={
-            "input1": (0, 1.7, 0),
+            "input1": (0, 1.5, 0),
             "operation": "add"
         }
     )
@@ -75,7 +75,7 @@ def tag(owner, tagtext: str = "Nothing"):
             "in_world": True,
             "shadow": 1.0,
             "color": (2, 1, 0.5),
-            "scale": 0.02,
+            "scale": 0.01,
             "flatness": 1.0,
             "h_align": "center"
         }
