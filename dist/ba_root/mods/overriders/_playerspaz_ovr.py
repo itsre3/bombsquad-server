@@ -57,7 +57,7 @@ def rank(owner, p):
     node.connectattr('output', text, 'position')
 
 
-def tag(owner, tagtext: str = ""):
+def tag(owner, tagtext: str = "Nothing"):
     node = ba.newnode(
         "math",
         owner=owner,
@@ -75,12 +75,12 @@ def tag(owner, tagtext: str = ""):
             "in_world": True,
             "shadow": 1.0,
             "color": (2, 1, 0.5),
+            "scale": 0.05,
             "flatness": 1.0,
             "h_align": "center"
         }
     )
     node.connectattr("output", text, "position")
-    print("kk")
     if tagtext == "owner":
         ba.animate_array(
             text,
