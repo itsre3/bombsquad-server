@@ -75,7 +75,7 @@ def tag(owner, tagtext: str = "Nothing"):
             "in_world": True,
             "shadow": 1.0,
             "color": (2, 1, 0.5),
-            "scale": 0.05,
+            "scale": 0.02,
             "flatness": 1.0,
             "h_align": "center"
         }
