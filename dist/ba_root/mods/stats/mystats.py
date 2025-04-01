@@ -5,20 +5,22 @@ mystats module for BombSquad version 1.5.29
 Provides functionality for dumping player stats to disk between rounds.
 """
 
-import threading,json,os,urllib,ba,_ba,datetime
-from ba._activity import Activity
-from ba._music import setmusic, MusicType
-from ba._generated.enums import InputType, UIScale
+import threading,json,os,urllib,datetime
+import bascenev1 as bs
+import _babase
+from bs._activity import Activity
+from bs._music import setmusic, MusicType
+from bs._generated.enums import InputType, UIScale
 # False-positive from pylint due to our class-generics-filter.
-from ba._player import EmptyPlayer  # pylint: disable=W0611
-from ba._team import EmptyTeam  # pylint: disable=W0611
+from bs._player import EmptyPlayer  # pylint: disable=W0611
+from bs._team import EmptyTeam  # pylint: disable=W0611
 from typing import Any, Dict, Optional
-from ba._lobby import JoinInfo
-from ba._activitytypes import ScoreScreenActivity
+from bs._lobby import JoinInfo
+from bs._activitytypes import ScoreScreenActivity
 import _thread
 
-stats_path = os.path.join(_ba.env()['python_directory_user'], "stats" + os.sep)
-html_file = os.path.join(_ba.env()['python_directory_user'], "web" + os.sep) + "templates/stats_page.html"
+stats_path = os.path.join(_babase.env()['python_directory_user'], "stats" + os.sep)
+html_file = os.path.join(_babase.env()['python_directory_user'], "web" + os.sep) + "templates/stats_page.html"
 stats_file = stats_path + "stats_file.json"
 
 
@@ -236,7 +238,7 @@ def on_begin(self) -> None:
     # Pop up a 'press any button to continue' statement after our
     # min-view-time show a 'press any button to continue..'
     # thing after a bit.
-    if _ba.app.ui.uiscale is UIScale.LARGE:
+    if _babase.app.ui.uiscale is UIScale.LARGE:
         # FIXME: Need a better way to determine whether we've probably
         #  got a keyboard.
         sval = _language.Lstr(resource='pressAnyKeyButtonText')

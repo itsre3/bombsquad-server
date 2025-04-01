@@ -14,11 +14,16 @@ from __future__ import annotations
 
 import gc
 import sys
+import time
 import types
+import weakref
+import threading
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import Any, TextIO
+
+    from logging import Logger
 
 ABS_MAX_LEVEL = 10
 
@@ -276,14 +281,12 @@ def _desc(obj: Any) -> str:
         tpss = (
             f', contains [{tpsj}, ...]'
             if len(obj) > 3
-            else f', contains [{tpsj}]'
-            if tps
-            else ''
+            else f', contains [{tpsj}]' if tps else ''
         )
         extra = f' (len {len(obj)}{tpss})'
     elif isinstance(obj, dict):
-        # If it seems to be the vars() for a type or module,
-        # try to identify what.
+        # If it seems to be the vars() for a type or module, try to
+        # identify what.
         for ref in getrefs(obj):
             if hasattr(ref, '__dict__') and vars(ref) is obj:
                 extra = f' (vars for {_desctype(ref)} @ {id(ref)})'
@@ -297,9 +300,7 @@ def _desc(obj: Any) -> str:
             pairss = (
                 f', contains {{{pairsj}, ...}}'
                 if len(obj) > 3
-                else f', contains {{{pairsj}}}'
-                if pairs
-                else ''
+                else f', contains {{{pairsj}}}' if pairs else ''
             )
             extra = f' (len {len(obj)}{pairss})'
     if extra is None:
@@ -309,6 +310,7 @@ def _desc(obj: Any) -> str:
 
 def _printrefs(
     obj: Any,
+    *,
     level: int,
     max_level: int,
     exclude_objs: list,
@@ -321,10 +323,9 @@ def _printrefs(
     if level < max_level or (id(obj) in expand_ids and level < ABS_MAX_LEVEL):
         refs = getrefs(obj)
         for ref in refs:
-
-            # It seems we tend to get a transient cell object with contents
-            # set to obj. Would be nice to understand why that happens
-            # but just ignoring it for now.
+            # It seems we tend to get a transient cell object with
+            # contents set to obj. Would be nice to understand why that
+            # happens but just ignoring it for now.
             if isinstance(ref, types.CellType) and ref.cell_contents is obj:
                 continue
 
@@ -338,7 +339,8 @@ def _printrefs(
                 continue
 
             # The 'refs' list we just made will be listed as a referrer
-            # of this obj, so explicitly exclude it from the obj's listing.
+            # of this obj, so explicitly exclude it from the obj's
+            # listing.
             _printrefs(
                 ref,
                 level=level + 1,
@@ -347,3 +349,213 @@ def _printrefs(
                 expand_ids=expand_ids,
                 file=file,
             )
+
+
+class DeadlockDumper:
+    """Dumps thread states if still around after timeout seconds.
+
+    This uses low level Python functionality so should still fire
+    even in the case of deadlock.
+    """
+
+    # faulthandler has a single traceback-dump-later state, so only
+    # one of us can control it at a time.
+    lock = threading.Lock()
+    watch_in_progress = False
+
+    def __init__(self, timeout: float) -> None:
+        import faulthandler
+
+        cls = type(self)
+
+        with cls.lock:
+            if cls.watch_in_progress:
+                print(
+                    'Existing DeadlockDumper found; new one will be a no-op.',
+                    file=sys.stderr,
+                )
+                self.active = False
+                return
+
+            # Ok; no watch is in progress; we can be the active one.
+            cls.watch_in_progress = True
+            self.active = True
+            faulthandler.dump_traceback_later(timeout=timeout)
+
+    def __del__(self) -> None:
+        import faulthandler
+
+        cls = type(self)
+
+        # If we made it to here, call off the dump. But only if we are
+        # the active dump.
+        if self.active:
+            faulthandler.cancel_dump_traceback_later()
+            cls.watch_in_progress = False
+
+
+class DeadlockWatcher:
+    """Individual watcher for deadlock conditions.
+
+    Use the enable_deadlock_watchers() to enable this system.
+
+    Next, use these wrapped in a with statement around some operation
+    that may deadlock. If the with statement does not complete within the
+    timeout period, a traceback of all threads will be dumped.
+
+    Note that the checker thread runs a cycle every ~5 seconds, so
+    something stuck needs to remain stuck for 5 seconds or so to be
+    caught for sure.
+    """
+
+    watchers_lock: threading.Lock | None = None
+    watchers: list[weakref.ref[DeadlockWatcher]] | None = None
+
+    def __init__(
+        self,
+        timeout: float = 10.0,
+        logger: Logger | None = None,
+        logextra: dict | None = None,
+    ) -> None:
+        from efro.util import caller_source_location
+
+        # pylint: disable=not-context-manager
+        cls = type(self)
+        if cls.watchers_lock is None or cls.watchers is None:
+            print(
+                'DeadlockWatcher created without watchers enabled.',
+                file=sys.stderr,
+            )
+            return
+
+        # All we do is record when we were made and how long till we
+        # expire.
+        self.create_time = time.monotonic()
+        self.timeout = timeout
+        self.noted_expire = False
+        self.logger = logger
+        self.logextra = logextra
+        self.caller_source_loc = caller_source_location()
+        curthread = threading.current_thread()
+        self.thread_id = (
+            '<unknown>'
+            if curthread.ident is None
+            else hex(curthread.ident).removeprefix('0x')
+        )
+        self.active = False
+
+        with cls.watchers_lock:
+            cls.watchers.append(weakref.ref(self))
+
+    # Support the with statement.
+    def __enter__(self) -> Any:
+        self.active = True
+        return self
+
+    def __exit__(self, exc_type: Any, exc_value: Any, exc_tb: Any) -> None:
+        self.active = False
+
+        # Print if we lived past our deadline. This is just an extra
+        # data point. The watcher thread should be doing the actual
+        # stack dumps/etc.
+        if self.logger is None or self.logextra is None:
+            return
+
+        duration = time.monotonic() - self.create_time
+        if duration > self.timeout:
+            self.logger.error(
+                'DeadlockWatcher %s at %s in thread %s lived %.2fs,'
+                ' past timeout %.2fs. This should have triggered'
+                ' a deadlock dump.',
+                id(self),
+                self.caller_source_loc,
+                self.thread_id,
+                duration,
+                self.timeout,
+                extra=self.logextra,
+            )
+
+    @classmethod
+    def enable_deadlock_watchers(cls) -> None:
+        """Spins up deadlock-watcher functionality.
+
+        Must be explicitly called before any DeadlockWatchers are
+        created.
+        """
+        assert cls.watchers_lock is None
+        cls.watchers_lock = threading.Lock()
+        assert cls.watchers is None
+        cls.watchers = []
+
+        threading.Thread(
+            target=cls._deadlock_watcher_thread_main, daemon=True
+        ).start()
+
+    @classmethod
+    def _deadlock_watcher_thread_main(cls) -> None:
+        # pylint: disable=not-context-manager
+        # pylint: disable=not-an-iterable
+        assert cls.watchers_lock is not None and cls.watchers is not None
+
+        # Spin in a loop checking our watchers periodically and dumping
+        # state if any have timed out. The trick here is that we don't
+        # explicitly dump state, but rather we set up a "dead man's
+        # switch" that does so after some amount of time if we don't
+        # explicitly cancel it. This way we'll hopefully get state dumps
+        # even for things like total GIL deadlocks.
+        while True:
+
+            # Set a dead man's switch for this pass.
+            dumper = DeadlockDumper(timeout=5.171)
+
+            # Sleep most of the way through it but give ourselves time
+            # to turn it off if we're still responsive.
+            time.sleep(4.129)
+            now = time.monotonic()
+
+            found_fresh_expired = False
+
+            # If any watcher is still active and expired, sleep past the
+            # timeout to force the dumper to do its thing.
+            with cls.watchers_lock:
+
+                for wref in cls.watchers:
+                    w = wref()
+                    if (
+                        w is not None
+                        and now - w.create_time > w.timeout
+                        and not w.noted_expire
+                        and w.active
+                    ):
+                        # If they supplied a logger, let them know they
+                        # should check stderr for a dump.
+                        if w.logger is not None:
+                            w.logger.error(
+                                'DeadlockWatcher %s at %s in thread %s'
+                                ' with time %.2f expired;'
+                                ' check stderr for stack traces.',
+                                id(w),
+                                w.caller_source_loc,
+                                w.thread_id,
+                                w.timeout,
+                                extra=w.logextra,
+                            )
+                        found_fresh_expired = True
+                        w.noted_expire = True
+
+                    # Important to clear this ref; otherwise we can keep
+                    # a random watcher alive until our next time through.
+                    w = None
+
+                # Prune dead watchers and reset for the next pass.
+                cls.watchers = [w for w in cls.watchers if w() is not None]
+
+            if found_fresh_expired:
+                # Push us over the dumper time limit which give us a
+                # lovely dump. Technically we could just do an immediate
+                # dump here instead, but that would give us two paths to
+                # maintain instead of this single one.
+                time.sleep(2.0)
+
+            # Call off the dump if it hasn't happened yet.
+            del dumper

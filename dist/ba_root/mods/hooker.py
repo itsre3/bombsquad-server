@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import _ba
-import ba
+import _babase
+import bascenev1 as bs
 import settings
 from chat_handler import chat_handler
 import coinsystem

@@ -3,20 +3,20 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import ba
-import _ba
+import bascenev1 as bs
+import _babase
 import settings
 import os
 import random
 import json
-from ba._generated.enums import SpecialChar
+from bs._generated.enums import SpecialChar
 if TYPE_CHECKING:
     from typing import List, Sequence, Optional, Dict, Any
 
 sett = settings.get_settings_data()
 correct_answer = None
 answered_by = None
-base_dir = os.path.join(_ba.env()['python_directory_user'], "coinsystem" + os.sep)
+base_dir = os.path.join(_babase.env()['python_directory_user'], "coinsystem" + os.sep)
 bankfile = base_dir+"bank.json"
 questionslist = sett["currency"]["settings"]["askquestions"]["questions"]
 
@@ -39,7 +39,7 @@ def ask_question():
         b = availableb[random.randrange(4)]
         correct_answer = str(a * b)
         question = f'What is {str(a)} x {str(b)}?'
-    _ba.chatmessage(question)
+    _babase.chatmessage(question)
     answered_by = None
     return
 
@@ -50,15 +50,15 @@ def check_answer(msg, clientID):
 
     if msg == correct_answer:
         if answered_by is not None:
-            ba.screenmessage(f'Already awarded to {answered_by}.', (0.8,1,0))
+            bs.screenmessage(f'Already awarded to {answered_by}.', (0.8,1,0))
         else:
-            ros = _ba.get_game_roster()
+            ros = _babase.get_game_roster()
             for i in ros:
                 if (i is not None) and (i != {}) and (i['client_id'] == clientID):
                     answered_by = i['players'][0]['name']
                     account_id = i['account_id']
             try:
-                ba.screenmessage(f"Congratulations {answered_by}!, You won {_ba.charstr(SpecialChar.TICKET)}10.", (0,1,0), transient=True, clients=[clientID])
+                bs.screenmessage(f"Congratulations {answered_by}!, You won {_babase.charstr(SpecialChar.TICKET)}10.", (0,1,0), transient=True, clients=[clientID])
                 add_coins_by_pbid(account_id, 10)
             except:
                 pass
@@ -83,7 +83,7 @@ def get_command_price(cmd):
         if cnv_cmd in sett["currency"]["settings"]["shop"]["commands"]["prices"]: #very long xd
             return int(sett["currency"]["settings"]["shop"]["commands"]["prices"][cnv_cmd])
     else:
-        _ba.playsound(_ba.getsound("error"))
+        _babase.playsound(_babase.getsound("error"))
         return None
 
 
@@ -164,4 +164,4 @@ def save_bank_file(data):
 cstimer = None
 def run_questions():
     global cstimer
-    cstimer = ba.timer(sett["currency"]["settings"]["askquestions"]["questiondelay"], ask_question, repeat=True)
+    cstimer = bs.timer(sett["currency"]["settings"]["askquestions"]["questiondelay"], ask_question, repeat=True)

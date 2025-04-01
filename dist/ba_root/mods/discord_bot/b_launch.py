@@ -1,6 +1,6 @@
 
-import ba
-import _ba
+import bascenev1 as bs
+import _babase
 import discord
 from discord.ext import commands, tasks
 from discord import Embed
@@ -68,7 +68,7 @@ def livestatsmessage():
 def get_live_feed():
     global feed_data
     players = {}
-    for i in _ba.get_game_roster():
+    for i in _babase.get_game_roster():
         try:
             players[i["account_id"]] = {
                 "name": i["players"][0]["name"], "clientid": i["client_id"]
@@ -86,5 +86,5 @@ def init():
     loop = asyncio.get_event_loop()
     loop.create_task(bot.start(setting["discord"]["token"]))
     threading.Thread(target=loop.run_forever).start()
-    ba.timer(0.5, ba.Call(get_live_feed), repeat=True)
+    bs.timer(0.5, bs.Call(get_live_feed), repeat=True)
 

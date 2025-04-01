@@ -2,11 +2,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-import ba
+import bascenev1 as bs
 import random
-from bastd.actor.spaz import Spaz
-from bastd.actor import spaz
-from bastd.actor.playerspaz import PlayerSpaz
+from bascenev1lib.actor.spaz import Spaz
+from bascenev1lib.actor import spaz
+from bascenev1lib.actor.playerspaz import PlayerSpaz
 from stats import mystats
 from admin import  permissions
 from overriders import _spaz_ovr
@@ -35,7 +35,7 @@ def add_tag(node, player):
 
 
 def rank(owner, p):
-    node = ba.newnode('math', 
+    node = bs.newnode('math', 
                owner = owner,
                attrs = {
                'input1': (0, 1.2, 0),
@@ -43,7 +43,7 @@ def rank(owner, p):
                })
     
     owner.connectattr('torso_position', node, 'input2')
-    text = ba.newnode('text',
+    text = bs.newnode('text',
               owner = owner,
               attrs = {
               'text': str(p),
@@ -58,7 +58,7 @@ def rank(owner, p):
 
 
 def tag(owner, tagtext: str = "Nothing"):
-    node = ba.newnode(
+    node = bs.newnode(
         "math",
         owner=owner,
         attrs={
@@ -67,7 +67,7 @@ def tag(owner, tagtext: str = "Nothing"):
         }
     )
     owner.connectattr("torso_position", node, "input2")
-    text = ba.newnode(
+    text = bs.newnode(
         "text",
         owner=owner,
         attrs={
@@ -82,7 +82,7 @@ def tag(owner, tagtext: str = "Nothing"):
     )
     node.connectattr("output", text, "position")
     if tagtext == "owner":
-        ba.animate_array(
+        bs.animate_array(
             text,
             'color',
             3,
@@ -100,13 +100,13 @@ def tag(owner, tagtext: str = "Nothing"):
 
 def __init__(
     self,
-    player: ba.Player,
+    player: bs.Player,
     color: Sequence[float] = (1.0, 1.0, 1.0),
     highlight: Sequence[float] = (0.5, 0.5, 0.5),
     character: str = 'Spaz',
     powerups_expire: bool = True,
     ):
-    """Create a spaz for the provided ba.Player.
+    """Create a spaz for the provided bs.Player.
     Note: this does not wire up any controls;
     you must call connect_controls_to_player() to do so.
     """
@@ -120,11 +120,11 @@ def __init__(
         start_invincible=True,
         powerups_expire=powerups_expire,
     )
-    self.last_player_attacked_by: ba.Player | None = None
+    self.last_player_attacked_by: bs.Player | None = None
     self.last_attacked_time = 0.0
     self.last_attacked_type: tuple[str, str] | None = None
     self.held_count = 0
-    self.last_player_held_by: ba.Player | None = None
+    self.last_player_held_by: bs.Player | None = None
     self._player = player
     self._drive_player_position()
     

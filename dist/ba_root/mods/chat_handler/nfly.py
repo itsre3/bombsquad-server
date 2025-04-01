@@ -2,8 +2,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-import ba
-import _ba
+import bascenev1 as bs
+import _babase
 
 if TYPE_CHECKING:
     from typing import Union, Sequence
@@ -16,5 +16,5 @@ def on_dfly_press(player):
             0,0,0,200,200,0,0,0,1,0)
 
 def NewFly(player):
-    player.assigninput(ba.InputType.JUMP_PRESS, ba.Call(
+    player.assigninput(bs.InputType.JUMP_PRESS, bs.Call(
         on_dfly_press, player))

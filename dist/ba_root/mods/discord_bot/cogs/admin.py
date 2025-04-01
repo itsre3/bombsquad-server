@@ -1,6 +1,6 @@
 
-import ba
-import _ba
+import bascenev1 as bs
+import _babase
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -22,8 +22,8 @@ class Admin(commands.Cog):
     async def servermessage(
         self, interaction: discord.Interaction, message: str
         ):
-        _ba.pushcall(
-            ba.Call(ba.internal.chatmessage, message), from_other_thread=True
+        _babase.pushcall(
+            bs.Call(bs.internal.chatmessage, message), from_other_thread=True
             )
         await interaction.response.send_message(
             f"Sent message to server", ephemeral=True

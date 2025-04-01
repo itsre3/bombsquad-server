@@ -9,11 +9,12 @@ import asyncio
 import logging
 import weakref
 from enum import Enum
+from functools import partial
+from collections import deque
 from dataclasses import dataclass
 from threading import current_thread
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, assert_never
 
-from efro.util import assert_never
 from efro.error import (
     CommunicationError,
     is_asyncio_streams_communication_error,
@@ -50,7 +51,6 @@ _BYTE_ORDER: Literal['big'] = 'big'
 @ioprepped
 @dataclass
 class _PeerInfo:
-
     # So we can gracefully evolve how we communicate in the future.
     protocol: Annotated[int, IOAttrs('p')]
 
@@ -85,7 +85,6 @@ def ssl_stream_writer_underlying_transport_info(
 
 def ssl_stream_writer_force_close_check(writer: asyncio.StreamWriter) -> None:
     """Ensure a writer is closed; hacky workaround for odd hang."""
-    from efro.call import tpartial
     from threading import Thread
 
     # Disabling for now..
@@ -101,9 +100,8 @@ def ssl_stream_writer_force_close_check(writer: asyncio.StreamWriter) -> None:
             raw_transport = getattr(sslproto, '_transport', None)
             if raw_transport is not None:
                 Thread(
-                    target=tpartial(
-                        _do_writer_force_close_check,
-                        weakref.ref(raw_transport),
+                    target=partial(
+                        _do_writer_force_close_check, weakref.ref(raw_transport)
                     ),
                     daemon=True,
                 ).start()
@@ -182,6 +180,7 @@ class RPCEndpoint:
         reader: asyncio.StreamReader,
         writer: asyncio.StreamWriter,
         label: str,
+        *,
         debug_print: bool = False,
         debug_print_io: bool = False,
         debug_print_call: Callable[[str], None] | None = None,
@@ -201,7 +200,7 @@ class RPCEndpoint:
         self._closing = False
         self._did_wait_closed = False
         self._event_loop = asyncio.get_running_loop()
-        self._out_packets: list[bytes] = []
+        self._out_packets = deque[bytes]()
         self._have_out_packets = asyncio.Event()
         self._run_called = False
         self._peer_info: _PeerInfo | None = None
@@ -269,7 +268,6 @@ class RPCEndpoint:
             raise
 
     async def _do_run(self) -> None:
-
         self._check_env()
 
         if self._run_called:
@@ -429,7 +427,7 @@ class RPCEndpoint:
         bytes_awaitable: asyncio.Task[bytes],
         message_id: int,
     ) -> bytes:
-
+        # pylint: disable=too-many-positional-arguments
         # We need to know their protocol, so if we haven't gotten a handshake
         # from them yet, just wait.
         while self._peer_info is None:
@@ -455,13 +453,11 @@ class RPCEndpoint:
 
             raise CommunicationError() from exc
         except Exception as exc:
-
             # If our timer timed-out or anything else went wrong with
             # the stream, lump it in as a communication error.
             if isinstance(
                 exc, asyncio.TimeoutError
             ) or is_asyncio_streams_communication_error(exc):
-
                 if self.debug_print:
                     self.debug_print_call(
                         f'{self._label}: got {type(exc)} sending message'
@@ -753,12 +749,11 @@ class RPCEndpoint:
 
         # Now just write out-messages as they come in.
         while True:
-
             # Wait until some data comes in.
             await self._have_out_packets.wait()
 
             assert self._out_packets
-            data = self._out_packets.pop(0)
+            data = self._out_packets.popleft()
 
             # Important: only clear this once all packets are sent.
             if not self._out_packets:
