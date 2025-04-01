@@ -6,7 +6,7 @@ import os
 import json
 import settings
 import coinsystem
-
+#Test
 
 sett = settings.get_settings_data()
 base_dir = os.path.join(_ba.env()['python_directory_user'], "admin" + os.sep)
