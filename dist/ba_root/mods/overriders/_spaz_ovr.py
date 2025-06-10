@@ -20,19 +20,19 @@ tf = bs.TimeFormat.MILLISECONDS
 class SurroundFactory(object):
     def __init__(self):
         self.bones_tex = bs.gettexture("powerupCurse")
-        self.bones_model = bs.getmodel("bonesHead")
+        self.bones_model = bs.getmesh("bonesHead")
         self.bear_tex = bs.gettexture("bearColor")
-        self.bear_model = bs.getmodel("bearHead")
+        self.bear_model = bs.getmesh("bearHead")
         self.ali_tex = bs.gettexture("aliColor")
-        self.ali_model = bs.getmodel("aliHead")
+        self.ali_model = bs.getmesh("aliHead")
         self.b9000_tex = bs.gettexture("cyborgColor")
-        self.b9000_model = bs.getmodel("cyborgHead")
+        self.b9000_model = bs.getmesh("cyborgHead")
         self.frosty_tex = bs.gettexture("frostyColor")
-        self.frosty_model = bs.getmodel("frostyHead")
+        self.frosty_model = bs.getmesh("frostyHead")
         self.cube_tex = bs.gettexture("crossOutMask")
-        self.cube_model = bs.getmodel("powerup")
+        self.cube_model = bs.getmesh("powerup")
         try:
-            self.miku_model = bs.getmodel("operaSingerHead")
+            self.miku_model = bs.getmesh("operaSingerHead")
             self.miku_tex = bs.gettexture("operaSingerColor")
         except:
             bs.print_exception()
@@ -50,7 +50,7 @@ class ProSurroundBall(bs.Actor):
         self.source_player = spaz
         factory = self.getFactory()
         self.node = bs.newnode("prop",
-                        attrs={"model": bs.getmodel("shield"),
+                        attrs={"model": bs.getmesh("shield"),
                                "body": "sphere",
                                "color_texture": bs.gettexture("shield"),
                                "reflection": "soft",
