@@ -1,7 +1,6 @@
 
 
-import ba
-import _ba
+import bascenev1 as bs
 import os
 import json
 import settings

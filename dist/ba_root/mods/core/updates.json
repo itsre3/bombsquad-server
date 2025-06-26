@@ -1,8 +1,9 @@
 {
-    "version": 0.2,
+    "version": 0.1,
     "updates_info": [
         "Checked currency system functionality and some tyding",
         "Version checker Functionality",
-        "None"
+        "None",
+        "Update to latest version"
     ]
 }

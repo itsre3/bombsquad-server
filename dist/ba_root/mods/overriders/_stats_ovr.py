@@ -3,12 +3,12 @@
 # ba_meta require api 7
 from __future__ import annotations
 
-import ba
+import bascenev1 as bs
 import _ba
-from ba._language import Lstr
-from ba._stats import Stats as sta, PlayerScoredMessage, PlayerRecord
+from bs._language import Lstr
+from bs._stats import Stats as sta, PlayerScoredMessage, PlayerRecord
 import settings, coinsystem
-from ba._error import print_exception
+from bs._error import print_exception
 from typing import TYPE_CHECKING
 
 
@@ -18,14 +18,14 @@ if TYPE_CHECKING:
 
 
 def player_scored(self,
-                  player: ba.Player,
+                  player: bs.Player,
                   base_points: int = 1,
                   target: Sequence[float] | None = None,
                   kill: bool = False,
-                  victim_player: ba.Player | None = None,
+                  victim_player: bs.Player | None = None,
                   scale: float = 1.0,
                   color: Sequence[float] | None = None,
-                  title: str | ba.Lstr | None = None,
+                  title: str | bs.Lstr | None = None,
                   screenmessage: bool = True,
                   display: bool = True,
                   importance: int = 1,
@@ -40,9 +40,9 @@ def player_scored(self,
     # pylint: disable=too-many-branches
     # pylint: disable=too-many-locals
     # pylint: disable=too-many-statements
-    from bastd.actor.popuptext import PopupText
-    from ba import _math
-    from ba._gameactivity import GameActivity
+    from bascenev1lib.actor.popuptext import PopupText
+    from bs import _math
+    from bs._gameactivity import GameActivity
     name = player.getname()
     s_player = self._player_records[name]
 
@@ -103,7 +103,7 @@ def player_scored(self,
     # Report non-kill scorings.
     try:
         if screenmessage and not kill:
-            _ba.screenmessage(Lstr(resource='nameScoresText',
+            _babase.screenmessage(Lstr(resource='nameScoresText',
                                    subs=[('${NAME}', name)]),
                               top=True,
                               color=player.color,
