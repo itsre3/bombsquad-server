@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import math
 import logging
-from typing import TYPE_CHECKING, cast, override
+from typing import TYPE_CHECKING, cast
 
 import bauiv1 as bui
 import bascenev1 as bs
@@ -21,10 +21,8 @@ if TYPE_CHECKING:
 class PartyWindow(bui.Window):
     """Party list/chat window."""
 
-    @override
     def __del__(self) -> None:
         bui.set_party_window_open(False)
-        super().__del__()
 
     def __init__(self, origin: Sequence[float] = (0, 0)):
         bui.set_party_window_open(True)
@@ -202,6 +200,7 @@ class PartyWindow(bui.Window):
         )
 
         bui.textwidget(edit=txt, on_return_press_call=btn.activate)
+        bui.widget(edit=txt, down_widget=btn)
         self._name_widgets: list[bui.Widget] = []
         self._roster: list[dict[str, Any]] | None = None
         self._update_timer = bui.AppTimer(
@@ -237,7 +236,14 @@ class PartyWindow(bui.Window):
 
     def _copy_msg(self, msg: str) -> None:
         if bui.clipboard_is_supported():
-            bui.clipboard_set_text(msg)
+            # Extract content after the first colon
+            if ':' in msg:
+                content = msg.split(':', 1)[1].strip()
+            else:
+                # Just a safe check
+                content = msg
+
+            bui.clipboard_set_text(content)
             bui.screenmessage(
                 bui.Lstr(resource='copyConfirmText'), color=(0, 1, 0)
             )

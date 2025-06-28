@@ -1,5 +1,7 @@
 # Released under the MIT License. See LICENSE for details.
 #
+# pylint: disable=too-many-lines
+
 """Provides classic app subsystem."""
 from __future__ import annotations
 
@@ -16,7 +18,6 @@ import bascenev1
 import _baclassic
 from baclassic._music import MusicSubsystem
 from baclassic._accountv1 import AccountV1Subsystem
-from baclassic._ads import AdsSubsystem
 from baclassic._net import MasterServerResponseType, MasterServerV1CallThread
 from baclassic._achievement import AchievementSubsystem
 from baclassic._tips import get_all_tips
@@ -52,7 +53,6 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         self._env = babase.env()
 
         self.accounts = AccountV1Subsystem()
-        self.ads = AdsSubsystem()
         self.ach = AchievementSubsystem()
         self.store = StoreSubsystem()
         self.music = MusicSubsystem()
@@ -81,7 +81,6 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         self.chest_dock_full = False
 
         # Main Menu.
-        self.main_menu_did_initial_transition = False
         self.main_menu_last_news_fetch_time: float | None = None
 
         # Spaz.
@@ -135,6 +134,31 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         else:
             self.main_menu_resume_callbacks.append(call)
 
+    def can_show_interstitial(self) -> bool:
+        """Is this an appropriate time for an interstitial ad?"""
+
+        # Pro or other upgrades disable interstitials.
+        if self.accounts.have_pro() or self.gold_pass or self.remove_ads:
+            return False
+
+        # Don't show ads during tournaments.
+        #
+        # UPDATE: Actually gonna leave this on. Previously it made no
+        # sense because ads were used to *enter* tournaments, but now
+        # that they are free it seems like we shouldn't give tourney
+        # play an advantage over other co-op play.
+        if bool(False):
+            try:
+                session = bascenev1.get_foreground_host_session()
+                assert session is not None
+                is_tournament = session.tournament_id is not None
+            except Exception:
+                is_tournament = False
+            if is_tournament:
+                return False
+
+        return True
+
     @property
     def platform(self) -> str:
         """Name of the current platform.
@@ -178,9 +202,12 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         self.music.on_app_loading()
 
         # Non-test, non-debug builds should generally be blessed; warn
-        # if not (so I don't accidentally release a build that can't
-        # play tourneys).
-        if not env.debug and not env.test and not plus.is_blessed():
+        # if not (so I don't accidentally release one).
+        if (
+            not env.debug_build
+            and not env.variant is type(env.variant).TEST_BUILD
+            and not plus.is_blessed()
+        ):
             babase.screenmessage('WARNING: NON-BLESSED BUILD', color=(1, 0, 0))
 
         stdmaps.register_all_maps()
@@ -385,8 +412,6 @@ class ClassicAppSubsystem(babase.AppSubsystem):
     def getmaps(self, playtype: str) -> list[str]:
         """Return a list of bascenev1.Map types supporting a playtype str.
 
-        Category: **Asset Functions**
-
         Maps supporting a given playtype must provide a particular set of
         features and lend themselves to a certain style of play.
 
@@ -477,7 +502,10 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         callback: MasterServerCallback | None = None,
         response_type: MasterServerResponseType = MasterServerResponseType.JSON,
     ) -> None:
-        """Make a call to the master server via a http GET."""
+        """Make a call to the master server via a http GET.
+
+        :meta private:
+        """
 
         MasterServerV1CallThread(
             request, 'get', data, callback, response_type
@@ -490,7 +518,10 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         callback: MasterServerCallback | None = None,
         response_type: MasterServerResponseType = MasterServerResponseType.JSON,
     ) -> None:
-        """Make a call to the master server via a http POST."""
+        """Make a call to the master server via a http POST.
+
+        :meta private:
+        """
         MasterServerV1CallThread(
             request, 'post', data, callback, response_type
         ).start()
@@ -752,10 +783,7 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         )
 
     def preload_map_preview_media(self) -> None:
-        """Preload media needed for map preview UIs.
-
-        Category: **Asset Functions**
-        """
+        """Preload media needed for map preview UIs."""
         try:
             bauiv1.getmesh('level_select_button_opaque')
             bauiv1.getmesh('level_select_button_transparent')
@@ -787,19 +815,19 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         else:
             self.party_window = weakref.ref(PartyWindow(origin=origin))
 
-    def device_menu_press(self, device_id: int | None) -> None:
+    def request_main_ui(self) -> None:
         """(internal)"""
         from bauiv1lib.ingamemenu import InGameMenuWindow
-        from bauiv1 import set_ui_input_device
+
+        # from bauiv1 import set_main_ui_input_device
 
         assert babase.app is not None
-        in_main_menu = babase.app.ui_v1.has_main_window()
-        if not in_main_menu:
-            set_ui_input_device(device_id)
+        if not babase.app.ui_v1.has_main_window():
+            # set_main_ui_input_device(device_id)
 
-            # Hack(ish). We play swish sound here so it happens for
-            # device presses, but this means we need to disable default
-            # swish sounds for any menu buttons or we'll get double.
+            # Note: we play a swish here for when our UI comes in, so we
+            # need to make sure to disable swish sounds for any buttons
+            # that lead us here.
             if babase.app.env.gui:
                 bauiv1.getsound('swish').play()
 
@@ -825,7 +853,11 @@ class ClassicAppSubsystem(babase.AppSubsystem):
         # Bring up the last place we were, or start at the main menu
         # otherwise.
         app = bauiv1.app
-        env = app.env
+
+        variant = babase.app.env.variant
+        vart = type(variant)
+        arcade_or_demo = variant is vart.ARCADE or variant is vart.DEMO
+
         with bascenev1.ContextRef.empty():
 
             assert app.classic is not None
@@ -836,7 +868,7 @@ class ClassicAppSubsystem(babase.AppSubsystem):
 
                 # When coming back from a kiosk-mode game, jump to the
                 # kiosk start screen.
-                if env.demo or env.arcade:
+                if arcade_or_demo:
                     # pylint: disable=cyclic-import
                     from bauiv1lib.kiosk import KioskWindow
 

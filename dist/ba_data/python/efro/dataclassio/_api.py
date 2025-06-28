@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from efro.dataclassio._outputter import _Outputter
 from efro.dataclassio._inputter import _Inputter
@@ -21,22 +21,20 @@ from efro.dataclassio._base import Codec
 if TYPE_CHECKING:
     from typing import Any
 
-T = TypeVar('T')
-
 
 class JsonStyle(Enum):
     """Different style types for json."""
 
-    # Single line, no spaces, no sorting. Not deterministic.
-    # Use this where speed is more important than determinism.
+    #: Single line, no spaces, no sorting. Not deterministic.
+    #: Use this where speed is more important than determinism.
     FAST = 'fast'
 
-    # Single line, no spaces, sorted keys. Deterministic.
-    # Use this when output may be hashed or compared for equality.
+    #: Single line, no spaces, sorted keys. Deterministic.
+    #: Use this when output may be hashed or compared for equality.
     SORTED = 'sorted'
 
-    # Multiple lines, spaces, sorted keys. Deterministic.
-    # Use this for pretty human readable output.
+    #: Multiple lines, spaces, sorted keys. Deterministic.
+    #: Use this for pretty human readable output.
     PRETTY = 'pretty'
 
 
@@ -96,7 +94,7 @@ def dataclass_to_json(
     return json.dumps(jdict, separators=(',', ':'), sort_keys=sort_keys)
 
 
-def dataclass_from_dict(
+def dataclass_from_dict[T](
     cls: type[T],
     values: dict,
     *,
@@ -151,7 +149,7 @@ def dataclass_from_dict(
     return val
 
 
-def dataclass_from_json(
+def dataclass_from_json[T](
     cls: type[T],
     json_str: str,
     *,

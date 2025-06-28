@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import random
 import logging
-from typing import TYPE_CHECKING, TypeVar, override
+import time
+import uuid
+from typing import TYPE_CHECKING, override
 
 import babase
 
@@ -24,17 +26,20 @@ if TYPE_CHECKING:
 
     from bascenev1lib.actor.playerspaz import PlayerSpaz
     from bascenev1lib.actor.bomb import TNTSpawner
+
     import bascenev1
 
-PlayerT = TypeVar('PlayerT', bound='bascenev1.Player')
-TeamT = TypeVar('TeamT', bound='bascenev1.Team')
+
+# Note: Need to suppress an undefined variable here because our pylint
+# plugin clears type-arg declarations (which we don't require to be
+# present at runtime) but keeps parent type-args (which we sometimes use
+# at runtime).
 
 
-class GameActivity(Activity[PlayerT, TeamT]):
-    """Common base class for all game bascenev1.Activities.
-
-    Category: **Gameplay Classes**
-    """
+class GameActivity[PlayerT: bascenev1.Player, TeamT: bascenev1.Team](
+    Activity[PlayerT, TeamT]  # pylint: disable=undefined-variable
+):
+    """Common base class for all game activities."""
 
     # pylint: disable=too-many-public-methods
 
@@ -198,7 +203,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
     def supports_session_type(
         cls, sessiontype: type[bascenev1.Session]
     ) -> bool:
-        """Return whether this game supports the provided Session type."""
+        """Return whether this game supports the provided session type."""
         from bascenev1._multiteamsession import MultiTeamSession
 
         # By default, games support any versus mode
@@ -208,8 +213,8 @@ class GameActivity(Activity[PlayerT, TeamT]):
         """Instantiate the Activity."""
         super().__init__(settings)
 
-        # Holds some flattened info about the player set at the point
-        # when on_begin() is called.
+        #: Holds some flattened info about the player set at the point
+        #: when :meth:`on_begin()` is called.
         self.initialplayerinfos: list[bascenev1.PlayerInfo] | None = None
 
         # Go ahead and get our map loading.
@@ -335,8 +340,27 @@ class GameActivity(Activity[PlayerT, TeamT]):
         # Make our map.
         self._map = self._map_type()
 
-        # Give our map a chance to override the music.
-        # (for happy-thoughts and other such themed maps)
+        # Add default activities for our map.
+        mapname = getattr(self._map_type, 'name', None)
+        map_preview = getattr(self._map_type, 'get_preview_texture_name', None)
+
+        if babase.app.discord.is_ready and mapname and map_preview:
+            preview = map_preview().lower().removesuffix('preview')
+            babase.app.discord.set_presence(
+                state=self.getname(),
+                details=f"Playing on {mapname}",
+                large_image_key=preview,
+                large_image_text=mapname,
+                small_image_key=(
+                    babase.app.classic.platform if babase.app.classic else None
+                ),
+                small_image_text=(
+                    babase.app.classic.platform if babase.app.classic else None
+                ),
+                start_timestamp=int(time.time()),
+            )
+
+        # Give our map a chance to override the music
         map_music = self._map_type.get_music_type()
         music = map_music if map_music is not None else self.default_music
 
@@ -350,8 +374,14 @@ class GameActivity(Activity[PlayerT, TeamT]):
         if babase.app.classic is not None:
             babase.app.classic.game_begin_analytics()
 
-        # We don't do this in on_transition_in because it may depend on
-        # players/teams which aren't available until now.
+        # Update Discord party info
+        if babase.app.discord.is_ready:
+            party_size = len(self.players)
+            max_size = max(8, party_size)
+            babase.app.discord.set_presence(
+                party_id=str(uuid.uuid4()), party_size=(party_size, max_size)
+            )
+
         _bascenev1.timer(0.001, self._show_scoreboard_info)
         _bascenev1.timer(1.0, self._show_info)
         _bascenev1.timer(2.5, self._show_tip)
@@ -794,9 +824,10 @@ class GameActivity(Activity[PlayerT, TeamT]):
             self.spawn_player(player)
 
     def spawn_player(self, player: PlayerT) -> bascenev1.Actor:
-        """Spawn *something* for the provided bascenev1.Player.
+        """Spawn *something* for the provided player.
 
-        The default implementation simply calls spawn_player_spaz().
+        The default implementation simply calls
+        :meth:`spawn_player_spaz()`.
         """
         assert player  # Dead references should never be passed as args.
 
@@ -808,7 +839,7 @@ class GameActivity(Activity[PlayerT, TeamT]):
         position: Sequence[float] = (0, 0, 0),
         angle: float | None = None,
     ) -> PlayerSpaz:
-        """Create and wire up a bascenev1.PlayerSpaz for the provided Player."""
+        """Create and wire up a player-spaz for the provided player."""
         # pylint: disable=too-many-locals
         # pylint: disable=cyclic-import
         from bascenev1._gameutils import animate

@@ -27,6 +27,7 @@
     "setAccountNameDesc": "Odaberi koje ime da se prikaže za tvoj račun.\nMožeš koristiti ime jednog od tvojih povezanih računa\nili kreirati vlastito prilagođeno ime.",
     "signInInfoText": "Prijavi se da možeš dobivati kupone, natjecati\nse online, i dijeliti napredak između uređaja.",
     "signInText": "Prijavi se",
+    "signInWithAnEmailAddressText": "Uloguj se sa email adresom",
     "signInWithDeviceInfoText": "(automatski profil dostupan samo na ovom uređaju)",
     "signInWithDeviceText": "Prijavi se sa profilom uređaja",
     "signInWithGameCircleText": "Prijavi se sa Game Circle",
@@ -760,6 +761,7 @@
     "manualYourLocalAddressText": "Tvoja lokalna adresa:",
     "nearbyText": "Blizu",
     "noConnectionText": "<nema veze>",
+    "noPartiesAddedText": "Nema zurki dodanih",
     "otherVersionsText": "(druge verzije)",
     "partyCodeText": "Grupna šifra",
     "partyInviteAcceptText": "Prihvati",
@@ -824,6 +826,12 @@
     "versionTooOldText": "Žao mi je, ova verzija igre je prestara; molim ažurirajte je na noviju verziju.",
     "youHaveShortText": "imaš ${COUNT}",
     "youHaveText": "imaš ${COUNT} kupona"
+  },
+  "goldPass": {
+    "desc1InfTokensText": "Beskonacno tokena",
+    "desc2NoAdsText": "Nema reklama",
+    "desc3ForeverText": "Zauvjek.",
+    "goldPassText": "Zlatna propusnica"
   },
   "googleMultiplayerDiscontinuedText": "Oprostite, Google Play Games servis za partije u igrama više ne postoji.\nTrenutno radim na zamjeni što je brže moguće.\nTo tada, priključujte se u partije na druge načine.\n-Eric",
   "googlePlayPurchasesNotAvailableText": "Google Play kupnje nisu dostupne.\nMožda ćete trebati ažurirati svoju trgovinu aplikacija.",
@@ -1099,6 +1107,7 @@
   "onText": "Uključeno",
   "oneMomentText": "Jedan trenutak...",
   "onslaughtRespawnText": "${PLAYER} će se ponovno pojaviti u naletu ${WAVE}",
+  "openMeText": "Otvori me!",
   "openNowText": "Otvori sada",
   "openText": "Otvori",
   "orText": "${A} ili ${B}",
@@ -1406,6 +1415,10 @@
   "tipText": "Savjet",
   "titleText": "BombSquad",
   "titleVRText": "BombSquad VR",
+  "tokens": {
+    "getTokensText": "Nabavi tokene",
+    "notEnoughTokensText": "Nemas dovoljno tokena!"
+  },
   "topFriendsText": "Prijatelji s najboljim rezultatima",
   "tournamentCheckingStateText": "Provjeravam stanje turnira; molim pričekaj...",
   "tournamentEndedText": "Ovaj turnir je završio. Novi će započeti ubrzo.",

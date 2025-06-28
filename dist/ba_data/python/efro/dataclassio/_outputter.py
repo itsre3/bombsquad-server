@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, cast, Any
 from efro.util import check_utc
 from efro.dataclassio._base import (
     Codec,
-    _parse_annotated,
+    parse_annotated,
     EXTRA_ATTRS_ATTR,
     LOSSY_ATTR,
     _is_valid_for_codec,
@@ -109,7 +109,7 @@ class _Outputter:
             anntype = prep.annotations[fieldname]
             value = getattr(obj, fieldname)
 
-            anntype, ioattrs = _parse_annotated(anntype)
+            anntype, ioattrs = parse_annotated(anntype)
 
             # If we're not storing default values for this fella,
             # we can skip all output processing if we've got a default value.
@@ -306,7 +306,11 @@ class _Outputter:
             childanntype = childanntypes[0]
 
             # If that type is a multi-type, we determine our type per-object.
-            if issubclass(childanntype, IOMultiType):
+            # Make sure we only pass actual types to issubclass; it will error
+            # if we give it something like typing.Any.
+            if isinstance(childanntype, type) and issubclass(
+                childanntype, IOMultiType
+            ):
                 # In the multi-type case, we use each object's own type
                 # to do its conversion, but lets at least make sure each
                 # of those types inherits from the annotated multi-type
@@ -461,9 +465,20 @@ class _Outputter:
             check_utc(value)
             if ioattrs is not None:
                 ioattrs.validate_datetime(value, fieldpath)
+                float_times = ioattrs.float_times
+            else:
+                float_times = False
             if self._codec is Codec.FIRESTORE:
                 return value
             assert self._codec is Codec.JSON
+
+            # By default we spit out an array of ints so that we can
+            # reconstruct the datetime perfectly. However we now have
+            # the option to spit out a float timestamp instead. This is
+            # simpler but may not read back in 100% the same due to
+            # floating point precision issues.
+            if float_times:
+                return value.timestamp() if self._create else None
             return (
                 [
                     value.year,
@@ -483,6 +498,13 @@ class _Outputter:
                     f'Expected a {origin} for {fieldpath};'
                     f' found a {type(value)}.'
                 )
+            if ioattrs is not None:
+                float_times = ioattrs.float_times
+            else:
+                float_times = False
+
+            if float_times:
+                return value.total_seconds() if self._create else None
             return (
                 [value.days, value.seconds, value.microseconds]
                 if self._create

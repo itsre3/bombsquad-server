@@ -225,6 +225,8 @@ class OnslaughtGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def on_transition_in(self) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         super().on_transition_in()
         customdata = bs.getsession().customdata
 
@@ -625,9 +627,12 @@ class OnslaughtGame(bs.CoopGameActivity[Player, Team]):
             ]
 
         elif self._preset in {Preset.UBER, Preset.UBER_EASY}:
-            # Show controls help in demo or arcade modes.
-            env = bs.app.env
-            if env.demo or env.arcade:
+            # Show controls help in demo or arcade variants.
+            variant = bs.app.env.variant
+            vart = type(variant)
+            arcade_or_demo = variant is vart.ARCADE or variant is vart.DEMO
+
+            if arcade_or_demo:
                 ControlsGuide(
                     delay=3.0, lifespan=10.0, bright=True
                 ).autoretain()
@@ -1522,6 +1527,8 @@ class OnslaughtGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def handlemessage(self, msg: Any) -> Any:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         if isinstance(msg, PlayerSpazHurtMessage):
             msg.spaz.getplayer(Player, True).has_been_hurt = True
             self._a_player_has_been_hurt = True
@@ -1635,6 +1642,8 @@ class OnslaughtGame(bs.CoopGameActivity[Player, Team]):
 
     @override
     def end_game(self) -> None:
+        # (Pylint Bug?) pylint: disable=missing-function-docstring
+
         # Tell our bots to celebrate just to rub it in.
         assert self._bots is not None
         self._bots.final_celebrate()

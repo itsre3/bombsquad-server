@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 from efro.util import check_utc
 from efro.dataclassio._base import (
     Codec,
-    _parse_annotated,
+    parse_annotated,
     EXTRA_ATTRS_ATTR,
     LOSSY_ATTR,
     _is_valid_for_codec,
@@ -32,6 +32,7 @@ from efro.dataclassio._base import (
 from efro.dataclassio._prep import PrepSession
 
 if TYPE_CHECKING:
+
     from typing import Any
 
     from efro.dataclassio._base import IOAttrs
@@ -78,11 +79,12 @@ class _Inputter:
         if issubclass(self._cls, IOMultiType) and not dataclasses.is_dataclass(
             self._cls
         ):
-            type_id_val = values.get(self._cls.get_type_id_storage_name())
+            storename = self._cls.get_type_id_storage_name()
+            type_id_val = values.get(storename)
             if type_id_val is None:
                 raise ValueError(
-                    f'No type id value present for multi-type object:'
-                    f' {values}.'
+                    f'\'{storename}\' type id value'
+                    f' not found in \'{self._cls.__name__}\' input data.'
                 )
             type_id_enum = self._cls.get_type_id_type()
             try:
@@ -347,7 +349,7 @@ class _Inputter:
         # Preprocess all fields to convert Annotated[] to contained
         # types and IOAttrs.
         parsed_field_annotations = {
-            f.name: _parse_annotated(prep.annotations[f.name]) for f in fields
+            f.name: parse_annotated(prep.annotations[f.name]) for f in fields
         }
 
         # Special case: if this is a multi-type class it probably has a
@@ -541,7 +543,7 @@ class _Inputter:
                         keyint = int(key)
                     except ValueError as exc:
                         raise TypeError(
-                            f'Got invalid key value {key} for'
+                            f'Got invalid key value {repr(key)} for'
                             f' dict key at \'{fieldpath}\' on {cls.__name__};'
                             f' expected an int in string form.'
                         ) from exc
@@ -561,7 +563,7 @@ class _Inputter:
                             enumval = keyanntype(key)
                         except ValueError as exc:
                             raise ValueError(
-                                f'Got invalid key value {key} for'
+                                f'Got invalid key value {repr(key)} for'
                                 f' dict key at \'{fieldpath}\''
                                 f' on {cls.__name__};'
                                 f' expected a value corresponding to'
@@ -576,7 +578,7 @@ class _Inputter:
                             enumval = keyanntype(int(key))
                         except (ValueError, TypeError) as exc:
                             raise ValueError(
-                                f'Got invalid key value {key} for'
+                                f'Got invalid key value {repr(key)} for'
                                 f' dict key at \'{fieldpath}\''
                                 f' on {cls.__name__};'
                                 f' expected {keyanntype} value (though'
@@ -627,7 +629,11 @@ class _Inputter:
 
         # If our annotation type inherits from IOMultiType, use type-id
         # values to determine which type to load for each element.
-        if issubclass(childanntype, IOMultiType):
+        # Make sure we only pass actual types to issubclass; it will error
+        # if we give it something like typing.Any.
+        if isinstance(childanntype, type) and issubclass(
+            childanntype, IOMultiType
+        ):
             return seqtype(
                 self._multitype_obj(childanntype, fieldpath, i) for i in value
             )
@@ -722,20 +728,32 @@ class _Inputter:
 
         assert self._codec is Codec.JSON
 
-        # We expect a list of 7 ints.
-        if type(value) is not list:
-            raise TypeError(
-                f'Invalid input value for "{fieldpath}" on "{cls.__name__}";'
-                f' expected a list, got a {type(value).__name__}'
+        # We expect a list of 7 ints (exact datetime value dump) OR
+        # a float/int (timestamp).
+        valt = type(value)
+        if valt is float or valt is int:
+            out = datetime.datetime.fromtimestamp(
+                value, tz=datetime.timezone.utc
             )
-        if len(value) != 7 or not all(isinstance(x, int) for x in value):
-            raise ValueError(
-                f'Invalid input value for "{fieldpath}" on "{cls.__name__}";'
-                f' expected a list of 7 ints, got {[type(v) for v in value]}.'
+        else:
+            if valt is not list:
+                raise TypeError(
+                    f'Invalid input value for "{fieldpath}"'
+                    f' on "{cls.__name__}";'
+                    f' expected a timestamp or list,'
+                    f' got a {type(value).__name__}'
+                )
+            if len(value) != 7 or not all(isinstance(x, int) for x in value):
+                raise ValueError(
+                    f'Invalid input value for "{fieldpath}"'
+                    f' on "{cls.__name__}";'
+                    f' expected a list of 7 ints,'
+                    f' got {[type(v) for v in value]}.'
+                )
+            out = datetime.datetime(  # type: ignore
+                *value, tzinfo=datetime.timezone.utc
             )
-        out = datetime.datetime(  # type: ignore
-            *value, tzinfo=datetime.timezone.utc
-        )
+
         if ioattrs is not None:
             ioattrs.validate_datetime(out, fieldpath)
         return out
@@ -744,18 +762,27 @@ class _Inputter:
         self, cls: type, fieldpath: str, value: Any, ioattrs: IOAttrs | None
     ) -> Any:
         del ioattrs  # Unused.
-        # We expect a list of 3 ints.
-        if type(value) is not list:
-            raise TypeError(
-                f'Invalid input value for "{fieldpath}" on "{cls.__name__}";'
-                f' expected a list, got a {type(value).__name__}'
+
+        # We expect a list of 3 ints (exact timedelta value dump) OR a
+        # float/int (seconds).
+        valt = type(value)
+        if valt is float or valt is int:
+            out = datetime.timedelta(seconds=value)
+        else:
+            if valt is not list:
+                raise TypeError(
+                    f'Invalid input value for "{fieldpath}"'
+                    f' on "{cls.__name__}";'
+                    f' expected a number or list, got a {type(value).__name__}'
+                )
+            if len(value) != 3 or not all(isinstance(x, int) for x in value):
+                raise ValueError(
+                    f'Invalid input value for "{fieldpath}"'
+                    f' on "{cls.__name__}";'
+                    f' expected a list of 3 ints,'
+                    f' got {[type(v) for v in value]}.'
+                )
+            out = datetime.timedelta(
+                days=value[0], seconds=value[1], microseconds=value[2]
             )
-        if len(value) != 3 or not all(isinstance(x, int) for x in value):
-            raise ValueError(
-                f'Invalid input value for "{fieldpath}" on "{cls.__name__}";'
-                f' expected a list of 3 ints, got {[type(v) for v in value]}.'
-            )
-        out = datetime.timedelta(
-            days=value[0], seconds=value[1], microseconds=value[2]
-        )
         return out

@@ -8,7 +8,6 @@ import logging
 from functools import partial
 from typing import TYPE_CHECKING, override
 
-from bacommon.app import AppExperience
 import bacommon.bs
 import babase
 import bauiv1
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
 class ClassicAppMode(babase.AppMode):
     """AppMode for the classic BombSquad experience."""
 
-    LEAGUE_VIS_VALS_CONFIG_KEY = 'ClassicLeagueVisVals'
+    _LEAGUE_VIS_VALS_CONFIG_KEY = 'ClassicLeagueVisVals'
 
     def __init__(self) -> None:
         self._on_primary_account_changed_callback: (
@@ -51,12 +50,7 @@ class ClassicAppMode(babase.AppMode):
 
     @override
     @classmethod
-    def get_app_experience(cls) -> AppExperience:
-        return AppExperience.MELEE
-
-    @override
-    @classmethod
-    def _can_handle_intent(cls, intent: babase.AppIntent) -> bool:
+    def can_handle_intent(cls, intent: babase.AppIntent) -> bool:
         # We support default and exec intents currently.
         return isinstance(
             intent, babase.AppIntentExec | babase.AppIntentDefault
@@ -178,9 +172,10 @@ class ClassicAppMode(babase.AppMode):
     @override
     def on_app_active_changed(self) -> None:
         if not babase.app.active:
-            # If we've gone inactive, bring up the main menu, which has the
-            # side effect of pausing the action (when possible).
-            babase.invoke_main_menu()
+            # If we're going inactive, ask for the main ui, which should
+            # have the side effect of pausing the action if we're in a
+            # game.
+            babase.request_main_ui()
 
             # Also store any league vis state for the active account.
             # this may be our last chance to do this on mobile.
@@ -377,15 +372,24 @@ class ClassicAppMode(babase.AppMode):
                 xp_text='',
                 inbox_count=-1,
                 inbox_count_is_max=False,
+                inbox_announce_text='',
                 gold_pass=False,
                 chest_0_appearance='',
                 chest_1_appearance='',
                 chest_2_appearance='',
                 chest_3_appearance='',
+                chest_0_create_time=-1.0,
+                chest_1_create_time=-1.0,
+                chest_2_create_time=-1.0,
+                chest_3_create_time=-1.0,
                 chest_0_unlock_time=-1.0,
                 chest_1_unlock_time=-1.0,
                 chest_2_unlock_time=-1.0,
                 chest_3_unlock_time=-1.0,
+                chest_0_unlock_tokens=-1,
+                chest_1_unlock_tokens=-1,
+                chest_2_unlock_tokens=-1,
+                chest_3_unlock_tokens=-1,
                 chest_0_ad_allow_time=-1.0,
                 chest_1_ad_allow_time=-1.0,
                 chest_2_ad_allow_time=-1.0,
@@ -461,6 +465,11 @@ class ClassicAppMode(babase.AppMode):
             xp_text=f'{val.xp}/{val.xpmax}',
             inbox_count=val.inbox_count,
             inbox_count_is_max=val.inbox_count_is_max,
+            inbox_announce_text=(
+                babase.Lstr(resource='unclaimedPrizesText').evaluate()
+                if val.inbox_contains_prize
+                else ''
+            ),
             gold_pass=val.gold_pass,
             chest_0_appearance=(
                 '' if chest0 is None else chest0.appearance.value
@@ -474,6 +483,18 @@ class ClassicAppMode(babase.AppMode):
             chest_3_appearance=(
                 '' if chest3 is None else chest3.appearance.value
             ),
+            chest_0_create_time=(
+                -1.0 if chest0 is None else chest0.create_time.timestamp()
+            ),
+            chest_1_create_time=(
+                -1.0 if chest1 is None else chest1.create_time.timestamp()
+            ),
+            chest_2_create_time=(
+                -1.0 if chest2 is None else chest2.create_time.timestamp()
+            ),
+            chest_3_create_time=(
+                -1.0 if chest3 is None else chest3.create_time.timestamp()
+            ),
             chest_0_unlock_time=(
                 -1.0 if chest0 is None else chest0.unlock_time.timestamp()
             ),
@@ -485,6 +506,18 @@ class ClassicAppMode(babase.AppMode):
             ),
             chest_3_unlock_time=(
                 -1.0 if chest3 is None else chest3.unlock_time.timestamp()
+            ),
+            chest_0_unlock_tokens=(
+                -1 if chest0 is None else chest0.unlock_tokens
+            ),
+            chest_1_unlock_tokens=(
+                -1 if chest1 is None else chest1.unlock_tokens
+            ),
+            chest_2_unlock_tokens=(
+                -1 if chest2 is None else chest2.unlock_tokens
+            ),
+            chest_3_unlock_tokens=(
+                -1 if chest3 is None else chest3.unlock_tokens
             ),
             chest_0_ad_allow_time=(
                 -1.0
@@ -521,7 +554,7 @@ class ClassicAppMode(babase.AppMode):
         self._update_ui_live_state()
 
     def _root_ui_menu_press(self) -> None:
-        from babase import push_back_press
+        from babase import menu_press
 
         ui = babase.app.ui_v1
 
@@ -529,15 +562,16 @@ class ClassicAppMode(babase.AppMode):
         old_window = ui.get_main_window()
         if old_window is not None:
 
+            bauiv1.getsound('swish').play()
+
             classic = babase.app.classic
             assert classic is not None
             classic.resume()
 
             ui.clear_main_window()
-            return
-
-        # Otherwise
-        push_back_press()
+        else:
+            # Otherwise act like a standard menu button.
+            menu_press()
 
     def _root_ui_account_press(self) -> None:
         from bauiv1lib.account.settings import AccountSettingsWindow
@@ -850,7 +884,7 @@ class ClassicAppMode(babase.AppMode):
                 assert 'a' not in vals
                 vals['a'] = self._current_account_id
                 cfg = babase.app.config
-                cfg[self.LEAGUE_VIS_VALS_CONFIG_KEY] = vals
+                cfg[self._LEAGUE_VIS_VALS_CONFIG_KEY] = vals
                 cfg.commit()
 
     def _restore_account_display_state(self) -> None:
@@ -859,7 +893,7 @@ class ClassicAppMode(babase.AppMode):
         # display-state we have stored in the config, restore the state.
         if self._current_account_id is not None:
             cfg = babase.app.config
-            vals = cfg.get(self.LEAGUE_VIS_VALS_CONFIG_KEY)
+            vals = cfg.get(self._LEAGUE_VIS_VALS_CONFIG_KEY)
             if isinstance(vals, dict):
                 valsaccount = vals.get('a')
                 if (

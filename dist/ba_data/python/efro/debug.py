@@ -46,11 +46,15 @@ def getobjs(
 ) -> list[Any]:
     """Return all garbage-collected objects matching criteria.
 
-    'type' can be an actual type or a string in which case objects
-    whose types contain that string will be returned.
+    Args:
 
-    If 'contains' is provided, objects will be filtered to those
-    containing that in their str() representations.
+      type:
+        Can be an actual type or a string in which case objects
+        whose types contain that string will be returned.
+
+      contains:
+        If provided, objects will be filtered to those
+        containing that in their str() representations.
     """
 
     # Don't wanna return stuff waiting to be garbage-collected.
@@ -87,9 +91,10 @@ def _getr(slist: list[Any], olist: list[Any], seen: set[int]) -> None:
 
 
 def _get_all_objects(expanded: bool) -> list[Any]:
-    """Return an expanded list of all objects.
+    """Return all objects visible to garbage collector.
 
-    See https://utcc.utoronto.ca/~cks/space/blog/python/GetAllObjects
+    For notes on the 'expanded' option, see:
+    https://utcc.utoronto.ca/~cks/space/blog/python/GetAllObjects
     """
     gcl = gc.get_objects()
     if not expanded:
@@ -106,16 +111,21 @@ def _get_all_objects(expanded: bool) -> list[Any]:
 
 
 def getobj(objid: int, expanded: bool = False) -> Any:
-    """Return a garbage-collected object by its id.
+    """Return a garbage-collectable object by its id.
 
     Remember that this is VERY inefficient and should only ever be used
     for debugging.
     """
+    # If they passed a string (hex, etc), convert to int.
+    # if isinstance(objid, str):
+    #     objid = int(objid, 0)  # Autodetect hex/etc.
+
     if not isinstance(objid, int):
         raise TypeError(f'Expected an int for objid; got a {type(objid)}.')
 
     # Don't wanna return stuff waiting to be garbage-collected.
-    gc.collect()
+    # UPDATE: Turning this off.
+    # gc.collect()
 
     allobjs = _get_all_objects(expanded=expanded)
     for obj in allobjs:
@@ -181,18 +191,35 @@ def printrefs(
 ) -> None:
     """Print human readable list of objects referring to an object.
 
-    'max_level' specifies how many levels of recursion are printed.
-    'exclude_objs' can be a list of exact objects to skip if found in the
-      referrers list. This can be useful to avoid printing the local context
-      where the object was passed in from (locals(), etc).
-    'expand_ids' can be a list of object ids; if that particular object is
-      found, it will always be expanded even if max_level has been reached.
+    Args:
+
+      max_level:
+        Specifies how many levels of recursion are printed.
+
+      exclude_objs:
+        Can be a list of exact objects to skip if found in the
+        referrers list. This can be useful to avoid printing the local context
+        where the object was passed in from (locals(), etc).
+
+      expand_ids:
+        Can be a list of object ids; if that particular object is
+        found, it will always be expanded even if max_level has been reached.
     """
+
+    # Let's always exclude the gc.garbage list. When we're debugging
+    # with gc.DEBUG_SAVEALL enabled this list will include everything,
+    # so this cuts out lots of noise.
+    if exclude_objs is None:
+        exclude_objs = []
+    else:
+        exclude_objs = list(exclude_objs)
+    exclude_objs.append(gc.garbage)
+
     _printrefs(
         obj,
         level=0,
         max_level=max_level,
-        exclude_objs=[] if exclude_objs is None else exclude_objs,
+        exclude_objs=exclude_objs,
         expand_ids=[] if expand_ids is None else expand_ids,
         file=sys.stderr if file is None else file,
     )
@@ -289,7 +316,7 @@ def _desc(obj: Any) -> str:
         # identify what.
         for ref in getrefs(obj):
             if hasattr(ref, '__dict__') and vars(ref) is obj:
-                extra = f' (vars for {_desctype(ref)} @ {id(ref)})'
+                extra = f' (vars for {_desctype(ref)} @ {hex(id(ref))})'
 
         # Generic dict: print length and the first few key:type pairs.
         if extra is None:
@@ -305,7 +332,7 @@ def _desc(obj: Any) -> str:
             extra = f' (len {len(obj)}{pairss})'
     if extra is None:
         extra = ''
-    return f'{_desctype(obj)} @ {id(obj)}{extra}'
+    return f'{_desctype(obj)} @ {hex(id(obj))}{extra}'
 
 
 def _printrefs(

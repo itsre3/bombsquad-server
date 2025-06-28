@@ -5,19 +5,18 @@
 This package/feature-set contains functionality related to the classic
 BombSquad experience. Note that much legacy BombSquad code is still a
 bit tangled and thus this feature-set is largely inseperable from
-scenev1 and uiv1. Future feature-sets will be designed in a more modular
-way.
+:mod:`bascenev1` and :mod:`bauiv1`. Future feature-sets will be
+designed in a more modular way.
 """
 
 # ba_meta require api 9
 
-# Note: Code relying on classic should import things from here *only*
-# for type-checking and use the versions in ba*.app.classic at runtime;
-# that way type-checking will cleanly cover the classic-not-present case
-# (ba*.app.classic being None).
-import logging
+# Note: Stuff in this module mostly exists for type-checking and docs
+# generation and should generally not be imported or used at runtime.
+# Generally all interaction with this feature-set should go through
+# `ba*.app.classic`.
 
-from efro.util import set_canonical_module_names
+import logging
 
 from baclassic._appmode import ClassicAppMode
 from baclassic._appsubsystem import ClassicAppSubsystem
@@ -28,6 +27,7 @@ from baclassic._chest import (
     CHEST_APPEARANCE_DISPLAY_INFOS,
 )
 from baclassic._displayitem import show_display_item
+from baclassic._music import MusicPlayer
 
 __all__ = [
     'ChestAppearanceDisplayInfo',
@@ -38,11 +38,14 @@ __all__ = [
     'Achievement',
     'AchievementSubsystem',
     'show_display_item',
+    'MusicPlayer',
 ]
 
 # We want stuff here to show up as packagename.Foo instead of
 # packagename._submodule.Foo.
-set_canonical_module_names(globals())
+# UPDATE: Trying without this for now. Seems like this might cause more
+# harm than good. Can flip it back on if it is missed.
+# set_canonical_module_names(globals())
 
 # Sanity check: we want to keep ballistica's dependencies and
 # bootstrapping order clearly defined; let's check a few particular

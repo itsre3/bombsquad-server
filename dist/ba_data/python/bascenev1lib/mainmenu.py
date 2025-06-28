@@ -9,6 +9,7 @@ import random
 import weakref
 from typing import TYPE_CHECKING, override
 
+from bacommon.locale import LocaleResolved
 import bascenev1 as bs
 import bauiv1 as bui
 
@@ -22,6 +23,8 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
     """Activity showing the rotating main menu bg stuff."""
 
     _stdassets = bs.Dependency(bs.AssetPackage, 'stdassets@1')
+
+    _did_initial_transition = False
 
     def __init__(self, settings: dict):
         super().__init__(settings)
@@ -49,7 +52,6 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
     @override
     def on_transition_in(self) -> None:
         # pylint: disable=too-many-locals
-        # pylint: disable=too-many-statements
         super().on_transition_in()
         random.seed(123)
         app = bs.app
@@ -78,16 +80,13 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
                 },
             )
         )
-        if (
-            not app.classic.main_menu_did_initial_transition
-            and self.my_name is not None
-        ):
+        if not self._did_initial_transition and self.my_name is not None:
             assert self.my_name.node
             bs.animate(self.my_name.node, 'opacity', {2.3: 0, 3.0: 1.0})
 
         # Throw in test build info.
         self.beta_info = self.beta_info_2 = None
-        if env.test:
+        if env.variant is type(env.variant).TEST_BUILD:
             pos = (230, 35)
             self.beta_info = bs.NodeActor(
                 bs.newnode(
@@ -105,7 +104,7 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
                     },
                 )
             )
-            if not app.classic.main_menu_did_initial_transition:
+            if not self._did_initial_transition:
                 assert self.beta_info.node
                 bs.animate(self.beta_info.node, 'opacity', {1.3: 0, 1.8: 1.0})
 
@@ -200,7 +199,7 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
             )
         )
 
-        self._update_timer = bs.Timer(1.0, self._update, repeat=True)
+        self._update_timer = bs.Timer(0.1, self._update, repeat=True)
         self._update()
 
         # Hopefully this won't hitch but lets space these out anyway.
@@ -209,9 +208,9 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
         random.seed()
 
         # Need to update this for toolbar mode; currenly doesn't fit.
-        if bool(False):
-            if not (env.demo or env.arcade):
-                self._news = NewsDisplay(self)
+        # if bool(False):
+        #     if not (env.demo or env.arcade):
+        #         self._news = NewsDisplay(self)
 
         self._attract_mode_timer = bs.Timer(
             3.12, self._update_attract_mode, repeat=True
@@ -219,13 +218,10 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
 
         app.classic.invoke_main_menu_ui()
 
-        app.classic.main_menu_did_initial_transition = True
-
     def _update(self) -> None:
         # pylint: disable=too-many-locals
         # pylint: disable=too-many-statements
         app = bs.app
-        env = app.env
         assert app.classic is not None
 
         # Update logo in case it changes.
@@ -257,7 +253,7 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
             delay_inc = 0.02
 
             # Come on faster after the first time.
-            if app.classic.main_menu_did_initial_transition:
+            if self._did_initial_transition:
                 base_delay = 0.0
                 delay = base_delay
                 delay_inc = 0.02
@@ -265,11 +261,14 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
             # We draw higher in kiosk mode (make sure to test this
             # when making adjustments) for now we're hard-coded for
             # a few languages.. should maybe look into generalizing this?..
-            if app.lang.language == 'Chinese':
+            if (
+                app.locale.current_locale.resolved
+                is LocaleResolved.CHINESE_SIMPLIFIED
+            ):
                 base_x = -270.0
                 x = base_x - 20.0
                 spacing = 85.0 * base_scale
-                y_extra = 0.0 if (env.demo or env.arcade) else 0.0
+                y_extra = 0.0
                 self._make_logo(
                     x - 110 + 50,
                     113 + y + 1.2 * y_extra,
@@ -334,7 +333,7 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
                 base_x = -170
                 x = base_x - 20
                 spacing = 55 * base_scale
-                y_extra = 0 if (env.demo or env.arcade) else 0
+                y_extra = 0
                 xv1 = x
                 delay1 = delay
                 for shadow in (True, False):
@@ -631,7 +630,7 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
         if (
             custom_texture is None
             and bs.app.classic is not None
-            and not bs.app.classic.main_menu_did_initial_transition
+            and not self._did_initial_transition
         ):
             jitter()
             cmb = bs.newnode('combine', owner=logo.node, attrs={'size': 2})
@@ -656,6 +655,7 @@ class MainMenuActivity(bs.Activity[bs.Player, bs.Team]):
                 delay + 0.5: 360.0,
             }
             bs.animate(logo.node, 'rotate', keys)
+            type(self)._did_initial_transition = True
         else:
             # For all other cases do a simple scale up animation.
             jitter()

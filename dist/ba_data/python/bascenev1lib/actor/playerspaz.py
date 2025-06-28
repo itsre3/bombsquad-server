@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar, overload, override
+from typing import TYPE_CHECKING, overload, override
 
 import bascenev1 as bs
 
@@ -13,14 +13,9 @@ from bascenev1lib.actor.spaz import Spaz
 if TYPE_CHECKING:
     from typing import Any, Sequence, Literal
 
-PlayerT = TypeVar('PlayerT', bound=bs.Player)
-
 
 class PlayerSpazHurtMessage:
-    """A message saying a PlayerSpaz was hurt.
-
-    Category: **Message Classes**
-    """
+    """A message saying a PlayerSpaz was hurt."""
 
     spaz: PlayerSpaz
     """The PlayerSpaz that was hurt"""
@@ -32,8 +27,6 @@ class PlayerSpazHurtMessage:
 
 class PlayerSpaz(Spaz):
     """A Spaz subclass meant to be controlled by a bascenev1.Player.
-
-    Category: **Gameplay Classes**
 
     When a PlayerSpaz dies, it delivers a bascenev1.PlayerDiedMessage
     to the current bascenev1.Activity. (unless the death was the result
@@ -77,16 +70,16 @@ class PlayerSpaz(Spaz):
     # Overloads to tell the type system our return type based on doraise val.
 
     @overload
-    def getplayer(
+    def getplayer[PlayerT: bs.Player](
         self, playertype: type[PlayerT], doraise: Literal[False] = False
     ) -> PlayerT | None: ...
 
     @overload
-    def getplayer(
+    def getplayer[PlayerT: bs.Player](
         self, playertype: type[PlayerT], doraise: Literal[True]
     ) -> PlayerT: ...
 
-    def getplayer(
+    def getplayer[PlayerT: bs.Player](
         self, playertype: type[PlayerT], doraise: bool = False
     ) -> PlayerT | None:
         """Get the bascenev1.Player associated with this Spaz.

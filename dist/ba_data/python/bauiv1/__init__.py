@@ -16,11 +16,12 @@ from __future__ import annotations
 
 import logging
 
-from efro.util import set_canonical_module_names
+# from efro.util import set_canonical_module_names
 from babase import (
     add_clean_frame_callback,
     allows_ticket_sales,
     app,
+    App,
     AppIntent,
     AppIntentDefault,
     AppIntentExec,
@@ -28,6 +29,7 @@ from babase import (
     appname,
     appnameupper,
     apptime,
+    AppState,
     AppTime,
     apptimer,
     AppTimer,
@@ -91,7 +93,7 @@ from babase import (
     screenmessage,
     set_analytics_screen,
     set_low_level_config_value,
-    set_ui_input_device,
+    set_main_ui_input_device,
     SpecialChar,
     supports_max_fps,
     supports_vsync,
@@ -138,6 +140,7 @@ from bauiv1._uitypes import (
     uicleanupcheck,
     MainWindow,
     RootUIUpdatePause,
+    MainWindowAutoRecreateSuppress,
 )
 from bauiv1._appsubsystem import UIV1AppSubsystem
 
@@ -145,6 +148,7 @@ __all__ = [
     'add_clean_frame_callback',
     'allows_ticket_sales',
     'app',
+    'App',
     'AppIntent',
     'AppIntentDefault',
     'AppIntentExec',
@@ -152,6 +156,7 @@ __all__ = [
     'appname',
     'appnameupper',
     'appnameupper',
+    'AppState',
     'apptime',
     'AppTime',
     'apptimer',
@@ -210,6 +215,7 @@ __all__ = [
     'LoginInfo',
     'Lstr',
     'MainWindow',
+    'MainWindowAutoRecreateSuppress',
     'MainWindowState',
     'Mesh',
     'native_review_request',
@@ -238,7 +244,7 @@ __all__ = [
     'set_analytics_screen',
     'set_low_level_config_value',
     'set_party_window_open',
-    'set_ui_input_device',
+    'set_main_ui_input_device',
     'Sound',
     'SpecialChar',
     'spinnerwidget',
@@ -262,7 +268,9 @@ __all__ = [
 ]
 
 # We want stuff to show up as bauiv1.Foo instead of bauiv1._sub.Foo.
-set_canonical_module_names(globals())
+# UPDATE: Trying without this for now. Seems like this might cause more
+# harm than good. Can flip it back on if it is missed.
+# set_canonical_module_names(globals())
 
 # Sanity check: we want to keep ballistica's dependencies and
 # bootstrapping order clearly defined; let's check a few particular

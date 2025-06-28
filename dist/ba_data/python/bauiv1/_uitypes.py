@@ -27,8 +27,6 @@ DEBUG_UI_CLEANUP_CHECKS = os.environ.get('BA_DEBUG_UI_CLEANUP_CHECKS') == '1'
 class Window:
     """A basic window.
 
-    Category: User Interface Classes
-
     Essentially wraps a ContainerWidget with some higher level
     functionality.
     """
@@ -46,19 +44,15 @@ class Window:
         # on screen-resizes and whatnot. This avoids things like
         # temporary popup windows getting stuck under auto-re-created
         # main-windows.
-        self._prevent_main_window_auto_recreate = (
-            prevent_main_window_auto_recreate
+        self._window_main_window_auto_recreate_suppress = (
+            MainWindowAutoRecreateSuppress()
+            if prevent_main_window_auto_recreate
+            else None
         )
-        if prevent_main_window_auto_recreate:
-            babase.app.ui_v1.window_auto_recreate_suppress_count += 1
 
         # Generally we complain if we outlive our root widget.
         if cleanupcheck:
             uicleanupcheck(self, root_widget)
-
-    def __del__(self) -> None:
-        if self._prevent_main_window_auto_recreate:
-            babase.app.ui_v1.window_auto_recreate_suppress_count -= 1
 
     def get_root_widget(self) -> bauiv1.Widget:
         """Return the root widget."""
@@ -316,6 +310,23 @@ class BasicMainWindowState(MainWindowState):
         return self.create_call(transition, origin_widget)
 
 
+class MainWindowAutoRecreateSuppress:
+    """Suppresses main-window auto-recreate while in existence.
+
+    Can be instantiated and held by windows or processes within windows
+    for the purpose of preventing the main-window auto-recreate
+    mechanism from firing. This mechanism normally fires when the screen
+    is resized or the ui-scale is changed, allowing windows to be
+    recreated to adapt to the new configuration.
+    """
+
+    def __init__(self) -> None:
+        babase.app.ui_v1.window_auto_recreate_suppress_count += 1
+
+    def __del__(self) -> None:
+        babase.app.ui_v1.window_auto_recreate_suppress_count -= 1
+
+
 @dataclass
 class UICleanupCheck:
     """Holds info about a uicleanupcheck target."""
@@ -327,8 +338,6 @@ class UICleanupCheck:
 
 def uicleanupcheck(obj: Any, widget: bauiv1.Widget) -> None:
     """Checks to ensure a widget-owning object gets cleaned up properly.
-
-    Category: User Interface Functions
 
     This adds a check which will print an error message if the provided
     object still exists ~5 seconds after the provided bauiv1.Widget dies.

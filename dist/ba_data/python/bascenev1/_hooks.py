@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 import babase
 
 import _bascenev1
-import hooker
 
 if TYPE_CHECKING:
     from typing import Any
@@ -42,9 +41,8 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     Should filter and return the string to be displayed, or return None
     to ignore the message.
     """
-    #del client_id  # Unused by default.
-    #return msg
-    return hooker.filter_chat_message(msg, client_id)
+    del client_id  # Unused by default.
+    return msg
 
 
 def local_chat_message(msg: str) -> None:
