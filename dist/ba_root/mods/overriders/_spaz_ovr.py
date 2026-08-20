@@ -48,11 +48,9 @@ class ProSurroundBall(bs.Actor):
         self.source_player = spaz
         factory = self.getFactory()
         self.node = bs.newnode("prop",
-                        attrs={"model": bs.getmesh("shield"),
-                               "body": "sphere",
+                        attrs={"body": "sphere",
                                "color_texture": bs.gettexture("shield"),
                                "reflection": "soft",
-                               "model_scale": 0,
                                "body_scale": 0,
                                "density": 0,
                                "reflection_scale": [0.15],
@@ -169,7 +167,7 @@ class Effects(bs.Actor):
         self.player = player
         playernodeid = self.player.node.playerID
         
-        for i in _babase.get_foreground_host_session().sessionplayers:
+        for i in bs.getsession().sessionplayers:
             if i.activityplayer is not None and i.activityplayer.node.playerID == playernodeid:
                 accountid = i.get_v1_account_id()
         try:
@@ -183,27 +181,27 @@ class Effects(bs.Actor):
                     pass
                     
                 elif "Rainbow" in efct:
-                    bs.timer(2, bs.Call(self.run_rainbow), repeat=True)
+                    bs.timer(2, self.run_rainbow, repeat=True)
                     pass
 
                 elif "Spark" in efct:
-                    bs.timer(0.2, bs.Call(self.emit, "spark"), repeat=True)
+                    bs.timer(2, bs.CallStrict(self.emit, "spark"), repeat=True)
                     pass
 
                 elif "Slime" in efct:
-                    bs.timer(0.2, bs.Call(self.emit, "slime"), repeat=True)
+                    bs.timer(1, bs.CallStrict(self.emit, "slime"), repeat=True)
                     pass
 
                 elif "Metal" in efct:
-                    bs.timer(0.2, bs.Call(self.emit, "metal"), repeat=True)
+                    bs.timer(1, bs.CallStrict(self.emit, "metal"), repeat=True)
                     pass
 
                 elif "Ice" in efct:
-                    bs.timer(0.2, bs.Call(self.emit, "ice"), repeat=True)
+                    bs.timer(1, bs.CallStrict(self.emit, "ice"), repeat=True)
                     pass
 
                 elif "Stickers" in efct:
-                    bs.timer(0.2, self.stickers, repeat=True)
+                    bs.timer(1, self.stickers, repeat=True)
                     pass
 
         except Exception as e:

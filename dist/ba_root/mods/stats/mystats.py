@@ -233,7 +233,6 @@ class UpdateThread(threading.Thread):
 def on_begin(self) -> None:
     # pylint: disable=cyclic-import
     from bascenev1lib.actor.text import Text
-    from bascenev1 import classicassets 
     Activity.on_begin(self)
     update(self._stats)
     # Pop up a 'press any button to continue' statement after our
@@ -243,9 +242,9 @@ def on_begin(self) -> None:
     if babase.app.ui_v1.uiscale is babase.UIScale.LARGE:
         # FIXME: Need a better way to determine whether we've probably
         #  got a keyboard.
-        sval = classicassets.strings.game.press_any_key_button_continue
+        sval = babase.Lstr(resource='pressAnyKeyButtonText')
     else:
-        sval = classicassets.strings.game.press_any_button_continue
+        sval = babase.Lstr(resource='pressAnyButtonText')
 
     Text(self._custom_continue_message
          if self._custom_continue_message is not None else sval,

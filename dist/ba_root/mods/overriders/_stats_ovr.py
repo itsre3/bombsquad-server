@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import bascenev1 as bs
+import _bascenev1
 import _babase
+import babase
 from babase import Lstr
 from bascenev1._stats import Stats as sta, PlayerScoredMessage, PlayerRecord
 import settings, coinsystem
@@ -40,8 +42,7 @@ def player_scored(self,
     # pylint: disable=too-many-locals
     # pylint: disable=too-many-statements
     from bascenev1lib.actor.popuptext import PopupText
-    from bs import _math
-    from bs._gameactivity import GameActivity
+    from bascenev1._gameactivity import GameActivity
     name = player.getname()
     s_player = self._player_records[name]
 
@@ -65,7 +66,7 @@ def player_scored(self,
                 activity.show_zoom_message(
                     Lstr(resource='nameScoresText',
                          subs=[('${NAME}', name_full)]),
-                    color=_math.normalized_color(player.team.color))
+                    color=babase.normalized_color(player.team.color))
         except Exception:
             babase.print_exception('error showing big_message')
 
@@ -102,11 +103,13 @@ def player_scored(self,
     # Report non-kill scorings.
     try:
         if screenmessage and not kill:
-            _babase.screenmessage(Lstr(resource='nameScoresText',
-                                   subs=[('${NAME}', name)]),
-                              top=True,
-                              color=player.color,
-                              image=player.get_icon())
+            _bascenev1.broadcastmessage(
+                babase.Lstr(
+                    resource='nameScoresText', subs=[('${NAME}', name)]
+                    ),
+                    top=True,
+                    color=player.color,
+                    image=player.get_icon(),)
     except Exception:
         babase.print_exception('error announcing score')
 

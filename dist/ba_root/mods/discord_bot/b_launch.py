@@ -1,12 +1,19 @@
 
 import bascenev1 as bs
+import atexit
 import _babase
 import discord
+import babase
 from discord.ext import commands, tasks
 from discord import Embed
+import coinsystem
 import asyncio
 import threading
 import settings
+import logging
+
+
+#logging.getLogger('discord.client').setLevel(logging.ERROR)
 
 setting = settings.get_settings_data()
 feed_data = {}
@@ -37,7 +44,7 @@ class BsBot(commands.Bot):
     async def run_live_stats(self):
         global feed_data
         global statsmessage
-        server = self.get_channel(992103710534680646)
+        server = self.get_channel(980277690508648498)
         embed = Embed(
             title="Live Stats",
             description="For live feed",
@@ -66,25 +73,40 @@ def livestatsmessage():
     return message
 
 def get_live_feed():
-    global feed_data
-    players = {}
-    for i in _babase.get_game_roster():
-        try:
-            players[i["account_id"]] = {
-                "name": i["players"][0]["name"], "clientid": i["client_id"]
-            }
-        except:
-            players[i["account_id"]] = {
-                "name": "Joining", "clientid": i["client_id"]
-            }
-    feed_data = players
+    try:
+        global feed_data
+        players = {}
+        for i in bs.get_game_roster():
+            try:
+                players[i["account_id"]] = {
+                    "name": i["players"][0]["name"], "clientid": i["client_id"]
+                }
+            except:
+                players[i["account_id"]] = {
+                    "name": "Joining", "clientid": i["client_id"]
+                }
+        feed_data = players
+    except Exception as e:
+        print(e)
+    return 
     
-
 bot = BsBot()
+loop = None
+def run_bot():
+    global loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(bot.start(setting["discord"]["token"]))
+    babase.app.add_shutdown_task(loop.stop)
+
+def cleanup():
+    global loop
+    if loop and loop.is_running():
+        loop.call_soon_threadsafe(loop.stop)
+        
 
 def init():
-    loop = asyncio.get_event_loop()
-    loop.create_task(bot.start(setting["discord"]["token"]))
-    threading.Thread(target=loop.run_forever).start()
-    bs.timer(0.5, bs.Call(get_live_feed), repeat=True)
-
+    global loop
+    t = threading.Thread(target=run_bot, daemon=True)
+    t.start()
+ 

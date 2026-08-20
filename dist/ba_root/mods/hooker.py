@@ -10,7 +10,7 @@ import babase
 import settings
 from chat_handler import chat_handler
 import coinsystem
-from overriders import _stats_ovr
+from overriders import _stats_ovr, _trans_in_ovr
 from core import Core
 
 
@@ -25,8 +25,6 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
 
 def launcher() -> None:
     if sett["currency"]["enabled"]:
-        if sett["currency"]["settings"]["askquestions"]:
-            coinsystem.enable()
         _stats_ovr.enable()
     
     if sett["stats"]["enabled"]:
@@ -43,10 +41,10 @@ def launcher() -> None:
         from web import webst
         webst.run()
         
-    #Core.run()
-    
+    _trans_in_ovr.enable()
+
+
 # ba_meta export babase.Plugin
 class Main(babase.Plugin):
     def on_app_running(self):
         launcher()
-        print("Done running")

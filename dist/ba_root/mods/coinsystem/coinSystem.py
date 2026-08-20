@@ -7,8 +7,8 @@ import _babase
 import settings
 import os
 import random
-from discord_bot import b_launch
 import json
+from discord_bot import b_launch
 from babase import SpecialChar
 if TYPE_CHECKING:
     from typing import List, Sequence, Optional, Dict, Any
@@ -19,6 +19,8 @@ answered_by = None
 base_dir = os.path.join(_babase.env()['python_directory_user'], "coinsystem" + os.sep)
 bankfile = base_dir+"bank.json"
 questionslist = sett["currency"]["settings"]["askquestions"]["questions"]
+feed_data = {}
+
 
 def ask_question():
     global answered_by
@@ -161,26 +163,4 @@ def save_bank_file(data):
         with open(bankfile, 'w') as f:
             f.write(json.dumps(data, indent=4))
 
-cstimer = None
-def run_questions():
-    global cstimer
-    cstimer = bs.Timer(30, ask_question, repeat=True)
-    
-    
-old_tin = bs.Activity.on_transition_in
-def on_transition_in(self, *args, **kwargs):
-    old_tin(self, *args, **kwargs)
-    run_questions()
 
-old_onb =     bs.Activity.end
-def on_end(self, *args, **kwargs):
-    old_onb(self, *args, **kwargs)
-    global cstimer
-    cstimer = None
-
-
-
-def enable():
-    bs.Activity.on_transition_in = on_transition_in
-    bs.Activity.end = on_end
-    b_launch.init()
