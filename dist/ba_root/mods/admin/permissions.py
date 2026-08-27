@@ -67,7 +67,7 @@ def check_effect(account_id):
         return None
 
 def check_mute(client_id):
-    for i in _ba.get_game_roster():
+    for i in bs.get_game_roster():
         if i["client_id"] == client_id:
             account_id = i["account_id"]
     if account_id in check_file(roles_file)["owners"]:

@@ -1,10 +1,10 @@
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 import bascenev1 as bs
 import _babase
 import settings
+import babase
 import os
 import random
 import json
@@ -49,22 +49,23 @@ def ask_question():
 def check_answer(msg, clientID):
     global answered_by
     global correct_answer
-
+    print("Checking Here")
     if msg == correct_answer:
         if answered_by is not None:
-            bs.screenmessage(f'Already awarded to {answered_by}.', (0.8,1,0))
+            bs.broadcastmessage(f'Already awarded to {answered_by}.', (0.8,1,0), clients=[clientID], transient=True)
         else:
-            ros = _babase.get_game_roster()
+            print("We active here")
+            ros = bs.get_game_roster()
             for i in ros:
                 if (i is not None) and (i != {}) and (i['client_id'] == clientID):
                     answered_by = i['players'][0]['name']
                     account_id = i['account_id']
-            try:
-                bs.screenmessage(f"Congratulations {answered_by}!, You won {_babase.charstr(SpecialChar.TICKET)}10.", (0,1,0), transient=True, clients=[clientID])
-                add_coins_by_pbid(account_id, 10)
-            except:
-                pass
+            bs.broadcastmessage(f"Congratulations {answered_by}!, You won {babase.charstr(SpecialChar.TICKET)}10.", (0,1,0), clients=[clientID], transient=True)
+            print("Yes answered")
+            add_coins_by_pbid(account_id, 10)
+            
     return None
+
 
 def convert_alias(cmd):
     # also using this as a log for commands created

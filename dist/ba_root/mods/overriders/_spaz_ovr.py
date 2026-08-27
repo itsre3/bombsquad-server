@@ -122,7 +122,7 @@ class ProSurroundBall(bs.Actor):
 
     def init_timer(self, p):
         self.node.position = self.get_target_position(p)
-        self.surround_timer = bs.Timer(30, self.circle_move, repeat=True)
+        self.surround_timer = bs.Timer(3, self.circle_move, repeat=True)
 
     def circle_move(self):
         spaz = self.spaz_ref()
@@ -181,27 +181,27 @@ class Effects(bs.Actor):
                     pass
                     
                 elif "Rainbow" in efct:
-                    bs.timer(2, self.run_rainbow, repeat=True)
+                    bs.timer(1, self.run_rainbow, repeat=True)
                     pass
 
                 elif "Spark" in efct:
-                    bs.timer(2, bs.CallStrict(self.emit, "spark"), repeat=True)
+                    bs.timer(0.5, bs.CallStrict(self.emit, "spark"), repeat=True)
                     pass
 
                 elif "Slime" in efct:
-                    bs.timer(1, bs.CallStrict(self.emit, "slime"), repeat=True)
+                    bs.timer(0.5, bs.CallStrict(self.emit, "slime"), repeat=True)
                     pass
 
                 elif "Metal" in efct:
-                    bs.timer(1, bs.CallStrict(self.emit, "metal"), repeat=True)
+                    bs.timer(0.5, bs.CallStrict(self.emit, "metal"), repeat=True)
                     pass
 
                 elif "Ice" in efct:
-                    bs.timer(1, bs.CallStrict(self.emit, "ice"), repeat=True)
+                    bs.timer(0.5, bs.CallStrict(self.emit, "ice"), repeat=True)
                     pass
 
                 elif "Stickers" in efct:
-                    bs.timer(1, self.stickers, repeat=True)
+                    bs.timer(0.5, self.stickers, repeat=True)
                     pass
 
         except Exception as e:
