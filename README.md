@@ -37,15 +37,15 @@ A modded server script for [Bombsquad](https://github.com/efroemling/ballistica)
 
 ## INSTALLATION
 1. Create Ec2 server with popular cloud hosting services like Aws, Oracle, Digiocean, e.t.c.
-2. Make an instance(Ubuntu 24+).
-3. Update packages and install python
-   ‘’’bash
+2. Make an instance(Ubuntu 22+).
+4. Update packages and install python
+   ```bash
    sudo apt update && sudo apt install -y software-properties-common
    sudo add-apt-repository -y ppa:deadsnakes/ppa
    sudo apt update
    sudo apt install -y python 3.11  
 5. clone scripts
-   ‘’’bash
+   ```bash
    git clone https://github.com/itsre3/bombsquad-server
 
    # Give file permisions
@@ -54,7 +54,8 @@ A modded server script for [Bombsquad](https://github.com/efroemling/ballistica)
    chmod 777 config.toml
    chmod 777 dist/bombsquad_headless
 6. Edit config.toml and settings.json in (dist/ba_root/mods)
-7. ./bombsquad_server
+7. ```bash
+    ./bombsquad_server
 8. Ur server should be up and running if you did all right.
 
 
@@ -63,8 +64,9 @@ A modded server script for [Bombsquad](https://github.com/efroemling/ballistica)
 * Might get some weird prints on running, just ignore. Like I said, it’s not a perfect art but I did my best Xd.
 * This will constantly get update and in its beta phase.
 * Made proudly with my mobile phone.
-* If you have ideas or cool addons, please join [this discord](discord.gg/ucyeash), tag @itsre3 and I’ll get to ya.
-* Want server scripts flawless and better than this, check [this out](github.com/imayushsaini/ballistica-modded-server)
+* If you have ideas or cool addons, please join [this discord](https://discord.gg/bombsquad-community-server-588424129972142123), tag @itsre3 and I’ll get to ya.
+* **Want server scripts flawless and better than this, check [this out](https://github.com/imayushsaini/Bombsquad-Ballistica-Modded-Server)**
 
 ## CREDITS
 * **ME**
+* **My TECNO Phone**
