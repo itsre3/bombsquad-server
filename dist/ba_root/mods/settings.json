@@ -66,7 +66,7 @@
         "enabled": true
     },
     "discord": {
-        "enabled": true,
+        "enabled": false,
         "livestatschannelid": 123456789,
         "logschannelid": 123456789,
         "token": "OTczMDgyMTE3MzA1MTQ3NDky.GrCUmD.6ImPDzYnaZYhxaHW3xp04YJBfTlON61Vb9LQb4",
@@ -74,6 +74,6 @@
         "applicationid": 973082117305147492
     },
     "website": {
-        "enabled": true
+        "enabled": false
     }
 }
