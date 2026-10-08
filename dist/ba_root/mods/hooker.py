@@ -48,4 +48,3 @@ def launcher() -> None:
 class Main(babase.Plugin):
     def on_app_running(self):
         launcher()
-    testing
