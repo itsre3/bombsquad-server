@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           # 1. Ensure binary/launcher has execution rights
-          chmod +x ./bombsquad_server 2>/dev/null || true
+          chmod +x ./bombsquad_server ./bombsquad_headless ./config.toml 2>/dev/null || true
 
           # 2. Fire up the server detached and redirect stdout/stderr to log file
           ./bombsquad_server > server.log 2>&1 &
