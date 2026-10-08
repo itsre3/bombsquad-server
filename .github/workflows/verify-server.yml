@@ -1,0 +1,81 @@
+name: Verify Server Boots
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install System Shared Libraries
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libopenal1 libvorbisfile3
+
+      - name: Launch Server and Verify Terminal Output
+        shell: bash
+        run: |
+          # 1. Ensure binary/launcher has execution rights
+          chmod +x ./bombsquad_server 2>/dev/null || true
+
+          # 2. Fire up the server detached and redirect stdout/stderr to log file
+          ./bombsquad_server > server.log 2>&1 &
+          PID=$!
+
+          echo "Spawned server process with PID $PID. Polling terminal output..."
+
+          # 3. Match the networking output string
+          SUCCESS_KEYWORD="not accessible from the internet"
+          FOUND=0
+
+          # 4. Poll server.log for up to 30 seconds
+          for i in {1..30}; do
+            if grep -Fq "$SUCCESS_KEYWORD" server.log; then
+              echo "----------------------------------------------------"
+              echo "Engine initialized cleanly and reached port check!"
+              echo "Target output captured:"
+              grep -F "$SUCCESS_KEYWORD" server.log
+              echo "----------------------------------------------------"
+              FOUND=1
+              break
+            fi
+
+            # Check if process terminated prematurely (syntax error, missing .so, segfault)
+            if ! kill -0 $PID 2>/dev/null; then
+              echo "Process crashed before printing target output. Full log trace:"
+              echo "----------------------------------------------------"
+              cat server.log
+              echo "----------------------------------------------------"
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          # 5. Terminate the background server process so the runner does not hang
+          kill -9 $PID 2>/dev/null || true
+
+          # 6. Exit with status 0 if verified, 1 if timed out
+          if [ $FOUND -eq 1 ]; then
+            echo "Smoke test passed. Exiting successfully."
+            exit 0
+          else
+            echo "Timed out waiting for target string. Last logs captured:"
+            echo "----------------------------------------------------"
+            cat server.log
+            echo "----------------------------------------------------"
+            exit 1
+          fi
