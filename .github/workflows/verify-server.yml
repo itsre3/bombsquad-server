@@ -38,7 +38,7 @@ jobs:
           echo "Spawned server process with PID $PID. Polling terminal output..."
 
           # 3. Match the networking output string
-          SUCCESS_KEYWORD="Bombsquad Headless"
+          SUCCESS_KEYWORD="starting..."
           FOUND=0
 
           # 4. Poll server.log for up to 30 seconds
